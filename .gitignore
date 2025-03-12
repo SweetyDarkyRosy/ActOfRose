@@ -1,0 +1,16 @@
+# Binaries
+
+!/Build/*
+/Bin/*
+
+**/*.exe
+**/*.lib
+**/*.dll
+**/*.elf
+**/*.self
+**/*.a
+**/*.so
+
+**/*.o
+**/*.obj
+**/*.exp
