@@ -13,5 +13,6 @@
 #define __ACT_OF_ROSE_ERROR_CODES_H__
 
 #define AOR_ERROR_SUCCESS						0
+#define AOR_ERROR_INVALID_PARAMETER				(-1)
 
 #endif // !__ACT_OF_ROSE_ERROR_CODES_H__
