@@ -52,5 +52,40 @@ int main(int argc, char* argv[])
 		}
 	}
 
+
+	// ----- UTF-16BE to UTF-8-----
+
+	// Test to be passed
+	{
+		std::wstring utf16BEStr(L"This is just a string | Это просто строка");
+		std::string utf8Str;
+
+		ConvertStringUTF16BEToUTF8(&utf8Str, &utf16BEStr);
+
+		if (utf8Str.compare(u8"This is just a string | Это просто строка") == 0)
+		{
+			std::cout << "Test #1 for ConvertStringUTF16BEToUTF8() has been passed\n";
+		}
+		else
+		{
+			std::cout << "Test #1 for ConvertStringUTF16BEToUTF8() has not been passed...\n";
+		}
+	}
+
+	// Test to be failed
+	{
+		std::wstring utf16BEStr = L"\x041E\x0448\x0438\x0431\x043A\x0430\x0020\xD801\xDC37\xD852\x00"; // "Ошибка 𐐷<повр. символ>"
+		std::string utf8Str;
+
+		if (ConvertStringUTF16BEToUTF8(&utf8Str, &utf16BEStr) != AOR_ERROR_SUCCESS)
+		{
+			std::cout << "Test #2 for ConvertStringUTF16BEToUTF8() has been passed\n";
+		}
+		else
+		{
+			std::cout << "Test #2 for ConvertStringUTF16BEToUTF8() has not been passed...\n";
+		}
+	}
+
 	return 0;
 }
