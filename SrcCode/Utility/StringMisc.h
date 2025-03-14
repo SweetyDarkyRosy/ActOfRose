@@ -14,8 +14,12 @@
 
 #if defined (WIN32) || defined (_WIN32)
 	typedef wchar_t							PChar;			// Preferred character data type
+
+	#define PREF_STRING(STR)				L##STR
 #elif defined (__linux__)
 	typedef char							PChar;			// Preferred character data type
+
+	#define PREF_STRING(STR)				u8##STR
 #endif
 
 #endif // !__ACT_OF_ROSE_UTILITY_C_STYLE_STRING_MISCELLANEOUS_H__
