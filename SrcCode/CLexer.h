@@ -14,11 +14,15 @@
 
 #include <istream>
 
-#include "Token.h"
-
 
 namespace ActOfRose
 {
+	namespace Token
+	{
+		struct SToken;				// Token structure
+
+	} // !namespace Token
+
 	// Lexer class
 	class CLexer
 	{

@@ -19,6 +19,7 @@
 #endif
 
 #include "ReturnCodes.h"
+#include "Token.h"
 #include "CLexer.h"
 #include "Utility/StringConverting.h"
 

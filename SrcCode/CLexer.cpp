@@ -12,6 +12,14 @@
 #include "CLexer.h"
 
 #include "ReturnCodes.h"
+#include "Token.h"
+
+
+// Checks if the character is a non-printable character
+inline bool IsWhitespace(char value)
+{
+	return ((value == '\t') || (value == ' ') || (value == 0xA) || (value == 0xD));
+}
 
 
 // ----- ActOfRose::CLexer class -----
@@ -27,7 +35,16 @@ int ActOfRose::CLexer::RetrieveNextToken(ActOfRose::Token::SToken* newToken)
 {
 	while (_pScriptStream->eof() == false)
 	{
-		_pScriptStream->get();
+		char retrievedChar = _pScriptStream->peek();
+
+		if (IsWhitespace(retrievedChar) == true)
+		{
+			retrievedChar = _pScriptStream->get();
+		}
+		else
+		{
+			retrievedChar = _pScriptStream->get();
+		}
 	}
 
 	return AOR_TOKEN_END_OF_SCRIPT;
