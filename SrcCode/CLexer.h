@@ -30,9 +30,18 @@ namespace ActOfRose
 		// Constructor
 		CLexer(std::istream* scriptStream);
 
+
+		/*[
+			Functions for retrieving tokens
+		 ]*/
+
 	public:
 		// Analyses strings of a script and retrieves a token from them
 		int RetrieveNextToken(ActOfRose::Token::SToken* newToken);
+
+	private:
+		// Retrieves a token of the identifier type
+		int RetrieveIdentifierToken(ActOfRose::Token::SToken* newToken);
 
 	private:
 		std::istream* _pScriptStream;							// Pointer to a script stream
