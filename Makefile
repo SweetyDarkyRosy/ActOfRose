@@ -23,5 +23,6 @@ prepare:
 	mkdir -p $(OBJ_DIR)
 
 compile:
-	$(CXX) $(CXXFLAGS) $(INCLUDE) -c SrcCode/Main.cpp -o $(OBJ_DIR)/Main.o
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c SrcCode/Utility/StringConverting.cpp -o $(OBJ_DIR)/StringConverting.o
+	$(CXX) $(CXXFLAGS) $(INCLUDE) -c SrcCode/Log.cpp -o $(OBJ_DIR)/Log.o
+	$(CXX) $(CXXFLAGS) $(INCLUDE) -c SrcCode/Main.cpp -o $(OBJ_DIR)/Main.o

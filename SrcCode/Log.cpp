@@ -14,6 +14,8 @@
 #if defined (WIN32) || defined (_WIN32)
 	#define WIN32_LEAN_AND_MEAN
 	#include <Windows.h>
+#elif defined (__linux__)
+	#include <unistd.h>
 #endif
 
 #include "ErrorCodes.h"
@@ -30,6 +32,36 @@ void ActOfRose::WriteLog(const char* utf8Msg, std::size_t msgLength, ActOfRose::
 	{
 		WriteLog(utf16BEStr.c_str(), utf16BEStr.length(), level);
 	}
+#elif defined (__linux__)
+	switch (level)
+	{
+		case ActOfRose::ELogLevel::ELL_Debug:
+		{
+			write(1, (const void*)("- DEBUG: "), 9);
+			break;
+		}
+
+		case ActOfRose::ELogLevel::ELL_Warning:
+		{
+			write(1, (const void*)("- WARNING: "), 11);
+			break;
+		}
+
+		case ActOfRose::ELogLevel::ELL_Error:
+		{
+			write(1, (const void*)("- ERROR: "), 9);
+			break;
+		}
+
+		default:
+		{
+			write(1, (const void*)("- "), 2);
+			break;
+		}
+	}
+
+	write(1, (const void*)utf8Msg, msgLength);
+	write(1, "\n", 1);
 #endif
 }
 
@@ -88,5 +120,12 @@ void ActOfRose::WriteLog(const wchar_t* utf16BEMsg, std::size_t msgLength, ActOf
 
 	WriteConsoleW(consoleHandle, utf16BEMsg, (DWORD)msgLength, NULL, NULL);
 	WriteConsoleW(consoleHandle, L"\n", 1, NULL, NULL);
+#elif defined (__linux__)
+	std::string utf8Str;
+
+	if (ConvertStringUTF16BEToUTF8(&utf8Str, utf16BEMsg, msgLength) == AOR_ERROR_SUCCESS)
+	{
+		WriteLog(utf8Str.c_str(), utf8Str.length(), level);
+	}
 #endif
 }
