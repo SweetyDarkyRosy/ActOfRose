@@ -11,6 +11,8 @@
 
 #include "CLexer.h"
 
+#include "ReturnCodes.h"
+
 
 // ----- ActOfRose::CLexer class -----
 
@@ -18,3 +20,15 @@
 ActOfRose::CLexer::CLexer(std::istream* scriptStream) :
 	_pScriptStream(scriptStream)
 {}
+
+
+// Analyses strings of a script and retrieves a token from them
+int ActOfRose::CLexer::RetrieveNextToken(ActOfRose::Token::SToken* newToken)
+{
+	while (_pScriptStream->eof() == false)
+	{
+		_pScriptStream->get();
+	}
+
+	return AOR_TOKEN_END_OF_SCRIPT;
+}

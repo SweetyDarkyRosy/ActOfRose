@@ -14,6 +14,8 @@
 
 #include <istream>
 
+#include "Token.h"
+
 
 namespace ActOfRose
 {
@@ -23,6 +25,10 @@ namespace ActOfRose
 	public:
 		// Constructor
 		CLexer(std::istream* scriptStream);
+
+	public:
+		// Analyses strings of a script and retrieves a token from them
+		int RetrieveNextToken(ActOfRose::Token::SToken* newToken);
 
 	private:
 		std::istream* _pScriptStream;							// Pointer to a script stream

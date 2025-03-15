@@ -78,5 +78,9 @@ int ActOfRose::CScript::Execute()
 {
 	ActOfRose::CLexer lexer(&_mScriptFile);				// Local lexer
 
+	ActOfRose::Token::SToken token;
+	while (lexer.RetrieveNextToken(&token) != AOR_TOKEN_END_OF_SCRIPT)
+	{}
+
 	return AOR_SUCCESS;
 }
