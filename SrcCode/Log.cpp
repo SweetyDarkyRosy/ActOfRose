@@ -37,19 +37,19 @@ void ActOfRose::WriteLog(const char* utf8Msg, std::size_t msgLength, ActOfRose::
 	{
 		case ActOfRose::ELogLevel::ELL_Debug:
 		{
-			write(1, (const void*)("- DEBUG: "), 9);
+			write(1, (const void*)("- \x1B[34mDEBUG\x1B[0m: "), 18);
 			break;
 		}
 
 		case ActOfRose::ELogLevel::ELL_Warning:
 		{
-			write(1, (const void*)("- WARNING: "), 11);
+			write(1, (const void*)("- \x1B[35mWARNING\x1B[0m: "), 20);
 			break;
 		}
 
 		case ActOfRose::ELogLevel::ELL_Error:
 		{
-			write(1, (const void*)("- ERROR: "), 9);
+			write(1, (const void*)("- \x1B[31mERROR\x1B[0m: "), 18);
 			break;
 		}
 
