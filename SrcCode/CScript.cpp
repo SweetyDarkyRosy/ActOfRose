@@ -70,3 +70,10 @@ ActOfRose::CScript::~CScript()
 {
 	_mScriptFile.close();
 }
+
+
+// Processes and executes a script contained in the file
+int ActOfRose::CScript::Execute()
+{
+	return AOR_ERROR_SUCCESS;
+}

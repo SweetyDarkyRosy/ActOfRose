@@ -29,6 +29,9 @@ namespace ActOfRose
 		// Destructor
 		~CScript();
 	public:
+		// Processes and executes a script contained in the file
+		int Execute();
+
 		// Returns the state of readiness of the file containing a script
 		inline bool IsLoaded() const { return _mScriptFile.is_open(); }
 
