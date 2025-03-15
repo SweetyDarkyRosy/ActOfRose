@@ -9,8 +9,18 @@
 	
 	High-level entry point. */
 
+#include "Log.h"
+#include "CScript.h"
+#include "Utility/StringMisc.h"
+
+
+#define BUILD_ROOT_SCRIPT_DEFAULT_NAME						PREF_STRING("ActionScript.aor")
+
+
 // High-level entry point
 int main(int argc, char* argv[])
 {
+	ActOfRose::CScript rootScript(BUILD_ROOT_SCRIPT_DEFAULT_NAME);
+
 	return 0;
 }
