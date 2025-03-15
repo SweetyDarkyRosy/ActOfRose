@@ -3,11 +3,11 @@
 	
 	This file is part of system source code.
 	
-	@Name:			ErrorCodes.h
+	@Name:			ReturnCodes.h
 	@Created:		13.03.2025
 	@Programmer:	Viktoriia Pashchenko (SweetyDarkyRosy)
 	
-	Error codes. */
+	Return codes. */
 
 #ifndef __ACT_OF_ROSE_ERROR_CODES_H__
 #define __ACT_OF_ROSE_ERROR_CODES_H__

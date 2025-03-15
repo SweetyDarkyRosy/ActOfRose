@@ -12,7 +12,7 @@
 #include "StringConverting.h"
 
 #include <iostream>
-#include <ErrorCodes.h>
+#include <ReturnCodes.h>
 
 
 // Converts the given UTF-8-encoded null-terminated byte string to a UTF-16BE-encoded null-terminated wide string and returns a result

@@ -18,7 +18,7 @@
 	#include <stdlib.h>
 #endif
 
-#include "ErrorCodes.h"
+#include "ReturnCodes.h"
 #include "CLexer.h"
 #include "Utility/StringConverting.h"
 
