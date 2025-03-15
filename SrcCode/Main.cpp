@@ -9,6 +9,7 @@
 	
 	High-level entry point. */
 
+#include "ErrorCodes.h"
 #include "Log.h"
 #include "CScript.h"
 #include "Utility/StringMisc.h"
@@ -27,7 +28,9 @@ int main(int argc, char* argv[])
 		ActOfRose::WriteLog(PREF_STRING("Could not open the \"") BUILD_ROOT_SCRIPT_DEFAULT_NAME_PREF PREF_STRING("\" script file"),
 			(sizeof(PREF_STRING("Could not open the \"") BUILD_ROOT_SCRIPT_DEFAULT_NAME_PREF PREF_STRING("\" script file")) / sizeof(PChar)),
 			ActOfRose::ELogLevel::ELL_Error);
+		
+		return AOR_ERROR_SCRIPT_FILE_NOT_LOADED;
 	}
 
-	return 0;
+	return rootScript.Execute();
 }
