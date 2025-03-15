@@ -39,31 +39,51 @@ void ActOfRose::WriteLog(const wchar_t* utf16BEMsg, std::size_t msgLength, ActOf
 #if defined (WIN32) || defined (_WIN32)
 	HANDLE consoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
 
-	switch (level)
+	WriteConsoleW(consoleHandle, L"- ", 2, NULL, NULL);
+
+	if (level != ActOfRose::ELogLevel::ELL_Info)
 	{
-		case ActOfRose::ELogLevel::ELL_Debug:
+		WORD defaultColourAttrs;
 		{
-			WriteConsoleW(consoleHandle, L"- DEBUG: ", 9, NULL, NULL);
-			break;
+			CONSOLE_SCREEN_BUFFER_INFO consoleScreenBufferInfo;
+			GetConsoleScreenBufferInfo(consoleHandle, &consoleScreenBufferInfo);
+			defaultColourAttrs = consoleScreenBufferInfo.wAttributes;
 		}
 
-		case ActOfRose::ELogLevel::ELL_Warning:
+		switch (level)
 		{
-			WriteConsoleW(consoleHandle, L"- WARNING: ", 11, NULL, NULL);
-			break;
+			case ActOfRose::ELogLevel::ELL_Debug:
+			{
+				SetConsoleTextAttribute(consoleHandle, (FOREGROUND_INTENSITY | FOREGROUND_BLUE));
+				WriteConsoleW(consoleHandle, L"DEBUG", 5, NULL, NULL);
+
+				break;
+			}
+
+			case ActOfRose::ELogLevel::ELL_Warning:
+			{
+				SetConsoleTextAttribute(consoleHandle, (FOREGROUND_RED | FOREGROUND_BLUE));
+				WriteConsoleW(consoleHandle, L"WARNING", 7, NULL, NULL);
+				break;
+			}
+
+			case ActOfRose::ELogLevel::ELL_Error:
+			{
+				SetConsoleTextAttribute(consoleHandle, FOREGROUND_RED);
+				WriteConsoleW(consoleHandle, L"ERROR", 5, NULL, NULL);
+
+				break;
+			}
+
+			default:
+			{
+				break;
+			}
 		}
 
-		case ActOfRose::ELogLevel::ELL_Error:
-		{
-			WriteConsoleW(consoleHandle, L"- ERROR: ", 9, NULL, NULL);
-			break;
-		}
+		SetConsoleTextAttribute(consoleHandle, defaultColourAttrs);
 
-		default:
-		{
-			WriteConsoleW(consoleHandle, L"- ", 2, NULL, NULL);
-			break;
-		}
+		WriteConsoleW(consoleHandle, L": ", 2, NULL, NULL);
 	}
 
 	WriteConsoleW(consoleHandle, utf16BEMsg, (DWORD)msgLength, NULL, NULL);
