@@ -28,7 +28,7 @@ void ActOfRose::WriteLog(const char* utf8Msg, std::size_t msgLength, ActOfRose::
 #if defined (WIN32) || defined (_WIN32)
 	std::wstring utf16BEStr;
 
-	if (ConvertStringUTF8ToUTF16BE(&utf16BEStr, utf8Msg, msgLength) == AOR_ERROR_SUCCESS)
+	if (ConvertStringUTF8ToUTF16BE(&utf16BEStr, utf8Msg, msgLength) == AOR_SUCCESS)
 	{
 		WriteLog(utf16BEStr.c_str(), utf16BEStr.length(), level);
 	}
@@ -123,7 +123,7 @@ void ActOfRose::WriteLog(const wchar_t* utf16BEMsg, std::size_t msgLength, ActOf
 #elif defined (__linux__)
 	std::string utf8Str;
 
-	if (ConvertStringUTF16BEToUTF8(&utf8Str, utf16BEMsg, msgLength) == AOR_ERROR_SUCCESS)
+	if (ConvertStringUTF16BEToUTF8(&utf8Str, utf16BEMsg, msgLength) == AOR_SUCCESS)
 	{
 		WriteLog(utf8Str.c_str(), utf8Str.length(), level);
 	}

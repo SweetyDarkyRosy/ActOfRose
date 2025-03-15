@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
 		std::string utf8Str = "\xD0\xAD\xD1\x82\xD0\xB0\x20\xD1\x81\xD1\x82\xD1\x80\xD0\xBE\xD0\xBA\xD0\xB0\x20\xD1\x81\xD0\xBB\xD0\xBE\xD0\x00"; // "Эта строка слом<повр. символ>"
 		std::wstring utf16BEStr;
 
-		if (ConvertStringUTF8ToUTF16BE(&utf16BEStr, &utf8Str) != AOR_ERROR_SUCCESS)
+		if (ConvertStringUTF8ToUTF16BE(&utf16BEStr, &utf8Str) != AOR_SUCCESS)
 		{
 			std::cout << "Test #2 for ConvertStringUTF8ToUTF16BE() has been passed\n";
 		}
@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
 		std::wstring utf16BEStr = L"\x041E\x0448\x0438\x0431\x043A\x0430\x0020\xD801\xDC37\xD852\x00"; // "Ошибка 𐐷<повр. символ>"
 		std::string utf8Str;
 
-		if (ConvertStringUTF16BEToUTF8(&utf8Str, &utf16BEStr) != AOR_ERROR_SUCCESS)
+		if (ConvertStringUTF16BEToUTF8(&utf8Str, &utf16BEStr) != AOR_SUCCESS)
 		{
 			std::cout << "Test #2 for ConvertStringUTF16BEToUTF8() has been passed\n";
 		}

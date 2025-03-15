@@ -91,7 +91,7 @@ int ConvertStringUTF8ToUTF16BE(std::wstring* destUTF16BEStr, const char* srcUTF8
 		destUTF16BEStr->append(utf16BEChar);
 	}
 
-	return AOR_ERROR_SUCCESS;
+	return AOR_SUCCESS;
 }
 
 // Converts the given UTF-8-encoded null-terminated byte string to a UTF-16BE-encoded null-terminated wide string and returns a result
@@ -166,7 +166,7 @@ int ConvertStringUTF16BEToUTF8(std::string* destUTF8Str, const wchar_t* srcUTF16
 		destUTF8Str->append(utf8Char);
 	}
 
-	return AOR_ERROR_SUCCESS;
+	return AOR_SUCCESS;
 }
 
 // Converts the given UTF-16BE-encoded null-terminated wide string to a UTF-8-encoded null-terminated byte string and returns a result

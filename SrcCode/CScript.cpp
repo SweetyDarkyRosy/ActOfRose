@@ -30,7 +30,7 @@ ActOfRose::CScript::CScript(const char* scriptFilePath)
 {
 #if defined (WIN32) || defined (_WIN32)
 	std::wstring utf16BEPath;
-	if (ConvertStringUTF8ToUTF16BE(&utf16BEPath, scriptFilePath, std::strlen(scriptFilePath)) == AOR_ERROR_SUCCESS)
+	if (ConvertStringUTF8ToUTF16BE(&utf16BEPath, scriptFilePath, std::strlen(scriptFilePath)) == AOR_SUCCESS)
 	{
 		int ansiStrLength = WideCharToMultiByte(CP_ACP, 0, utf16BEPath.c_str(), (-1), NULL, 0, 0, 0);
 		char* ansiPath = (char*)malloc(ansiStrLength);
@@ -59,7 +59,7 @@ ActOfRose::CScript::CScript(const wchar_t* scriptFilePath)
 #elif defined (__linux__)
 	std::string utf8Path;
 
-	if (ConvertStringUTF16BEToUTF8(&utf8Path, scriptFilePath, std::wcslen(scriptFilePath)) == AOR_ERROR_SUCCESS)
+	if (ConvertStringUTF16BEToUTF8(&utf8Path, scriptFilePath, std::wcslen(scriptFilePath)) == AOR_SUCCESS)
 	{
 		_mScriptFile.open(utf8Path);
 	}
@@ -78,5 +78,5 @@ int ActOfRose::CScript::Execute()
 {
 	ActOfRose::CLexer lexer(&_mScriptFile);				// Local lexer
 
-	return AOR_ERROR_SUCCESS;
+	return AOR_SUCCESS;
 }
