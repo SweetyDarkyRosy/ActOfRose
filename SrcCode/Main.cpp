@@ -14,13 +14,20 @@
 #include "Utility/StringMisc.h"
 
 
-#define BUILD_ROOT_SCRIPT_DEFAULT_NAME						PREF_STRING("ActionScript.aor")
+#define BUILD_ROOT_SCRIPT_DEFAULT_NAME						"ActionScript.aor"
+#define BUILD_ROOT_SCRIPT_DEFAULT_NAME_PREF					PREF_STRING("ActionScript.aor")
 
 
 // High-level entry point
 int main(int argc, char* argv[])
 {
-	ActOfRose::CScript rootScript(BUILD_ROOT_SCRIPT_DEFAULT_NAME);
+	ActOfRose::CScript rootScript(BUILD_ROOT_SCRIPT_DEFAULT_NAME_PREF);
+	if (rootScript.IsLoaded() == false)
+	{
+		ActOfRose::WriteLog(PREF_STRING("Could not open the \"") BUILD_ROOT_SCRIPT_DEFAULT_NAME_PREF PREF_STRING("\" script file"),
+			(sizeof(PREF_STRING("Could not open the \"") BUILD_ROOT_SCRIPT_DEFAULT_NAME_PREF PREF_STRING("\" script file")) / sizeof(PChar)),
+			ActOfRose::ELogLevel::ELL_Error);
+	}
 
 	return 0;
 }
