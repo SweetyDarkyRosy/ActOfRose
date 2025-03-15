@@ -12,6 +12,9 @@
 #ifndef __ACT_OF_ROSE_TOKEN_H__
 #define __ACT_OF_ROSE_TOKEN_H__
 
+#include <string>
+
+
 namespace ActOfRose
 {
 	namespace Token
@@ -32,6 +35,13 @@ namespace ActOfRose
 			ETTRoundBracketRight,				// Right round bracket
 			ETTCurlyBracketLeft,				// Left curly bracket
 			ETTCurlyBracketRight				// Right curly bracket
+		};
+
+		// Token structure
+		struct SToken
+		{
+			std::string value;						// Token value (stored in the string format)
+			ActOfRose::Token::ETokenType type;		// Token type
 		};
 
 	} // !namespace Token
