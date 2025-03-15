@@ -19,6 +19,7 @@
 #endif
 
 #include "ErrorCodes.h"
+#include "CLexer.h"
 #include "Utility/StringConverting.h"
 
 
@@ -75,5 +76,7 @@ ActOfRose::CScript::~CScript()
 // Processes and executes a script contained in the file
 int ActOfRose::CScript::Execute()
 {
+	ActOfRose::CLexer lexer(&_mScriptFile);				// Local lexer
+
 	return AOR_ERROR_SUCCESS;
 }

@@ -15,5 +15,6 @@
 // ----- ActOfRose::CLexer class -----
 
 // Constructor
-ActOfRose::CLexer::CLexer()
+ActOfRose::CLexer::CLexer(std::istream* scriptStream) :
+	_pScriptStream(scriptStream)
 {}

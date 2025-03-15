@@ -12,6 +12,9 @@
 #ifndef __ACT_OF_ROSE_LEXER_CLASS_H__
 #define __ACT_OF_ROSE_LEXER_CLASS_H__
 
+#include <istream>
+
+
 namespace ActOfRose
 {
 	// Lexer class
@@ -19,7 +22,10 @@ namespace ActOfRose
 	{
 	public:
 		// Constructor
-		CLexer();
+		CLexer(std::istream* scriptStream);
+
+	private:
+		std::istream* _pScriptStream;							// Pointer to a script stream
 
 	};
 
