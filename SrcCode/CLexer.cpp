@@ -113,14 +113,22 @@ int ActOfRose::CLexer::RetrieveNextToken(ActOfRose::Token::SToken* newToken)
 			{
 				retrievedChar = _pScriptStream->get();
 				newToken->value = retrievedChar;
-				newToken->type = ActOfRose::Token::ETokenType::ETTDot;
-					
-			#ifdef _DEBUG
+
+				if (IsDigit(_pScriptStream->peek()) == true)
 				{
-					std::string logMsg = "New token (Dot): " + newToken->value;
-					ActOfRose::WriteLog(logMsg.c_str(), logMsg.size(), ActOfRose::ELogLevel::ELL_Debug);
+					result = RetrieveNumberToken(newToken);
 				}
-			#endif
+				else
+				{
+					newToken->type = ActOfRose::Token::ETokenType::ETTDot;
+					
+				#ifdef _DEBUG
+					{
+						std::string logMsg = "New token (Dot): " + newToken->value;
+						ActOfRose::WriteLog(logMsg.c_str(), logMsg.size(), ActOfRose::ELogLevel::ELL_Debug);
+					}
+				#endif
+				}
 			}
 			else
 			{
