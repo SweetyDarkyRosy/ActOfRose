@@ -46,6 +46,8 @@ namespace ActOfRose
 		int RetrieveStringToken(ActOfRose::Token::SToken* newToken);
 		// Retrieves a token of the number type
 		int RetrieveNumberToken(ActOfRose::Token::SToken* newToken);
+		// Retrieves a token with an operator
+		int RetrieveOperatorToken(ActOfRose::Token::SToken* newToken);
 
 		// Skips a comment
 		void SkipComment();

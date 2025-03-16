@@ -45,7 +45,7 @@ inline bool IsDelimiter(char value)
 // Checks if the character is an operator character
 inline bool IsOperator(char value)
 {
-	return ((value == '+') || (value == '-') || (value == '*') || (value == '/') || (value == '=') || (value == '<') || (value == '>') || (value == '&') || (value == '|'));
+	return ((value == '+') || (value == '-') || (value == '*') || (value == '/') || (value == '%') || (value == '=') || (value == '<') || (value == '>') || (value == '&') || (value == '|'));
 }
 
 
@@ -87,6 +87,10 @@ int ActOfRose::CLexer::RetrieveNextToken(ActOfRose::Token::SToken* newToken)
 			else if (IsDigit(retrievedChar) == true)
 			{
 				result = RetrieveNumberToken(newToken);
+			}
+			else if (IsOperator(retrievedChar) == true)
+			{
+				result = RetrieveOperatorToken(newToken);
 			}
 			else
 			{
@@ -334,6 +338,41 @@ int ActOfRose::CLexer::RetrieveNumberToken(ActOfRose::Token::SToken* newToken)
 #ifdef _DEBUG
 	{
 		std::string logMsg = "New token (Number): " + newToken->value;
+		ActOfRose::WriteLog(logMsg.c_str(), logMsg.size(), ActOfRose::ELogLevel::ELL_Debug);
+	}
+#endif
+
+	return AOR_SUCCESS;
+}
+
+// Retrieves a token with an operator
+int ActOfRose::CLexer::RetrieveOperatorToken(ActOfRose::Token::SToken* newToken)
+{
+	newToken->type = ActOfRose::Token::ETokenType::ETTOperator;
+
+	while (_pScriptStream->eof() == false)
+	{
+		char retrievedChar = _pScriptStream->peek();
+
+		if (IsOperator(retrievedChar) == true)
+		{
+			if (newToken->value.length() == 0)
+			{
+				retrievedChar = _pScriptStream->get();
+				newToken->value = retrievedChar;
+			}
+			
+			break;
+		}
+		else
+		{
+			break;
+		}
+	}
+
+#ifdef _DEBUG
+	{
+		std::string logMsg = "New token (Operator): " + newToken->value;
 		ActOfRose::WriteLog(logMsg.c_str(), logMsg.size(), ActOfRose::ELogLevel::ELL_Debug);
 	}
 #endif

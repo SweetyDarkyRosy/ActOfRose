@@ -420,6 +420,137 @@ bool TestNumberTokenisation()
 	return true;
 }
 
+bool TestNumberTokenisationToFail()
+{
+	ActOfRose::WriteLog(PREF_STRING("Testing number tokenisation (for failures)"),
+		(sizeof(PREF_STRING("Testing number tokenisation (for failures)")) / sizeof(PChar)),
+		ActOfRose::ELogLevel::ELL_Info);
+
+	const char* testTokenValueArr[] = { "253", "4", "233.246.4" };
+	const ActOfRose::Token::ETokenType testTokenTypeArr[] = { ActOfRose::Token::ETokenType::ETTNumber,
+		ActOfRose::Token::ETokenType::ETTNumber, ActOfRose::Token::ETokenType::ETTNumber };
+
+	std::string srcString = "253 	4    233.246.4";
+	std::istringstream strStream(srcString);
+	ActOfRose::CLexer lexer(&strStream);
+
+	std::vector<ActOfRose::Token::SToken> tokenArr;
+
+
+	// ----- Retrieving -----
+
+	{
+		ActOfRose::Token::SToken token;
+		while (lexer.RetrieveNextToken(&token) == AOR_SUCCESS)
+		{
+			if (token.value == "\0")
+			{
+				continue;
+			}
+
+			tokenArr.push_back(token);
+
+			token.value.clear();
+		}
+	}
+
+
+	// ----- Checking -----
+
+	if (tokenArr.size() != 3)
+	{
+		ActOfRose::WriteLog(PREF_STRING("There should be 3 identifiers"), (sizeof(PREF_STRING("There should be 3 identifiers")) / sizeof(PChar)),
+			ActOfRose::ELogLevel::ELL_Error);
+		return false;
+	}
+
+	for (unsigned int i = 0; i < (unsigned int)(tokenArr.size()); i++)
+	{
+		if (tokenArr[i].value.compare(testTokenValueArr[i]) != 0)
+		{
+			ActOfRose::WriteLog(PREF_STRING("Wrong value!"), (sizeof(PREF_STRING("Wrong value!")) / sizeof(PChar)),
+				ActOfRose::ELogLevel::ELL_Error);
+			return false;
+		}
+
+		if (tokenArr[i].type != testTokenTypeArr[i])
+		{
+			ActOfRose::WriteLog(PREF_STRING("Wrong token type!"), (sizeof(PREF_STRING("Wrong token type!")) / sizeof(PChar)),
+				ActOfRose::ELogLevel::ELL_Error);
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool TestOperatorTokenisation()
+{
+	ActOfRose::WriteLog(PREF_STRING("Testing operator tokenisation"),
+		(sizeof(PREF_STRING("Testing operator tokenisation")) / sizeof(PChar)),
+		ActOfRose::ELogLevel::ELL_Info);
+
+	const char* testTokenValueArr[] = { "<", "+", ">", "=", "-", "*", "/" };
+	const ActOfRose::Token::ETokenType testTokenTypeArr[] = { ActOfRose::Token::ETokenType::ETTOperator, ActOfRose::Token::ETokenType::ETTOperator,
+		ActOfRose::Token::ETokenType::ETTOperator, ActOfRose::Token::ETokenType::ETTOperator, ActOfRose::Token::ETokenType::ETTOperator,
+		ActOfRose::Token::ETokenType::ETTOperator, ActOfRose::Token::ETokenType::ETTOperator };
+
+	std::string srcString = " <  +  > \\\n   =  - * / ";
+	std::istringstream strStream(srcString);
+	ActOfRose::CLexer lexer(&strStream);
+
+	std::vector<ActOfRose::Token::SToken> tokenArr;
+
+
+	// ----- Retrieving -----
+
+	{
+		ActOfRose::Token::SToken token;
+		while (lexer.RetrieveNextToken(&token) != AOR_TOKEN_END_OF_SCRIPT)
+		{
+			if (token.value == "\0")
+			{
+				continue;
+			}
+
+			tokenArr.push_back(token);
+
+			token.value.clear();
+		}
+	}
+
+
+	// ----- Checking -----
+
+	if (tokenArr.size() != 7)
+	{
+		ActOfRose::WriteLog(PREF_STRING("There should be 7 identifiers"), (sizeof(PREF_STRING("There should be 7 identifiers")) / sizeof(PChar)),
+			ActOfRose::ELogLevel::ELL_Error);
+		return false;
+	}
+
+	for (unsigned int i = 0; i < (unsigned int)(tokenArr.size()); i++)
+	{
+		if (tokenArr[i].value.compare(testTokenValueArr[i]) != 0)
+		{
+			ActOfRose::WriteLog(PREF_STRING("Wrong value!"), (sizeof(PREF_STRING("Wrong value!")) / sizeof(PChar)),
+				ActOfRose::ELogLevel::ELL_Error);
+			return false;
+		}
+
+		if (tokenArr[i].type != testTokenTypeArr[i])
+		{
+			ActOfRose::WriteLog(PREF_STRING("Wrong token type!"), (sizeof(PREF_STRING("Wrong token type!")) / sizeof(PChar)),
+				ActOfRose::ELogLevel::ELL_Error);
+			return false;
+		}
+	}
+
+	ActOfRose::WriteLog(PREF_STRING("PASSED\n"), (sizeof(PREF_STRING("PASSED\n")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Info);
+
+	return true;
+}
+
 
 // High-level entry point
 int main(int argc, char* argv[])
@@ -477,6 +608,28 @@ int main(int argc, char* argv[])
 	{
 		ActOfRose::WriteLog(PREF_STRING("Test for number tokenisation has failed"),
 			(sizeof(PREF_STRING("Test for number tokenisation has failed")) / sizeof(PChar)),
+			ActOfRose::ELogLevel::ELL_Error);
+		
+		return 1;
+	}
+
+	if (TestNumberTokenisationToFail() != false)
+	{
+		ActOfRose::WriteLog(PREF_STRING("Test for number tokenisation with failure has failed"),
+			(sizeof(PREF_STRING("Test for number tokenisation with failure has failed")) / sizeof(PChar)),
+			ActOfRose::ELogLevel::ELL_Error);
+		
+		return 1;
+	}
+	else
+	{
+		ActOfRose::WriteLog(PREF_STRING("PASSED\n"), (sizeof(PREF_STRING("PASSED\n")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Info);
+	}
+
+	if (TestOperatorTokenisation() != true)
+	{
+		ActOfRose::WriteLog(PREF_STRING("Test for operator tokenisation has failed"),
+			(sizeof(PREF_STRING("Test for operator tokenisation has failed")) / sizeof(PChar)),
 			ActOfRose::ELogLevel::ELL_Error);
 		
 		return 1;
