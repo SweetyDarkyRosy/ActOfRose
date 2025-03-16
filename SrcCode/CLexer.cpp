@@ -14,6 +14,7 @@
 #include "ReturnCodes.h"
 #include "Log.h"
 #include "Token.h"
+#include "Utility/StringMisc.h"
 #include "Utility/StringConverting.h"
 
 
@@ -33,6 +34,18 @@ inline bool IsAlphabetic(char value)
 inline bool IsDigit(char value)
 {
 	return (('0' <= value) && (value <= '9'));
+}
+
+// Checks if the character is a delimiter character
+inline bool IsDelimiter(char value)
+{
+	return ((value == ',') || (value == ';') || (value == ':') || (value == '(') || (value == ')') || (value == '{') || (value == '}'));
+}
+
+// Checks if the character is an operator character
+inline bool IsOperator(char value)
+{
+	return ((value == '+') || (value == '-') || (value == '*') || (value == '/') || (value == '=') || (value == '<') || (value == '>') || (value == '&') || (value == '|'));
 }
 
 
@@ -70,6 +83,10 @@ int ActOfRose::CLexer::RetrieveNextToken(ActOfRose::Token::SToken* newToken)
 			else if ((retrievedChar == '\"') || (retrievedChar == '\''))
 			{
 				result = RetrieveStringToken(newToken);
+			}
+			else if (IsDigit(retrievedChar) == true)
+			{
+				result = RetrieveNumberToken(newToken);
 			}
 			else
 			{
@@ -211,10 +228,12 @@ int ActOfRose::CLexer::RetrieveStringToken(ActOfRose::Token::SToken* newToken)
 					}
 					else
 					{
+					#ifdef _DEBUG
 						{
 							std::string logMsg = "New token (String): " + newToken->value;
 							ActOfRose::WriteLog(logMsg.c_str(), logMsg.size(), ActOfRose::ELogLevel::ELL_Debug);
 						}
+					#endif
 
 						return AOR_SUCCESS;
 					}
@@ -230,10 +249,12 @@ int ActOfRose::CLexer::RetrieveStringToken(ActOfRose::Token::SToken* newToken)
 					}
 					else
 					{
+					#ifdef _DEBUG
 						{
 							std::string logMsg = "New token (String): " + newToken->value;
 							ActOfRose::WriteLog(logMsg.c_str(), logMsg.size(), ActOfRose::ELogLevel::ELL_Debug);
 						}
+					#endif
 
 						return AOR_SUCCESS;
 					}
@@ -255,6 +276,69 @@ int ActOfRose::CLexer::RetrieveStringToken(ActOfRose::Token::SToken* newToken)
 	}
 
 	return AOR_ERROR_TOKEN_UNTERMINATED_STRING;
+}
+
+// Retrieves a token of the number type
+int ActOfRose::CLexer::RetrieveNumberToken(ActOfRose::Token::SToken* newToken)
+{
+	newToken->type = ActOfRose::Token::ETokenType::ETTNumber;
+
+	bool isDotFound = false;
+
+	if ((newToken->value.length() != 0) && (newToken->value[0] == '.'))
+	{
+		isDotFound = true;
+	}
+
+	while (_pScriptStream->eof() == false)
+	{
+		char retrievedChar = _pScriptStream->peek();
+
+		if (IsDigit(retrievedChar) == true)
+		{
+			retrievedChar = _pScriptStream->get();
+			newToken->value += retrievedChar;
+		}
+		else if (retrievedChar == '.')
+		{
+			if (isDotFound == false)
+			{
+				retrievedChar = _pScriptStream->get();
+				newToken->value += retrievedChar;
+
+				isDotFound = true;
+			}
+			else
+			{
+				ActOfRose::WriteLog(PREF_STRING("Extra dot has been found in a number while lexical tokenization"),
+					(sizeof(PREF_STRING("Extra dot has been found in a number while lexical tokenization")) / sizeof(PChar)),
+					ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_TOKEN_INVALID_NUMBER_VALUE;
+			}
+		}
+		else if ((IsWhitespace(retrievedChar) == true) || (IsDelimiter(retrievedChar) == true) || (IsOperator(retrievedChar) == true))
+		{
+			break;
+		}
+		else
+		{
+			ActOfRose::WriteLog(PREF_STRING("Invalid character has been found in a number lexical tokenization"),
+				(sizeof(PREF_STRING("Invalid character has been found in a number lexical tokenization")) / sizeof(PChar)),
+				ActOfRose::ELogLevel::ELL_Error);
+
+			return AOR_ERROR_TOKEN_INVALID_NUMBER_VALUE;
+		}
+	}
+
+#ifdef _DEBUG
+	{
+		std::string logMsg = "New token (Number): " + newToken->value;
+		ActOfRose::WriteLog(logMsg.c_str(), logMsg.size(), ActOfRose::ELogLevel::ELL_Debug);
+	}
+#endif
+
+	return AOR_SUCCESS;
 }
 
 // Skips a comment
