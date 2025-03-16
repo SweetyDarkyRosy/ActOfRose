@@ -109,6 +109,19 @@ int ActOfRose::CLexer::RetrieveNextToken(ActOfRose::Token::SToken* newToken)
 					result = RetrieveOperatorToken(newToken);
 				}
 			}
+			else if (retrievedChar == '.')
+			{
+				retrievedChar = _pScriptStream->get();
+				newToken->value = retrievedChar;
+				newToken->type = ActOfRose::Token::ETokenType::ETTDot;
+					
+			#ifdef _DEBUG
+				{
+					std::string logMsg = "New token (Dot): " + newToken->value;
+					ActOfRose::WriteLog(logMsg.c_str(), logMsg.size(), ActOfRose::ELogLevel::ELL_Debug);
+				}
+			#endif
+			}
 			else
 			{
 				retrievedChar = _pScriptStream->get();
