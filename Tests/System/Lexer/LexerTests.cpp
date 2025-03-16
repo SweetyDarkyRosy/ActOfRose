@@ -554,6 +554,144 @@ bool TestOperatorTokenisation()
 	return true;
 }
 
+bool TestDelimiterTokenisation()
+{
+	ActOfRose::WriteLog(PREF_STRING("Testing delimiter tokenisation"),
+		(sizeof(PREF_STRING("Testing delimiter tokenisation")) / sizeof(PChar)),
+		ActOfRose::ELogLevel::ELL_Info);
+
+	const char* testTokenValueArr[] = { "{", "{", "(", ")", ";", "}", ",", ".", "}", "(", ",", ",", ".", ")" };
+	const ActOfRose::Token::ETokenType testTokenTypeArr[] = { ActOfRose::Token::ETokenType::ETTCurlyBracketLeft, ActOfRose::Token::ETokenType::ETTCurlyBracketLeft,
+		ActOfRose::Token::ETokenType::ETTRoundBracketLeft, ActOfRose::Token::ETokenType::ETTRoundBracketRight, ActOfRose::Token::ETokenType::ETTSemicolon,
+		ActOfRose::Token::ETokenType::ETTCurlyBracketRight, ActOfRose::Token::ETokenType::ETTComma, ActOfRose::Token::ETokenType::ETTDot,
+		ActOfRose::Token::ETokenType::ETTCurlyBracketRight, ActOfRose::Token::ETokenType::ETTRoundBracketLeft, ActOfRose::Token::ETokenType::ETTComma,
+		ActOfRose::Token::ETokenType::ETTComma, ActOfRose::Token::ETokenType::ETTDot, ActOfRose::Token::ETokenType::ETTRoundBracketRight };
+
+	std::string srcString = " {   { ();}    , .			}	 (,,.)";
+	std::istringstream strStream(srcString);
+	ActOfRose::CLexer lexer(&strStream);
+
+	std::vector<ActOfRose::Token::SToken> tokenArr;
+
+
+	// ----- Retrieving -----
+
+	{
+		ActOfRose::Token::SToken token;
+		while (lexer.RetrieveNextToken(&token) != AOR_TOKEN_END_OF_SCRIPT)
+		{
+			if (token.value == "\0")
+			{
+				continue;
+			}
+
+			tokenArr.push_back(token);
+
+			token.value.clear();
+		}
+	}
+
+
+	// ----- Checking -----
+
+	if (tokenArr.size() != 14)
+	{
+		ActOfRose::WriteLog(PREF_STRING("There should be 14 identifiers"), (sizeof(PREF_STRING("There should be 14 identifiers")) / sizeof(PChar)),
+			ActOfRose::ELogLevel::ELL_Error);
+		return false;
+	}
+
+	for (unsigned int i = 0; i < (unsigned int)(tokenArr.size()); i++)
+	{
+		if (tokenArr[i].value.compare(testTokenValueArr[i]) != 0)
+		{
+			ActOfRose::WriteLog(PREF_STRING("Wrong value!"), (sizeof(PREF_STRING("Wrong value!")) / sizeof(PChar)),
+				ActOfRose::ELogLevel::ELL_Error);
+
+			return false;
+		}
+
+		if (tokenArr[i].type != testTokenTypeArr[i])
+		{
+			ActOfRose::WriteLog(PREF_STRING("Wrong token type!"), (sizeof(PREF_STRING("Wrong token type!")) / sizeof(PChar)),
+				ActOfRose::ELogLevel::ELL_Error);
+			return false;
+		}
+	}
+
+	ActOfRose::WriteLog(PREF_STRING("PASSED\n"), (sizeof(PREF_STRING("PASSED\n")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Info);
+
+	return true;
+}
+
+bool TestDelimiterTokenisationToFail()
+{
+	ActOfRose::WriteLog(PREF_STRING("Testing delimiter tokenisation (for failures)"),
+		(sizeof(PREF_STRING("Testing delimiter tokenisation (for failures)")) / sizeof(PChar)),
+		ActOfRose::ELogLevel::ELL_Info);
+
+	const char* testTokenValueArr[] = { "{", "{", "(", ";", "}" };
+	const ActOfRose::Token::ETokenType testTokenTypeArr[] = { ActOfRose::Token::ETokenType::ETTCurlyBracketLeft, ActOfRose::Token::ETokenType::ETTCurlyBracketLeft,
+		ActOfRose::Token::ETokenType::ETTRoundBracketLeft, ActOfRose::Token::ETokenType::ETTRoundBracketRight, ActOfRose::Token::ETokenType::ETTSemicolon,
+		ActOfRose::Token::ETokenType::ETTCurlyBracketRight, ActOfRose::Token::ETokenType::ETTComma, ActOfRose::Token::ETokenType::ETTDot,
+		ActOfRose::Token::ETokenType::ETTCurlyBracketRight, ActOfRose::Token::ETokenType::ETTRoundBracketLeft, ActOfRose::Token::ETokenType::ETTComma,
+		ActOfRose::Token::ETokenType::ETTComma, ActOfRose::Token::ETokenType::ETTDot, ActOfRose::Token::ETokenType::ETTRoundBracketRight };
+
+	std::string srcString = " {   { (;}";
+	std::istringstream strStream(srcString);
+	ActOfRose::CLexer lexer(&strStream);
+
+	std::vector<ActOfRose::Token::SToken> tokenArr;
+
+
+	// ----- Retrieving -----
+
+	{
+		ActOfRose::Token::SToken token;
+		while (lexer.RetrieveNextToken(&token) != AOR_TOKEN_END_OF_SCRIPT)
+		{
+			if (token.value == "\0")
+			{
+				continue;
+			}
+
+			tokenArr.push_back(token);
+
+			token.value.clear();
+		}
+	}
+
+
+	// ----- Checking -----
+
+	if (tokenArr.size() != 5)
+	{
+		ActOfRose::WriteLog(PREF_STRING("There should be 5 identifiers"), (sizeof(PREF_STRING("There should be 5 identifiers")) / sizeof(PChar)),
+			ActOfRose::ELogLevel::ELL_Error);
+		return false;
+	}
+
+	for (unsigned int i = 0; i < (unsigned int)(tokenArr.size()); i++)
+	{
+		if (tokenArr[i].value.compare(testTokenValueArr[i]) != 0)
+		{
+			ActOfRose::WriteLog(PREF_STRING("Wrong value!"), (sizeof(PREF_STRING("Wrong value!")) / sizeof(PChar)),
+				ActOfRose::ELogLevel::ELL_Error);
+
+			return false;
+		}
+
+		if (tokenArr[i].type != testTokenTypeArr[i])
+		{
+			ActOfRose::WriteLog(PREF_STRING("Wrong token type!"), (sizeof(PREF_STRING("Wrong token type!")) / sizeof(PChar)),
+				ActOfRose::ELogLevel::ELL_Error);
+			return false;
+		}
+	}
+
+	return true;
+}
+
 
 // High-level entry point
 int main(int argc, char* argv[])
@@ -636,6 +774,28 @@ int main(int argc, char* argv[])
 			ActOfRose::ELogLevel::ELL_Error);
 		
 		return 1;
+	}
+
+	if (TestDelimiterTokenisation() != true)
+	{
+		ActOfRose::WriteLog(PREF_STRING("Test for delimiter tokenisation has failed"),
+			(sizeof(PREF_STRING("Test for delimiter tokenisation has failed")) / sizeof(PChar)),
+			ActOfRose::ELogLevel::ELL_Error);
+		
+		return 1;
+	}
+
+	if (TestDelimiterTokenisationToFail() != false)
+	{
+		ActOfRose::WriteLog(PREF_STRING("Test for delimiter tokenisation with failure has failed"),
+			(sizeof(PREF_STRING("Test for delimiter tokenisation with failure has failed")) / sizeof(PChar)),
+			ActOfRose::ELogLevel::ELL_Error);
+		
+		return 1;
+	}
+	else
+	{
+		ActOfRose::WriteLog(PREF_STRING("PASSED\n"), (sizeof(PREF_STRING("PASSED\n")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Info);
 	}
 
 	return 0;

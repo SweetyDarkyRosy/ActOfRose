@@ -13,6 +13,7 @@
 #define __ACT_OF_ROSE_LEXER_CLASS_H__
 
 #include <istream>
+#include <stack>
 
 
 namespace ActOfRose
@@ -48,12 +49,15 @@ namespace ActOfRose
 		int RetrieveNumberToken(ActOfRose::Token::SToken* newToken);
 		// Retrieves a token with an operator
 		int RetrieveOperatorToken(ActOfRose::Token::SToken* newToken);
+		// Retrieves a token with a delimiter character
+		int RetrieveDelimiterToken(ActOfRose::Token::SToken* newToken);
 
 		// Skips a comment
 		void SkipComment();
 
 	private:
-		std::istream* _pScriptStream;							// Pointer to a script stream
+		std::istream* _pScriptStream;						// Pointer to a script stream
+		std::stack<char> _mBlockDelimiterStack;				// Stack for collecting the starting (left) block delimiters and checking for the sequence of their use
 
 	};
 

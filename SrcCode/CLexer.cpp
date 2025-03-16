@@ -130,6 +130,10 @@ int ActOfRose::CLexer::RetrieveNextToken(ActOfRose::Token::SToken* newToken)
 				#endif
 				}
 			}
+			else if (IsDelimiter(retrievedChar) == true)
+			{
+				result = RetrieveDelimiterToken(newToken);
+			}
 			else
 			{
 				retrievedChar = _pScriptStream->get();
@@ -452,6 +456,119 @@ int ActOfRose::CLexer::RetrieveOperatorToken(ActOfRose::Token::SToken* newToken)
 		ActOfRose::WriteLog(logMsg.c_str(), logMsg.size(), ActOfRose::ELogLevel::ELL_Debug);
 	}
 #endif
+
+	return AOR_SUCCESS;
+}
+
+// Retrieves a token with a delimiter character
+int ActOfRose::CLexer::RetrieveDelimiterToken(ActOfRose::Token::SToken* newToken)
+{
+	char retrievedChar = _pScriptStream->get();
+	newToken->value = retrievedChar;
+
+	if (retrievedChar == ';')
+	{
+		newToken->type = ActOfRose::Token::ETokenType::ETTSemicolon;
+
+	#ifdef _DEBUG
+		{
+			std::string logMsg = "New token (Semicolon): " + newToken->value;
+			ActOfRose::WriteLog(logMsg.c_str(), logMsg.size(), ActOfRose::ELogLevel::ELL_Debug);
+		}
+	#endif
+	}
+	else if (retrievedChar == ',')
+	{
+		newToken->type = ActOfRose::Token::ETokenType::ETTComma;
+
+	#ifdef _DEBUG
+		{
+			std::string logMsg = "New token (Comma): " + newToken->value;
+			ActOfRose::WriteLog(logMsg.c_str(), logMsg.size(), ActOfRose::ELogLevel::ELL_Debug);
+		}
+	#endif
+	}
+	else if (retrievedChar == ':')
+	{
+		newToken->type = ActOfRose::Token::ETokenType::ETTColon;
+
+	#ifdef _DEBUG
+		{
+			std::string logMsg = "New token (Colon): " + newToken->value;
+			ActOfRose::WriteLog(logMsg.c_str(), logMsg.size(), ActOfRose::ELogLevel::ELL_Debug);
+		}
+	#endif
+	}
+	else if (retrievedChar == '(')
+	{
+		newToken->type = ActOfRose::Token::ETokenType::ETTRoundBracketLeft;
+
+	#ifdef _DEBUG
+		{
+			std::string logMsg = "New token (Left round bracket): " + newToken->value;
+			ActOfRose::WriteLog(logMsg.c_str(), logMsg.size(), ActOfRose::ELogLevel::ELL_Debug);
+		}
+	#endif
+
+		_mBlockDelimiterStack.push(retrievedChar);
+	}
+	else if (retrievedChar == ')')
+	{
+		if ((_mBlockDelimiterStack.empty() == true) || (_mBlockDelimiterStack.top() != '('))
+		{
+			ActOfRose::WriteLog(PREF_STRING("No block to close with a right round bracket"),
+				(sizeof(PREF_STRING("No block to close with a right round bracket")) / sizeof(PChar)),
+				ActOfRose::ELogLevel::ELL_Error);
+
+			return AOR_ERROR_TOKEN_INVALID_ENDING_BLOCK_DELIMITER;
+		}
+
+		newToken->type = ActOfRose::Token::ETokenType::ETTRoundBracketRight;
+
+	#ifdef _DEBUG
+		{
+			std::string logMsg = "New token (Right round bracket): " + newToken->value;
+			ActOfRose::WriteLog(logMsg.c_str(), logMsg.size(), ActOfRose::ELogLevel::ELL_Debug);
+		}
+	#endif
+
+		_mBlockDelimiterStack.pop();
+	}
+	else if (retrievedChar == '{')
+	{
+		newToken->type = ActOfRose::Token::ETokenType::ETTCurlyBracketLeft;
+
+	#ifdef _DEBUG
+		{
+			std::string logMsg = "New token (Left curly bracket): " + newToken->value;
+			ActOfRose::WriteLog(logMsg.c_str(), logMsg.size(), ActOfRose::ELogLevel::ELL_Debug);
+		}
+	#endif
+
+		_mBlockDelimiterStack.push(retrievedChar);
+	}
+	else if (retrievedChar == '}')
+	{
+		if ((_mBlockDelimiterStack.empty() == true) || (_mBlockDelimiterStack.top() != '{'))
+		{
+			ActOfRose::WriteLog(PREF_STRING("No block to close with a right curly bracket"),
+				(sizeof(PREF_STRING("No block to close with a right curly bracket")) / sizeof(PChar)),
+				ActOfRose::ELogLevel::ELL_Error);
+
+			return AOR_ERROR_TOKEN_INVALID_ENDING_BLOCK_DELIMITER;
+		}
+
+		newToken->type = ActOfRose::Token::ETokenType::ETTCurlyBracketRight;
+
+	#ifdef _DEBUG
+		{
+			std::string logMsg = "New token (Right curly bracket): " + newToken->value;
+			ActOfRose::WriteLog(logMsg.c_str(), logMsg.size(), ActOfRose::ELogLevel::ELL_Debug);
+		}
+	#endif
+
+		_mBlockDelimiterStack.pop();
+	}
 
 	return AOR_SUCCESS;
 }
