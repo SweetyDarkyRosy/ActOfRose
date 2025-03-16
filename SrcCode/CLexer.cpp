@@ -90,7 +90,24 @@ int ActOfRose::CLexer::RetrieveNextToken(ActOfRose::Token::SToken* newToken)
 			}
 			else if (IsOperator(retrievedChar) == true)
 			{
-				result = RetrieveOperatorToken(newToken);
+				if ((retrievedChar == '+') || (retrievedChar == '-'))
+				{
+					retrievedChar = _pScriptStream->get();
+					newToken->value = retrievedChar;
+
+					if (IsDigit(_pScriptStream->peek()) == true)
+					{
+						result = RetrieveNumberToken(newToken);
+					}
+					else
+					{
+						result = RetrieveOperatorToken(newToken);
+					}
+				}
+				else
+				{
+					result = RetrieveOperatorToken(newToken);
+				}
 			}
 			else
 			{

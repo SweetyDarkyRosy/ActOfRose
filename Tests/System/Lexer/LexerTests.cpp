@@ -355,16 +355,12 @@ bool TestNumberTokenisation()
 		(sizeof(PREF_STRING("Testing number tokenisation")) / sizeof(PChar)),
 		ActOfRose::ELogLevel::ELL_Info);
 
-	/*
-	const char* testTokenValueArr[] = { "253", "4", "-233", "25331.2005", "-484.364", "-0.2" };
-	*/
-	const char* testTokenValueArr[] = { "253", "4", "233", "25331.2005", "484.364", "0.2" };
+	const char* testTokenValueArr[] = { "253", "4", "-233", "25331.2005", "-484.364", "+361444", "-0.2" };
 	const ActOfRose::Token::ETokenType testTokenTypeArr[] = { ActOfRose::Token::ETokenType::ETTNumber,
 		ActOfRose::Token::ETokenType::ETTNumber, ActOfRose::Token::ETokenType::ETTNumber, ActOfRose::Token::ETokenType::ETTNumber,
-		ActOfRose::Token::ETokenType::ETTNumber, ActOfRose::Token::ETokenType::ETTNumber };
+		ActOfRose::Token::ETokenType::ETTNumber, ActOfRose::Token::ETokenType::ETTNumber, ActOfRose::Token::ETokenType::ETTNumber };
 
-	//std::string srcString = "253 	4    -233	\\\n   25331.2005 -484.364       -0.2      ";
-	std::string srcString = "253 	4    233	\\\n   25331.2005 484.364       0.2      ";
+	std::string srcString = "253 	4    -233	\\\n   25331.2005 -484.364   +361444    -0.2      ";
 	std::istringstream strStream(srcString);
 	ActOfRose::CLexer lexer(&strStream);
 
@@ -391,9 +387,9 @@ bool TestNumberTokenisation()
 
 	// ----- Checking -----
 
-	if (tokenArr.size() != 6)
+	if (tokenArr.size() != 7)
 	{
-		ActOfRose::WriteLog(PREF_STRING("There should be 6 identifiers"), (sizeof(PREF_STRING("There should be 3 identifiers")) / sizeof(PChar)),
+		ActOfRose::WriteLog(PREF_STRING("There should be 7 identifiers"), (sizeof(PREF_STRING("There should be 3 identifiers")) / sizeof(PChar)),
 			ActOfRose::ELogLevel::ELL_Error);
 		return false;
 	}
@@ -426,11 +422,11 @@ bool TestNumberTokenisationToFail()
 		(sizeof(PREF_STRING("Testing number tokenisation (for failures)")) / sizeof(PChar)),
 		ActOfRose::ELogLevel::ELL_Info);
 
-	const char* testTokenValueArr[] = { "253", "4", "233.246.4" };
+	const char* testTokenValueArr[] = { "253", "4", "-233.246.4" };
 	const ActOfRose::Token::ETokenType testTokenTypeArr[] = { ActOfRose::Token::ETokenType::ETTNumber,
 		ActOfRose::Token::ETokenType::ETTNumber, ActOfRose::Token::ETokenType::ETTNumber };
 
-	std::string srcString = "253 	4    233.246.4";
+	std::string srcString = "253 	4    -233.246.4";
 	std::istringstream strStream(srcString);
 	ActOfRose::CLexer lexer(&strStream);
 
