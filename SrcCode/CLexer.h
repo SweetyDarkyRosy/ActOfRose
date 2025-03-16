@@ -43,6 +43,9 @@ namespace ActOfRose
 		// Retrieves a token of the identifier type
 		int RetrieveIdentifierToken(ActOfRose::Token::SToken* newToken);
 
+		// Skips a comment
+		void SkipComment();
+
 	private:
 		std::istream* _pScriptStream;							// Pointer to a script stream
 

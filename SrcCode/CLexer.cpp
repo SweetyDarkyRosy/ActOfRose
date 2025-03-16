@@ -55,6 +55,10 @@ int ActOfRose::CLexer::RetrieveNextToken(ActOfRose::Token::SToken* newToken)
 		{
 			retrievedChar = _pScriptStream->get();
 		}
+		else if (retrievedChar == '#')
+		{
+			SkipComment();
+		}
 		else
 		{
 			int result = AOR_SUCCESS;
@@ -104,4 +108,18 @@ int ActOfRose::CLexer::RetrieveIdentifierToken(ActOfRose::Token::SToken* newToke
 #endif
 
 	return AOR_SUCCESS;
+}
+
+// Skips a comment
+void ActOfRose::CLexer::SkipComment()
+{
+	while (_pScriptStream->eof() == false)
+	{
+		char retrievedChar = _pScriptStream->get();
+
+		if (retrievedChar == '\n')
+		{
+			return;
+		}
+	}
 }
