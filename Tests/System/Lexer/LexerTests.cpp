@@ -12,6 +12,8 @@
 #include <sstream>
 #include <vector>
 
+#include <iostream>
+
 #include <ReturnCodes.h>
 #include <Log.h>
 #include <Token.h>
@@ -486,12 +488,15 @@ bool TestOperatorTokenisation()
 		(sizeof(PREF_STRING("Testing operator tokenisation")) / sizeof(PChar)),
 		ActOfRose::ELogLevel::ELL_Info);
 
-	const char* testTokenValueArr[] = { "<", "+", ">", "=", "-", "*", "/" };
+	const char* testTokenValueArr[] = { "--", "&=", "&&", "<", "+", ">", "==", "||", "=", "<=", "-", "*", "/", "/=", "++" };
 	const ActOfRose::Token::ETokenType testTokenTypeArr[] = { ActOfRose::Token::ETokenType::ETTOperator, ActOfRose::Token::ETokenType::ETTOperator,
 		ActOfRose::Token::ETokenType::ETTOperator, ActOfRose::Token::ETokenType::ETTOperator, ActOfRose::Token::ETokenType::ETTOperator,
-		ActOfRose::Token::ETokenType::ETTOperator, ActOfRose::Token::ETokenType::ETTOperator };
+		ActOfRose::Token::ETokenType::ETTOperator, ActOfRose::Token::ETokenType::ETTOperator, ActOfRose::Token::ETokenType::ETTOperator,
+		ActOfRose::Token::ETokenType::ETTOperator, ActOfRose::Token::ETokenType::ETTOperator, ActOfRose::Token::ETokenType::ETTOperator,
+		ActOfRose::Token::ETokenType::ETTOperator, ActOfRose::Token::ETokenType::ETTOperator, ActOfRose::Token::ETokenType::ETTOperator,
+		ActOfRose::Token::ETokenType::ETTOperator };
 
-	std::string srcString = " <  +  > \\\n   =  - * / ";
+	std::string srcString = " --	 &= &&	 <  +  > \\\n==  || = <= - * / /= ++";
 	std::istringstream strStream(srcString);
 	ActOfRose::CLexer lexer(&strStream);
 
@@ -518,9 +523,9 @@ bool TestOperatorTokenisation()
 
 	// ----- Checking -----
 
-	if (tokenArr.size() != 7)
+	if (tokenArr.size() != 15)
 	{
-		ActOfRose::WriteLog(PREF_STRING("There should be 7 identifiers"), (sizeof(PREF_STRING("There should be 7 identifiers")) / sizeof(PChar)),
+		ActOfRose::WriteLog(PREF_STRING("There should be 15 identifiers"), (sizeof(PREF_STRING("There should be 15 identifiers")) / sizeof(PChar)),
 			ActOfRose::ELogLevel::ELL_Error);
 		return false;
 	}
@@ -531,6 +536,7 @@ bool TestOperatorTokenisation()
 		{
 			ActOfRose::WriteLog(PREF_STRING("Wrong value!"), (sizeof(PREF_STRING("Wrong value!")) / sizeof(PChar)),
 				ActOfRose::ELogLevel::ELL_Error);
+
 			return false;
 		}
 

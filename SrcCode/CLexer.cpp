@@ -378,8 +378,46 @@ int ActOfRose::CLexer::RetrieveOperatorToken(ActOfRose::Token::SToken* newToken)
 				retrievedChar = _pScriptStream->get();
 				newToken->value = retrievedChar;
 			}
-			
-			break;
+			else
+			{
+				if (retrievedChar == '=')
+				{
+					retrievedChar = _pScriptStream->get();
+					newToken->value += retrievedChar;
+				}
+				else if ((retrievedChar == '+') && (newToken->value[0] == '+'))
+				{
+					retrievedChar = _pScriptStream->get();
+					newToken->value += retrievedChar;
+				}
+				else if ((retrievedChar == '-') && (newToken->value[0] == '-'))
+				{
+					retrievedChar = _pScriptStream->get();
+					newToken->value += retrievedChar;
+				}
+				else if ((retrievedChar == '&') && (newToken->value[0] == '&'))
+				{
+					retrievedChar = _pScriptStream->get();
+					newToken->value += retrievedChar;
+				}
+				else if ((retrievedChar == '|') && (newToken->value[0] == '|'))
+				{
+					retrievedChar = _pScriptStream->get();
+					newToken->value += retrievedChar;
+				}
+				else if ((retrievedChar == '<') && (newToken->value[0] == '<'))
+				{
+					retrievedChar = _pScriptStream->get();
+					newToken->value += retrievedChar;
+				}
+				else if ((retrievedChar == '>') && (newToken->value[0] == '>'))
+				{
+					retrievedChar = _pScriptStream->get();
+					newToken->value += retrievedChar;
+				}
+
+				break;
+			}
 		}
 		else
 		{
