@@ -14,6 +14,7 @@
 #include "ReturnCodes.h"
 #include "Log.h"
 #include "Token.h"
+#include "Keywords.h"
 #include "Utility/StringMisc.h"
 #include "Utility/StringConverting.h"
 
@@ -78,7 +79,7 @@ int ActOfRose::CLexer::RetrieveNextToken(ActOfRose::Token::SToken* newToken)
 
 			if ((IsAlphabetic(retrievedChar) == true) || (retrievedChar == '_'))
 			{
-				result = RetrieveIdentifierToken(newToken);
+				result = RetrieveIdentifierOrKeywordToken(newToken);
 			}
 			else if ((retrievedChar == '\"') || (retrievedChar == '\''))
 			{
@@ -148,7 +149,7 @@ int ActOfRose::CLexer::RetrieveNextToken(ActOfRose::Token::SToken* newToken)
 
 
 // Retrieves a token of the identifier type
-int ActOfRose::CLexer::RetrieveIdentifierToken(ActOfRose::Token::SToken* newToken)
+int ActOfRose::CLexer::RetrieveIdentifierOrKeywordToken(ActOfRose::Token::SToken* newToken)
 {
 	while (_pScriptStream->eof() == false)
 	{
@@ -165,14 +166,24 @@ int ActOfRose::CLexer::RetrieveIdentifierToken(ActOfRose::Token::SToken* newToke
 		}
 	}
 
-	newToken->type = ActOfRose::Token::ETokenType::ETTIdentifier;
-
-#ifdef _DEBUG
+	if (ActOfRose::Keyword::IsKeyword(&(newToken->value)) == false)
 	{
+		newToken->type = ActOfRose::Token::ETokenType::ETTIdentifier;
+
+	#ifdef _DEBUG
 		std::string logMsg = "New token (Identifier): " + newToken->value;
 		ActOfRose::WriteLog(logMsg.c_str(), logMsg.size(), ActOfRose::ELogLevel::ELL_Debug);
+	#endif
 	}
-#endif
+	else
+	{
+		newToken->type = ActOfRose::Token::ETokenType::ETTKeyword;
+
+	#ifdef _DEBUG
+		std::string logMsg = "New token (Keyword): " + newToken->value;
+		ActOfRose::WriteLog(logMsg.c_str(), logMsg.size(), ActOfRose::ELogLevel::ELL_Debug);
+	#endif
+	}
 
 	return AOR_SUCCESS;
 }

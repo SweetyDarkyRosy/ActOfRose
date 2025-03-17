@@ -31,11 +31,13 @@ bool TestIdentifierTokenisationA()
 		(sizeof(PREF_STRING("Testing of identifier tokenisation #1")) / sizeof(PChar)),
 		ActOfRose::ELogLevel::ELL_Info);
 
-	const char* testTokenValueArr[] = { "_someToken", "length", "TEST" };
+	const char* testTokenValueArr[] = { "_someToken", "for", "while", "length", "TEST", "func" };
 	const ActOfRose::Token::ETokenType testTokenTypeArr[] = { ActOfRose::Token::ETokenType::ETTIdentifier,
-		ActOfRose::Token::ETokenType::ETTIdentifier, ActOfRose::Token::ETokenType::ETTIdentifier };
+		ActOfRose::Token::ETokenType::ETTKeyword, ActOfRose::Token::ETokenType::ETTKeyword,
+		ActOfRose::Token::ETokenType::ETTIdentifier, ActOfRose::Token::ETokenType::ETTIdentifier,
+		ActOfRose::Token::ETokenType::ETTKeyword };
 
-	std::string srcString = "     	_someToken        length     TEST      ";
+	std::string srcString = "     	_someToken   		for while     length     TEST    func  ";
 	std::istringstream strStream(srcString);
 	ActOfRose::CLexer lexer(&strStream);
 
@@ -62,9 +64,9 @@ bool TestIdentifierTokenisationA()
 
 	// ----- Checking -----
 
-	if (tokenArr.size() != 3)
+	if (tokenArr.size() != 6)
 	{
-		ActOfRose::WriteLog(PREF_STRING("There should be 3 identifiers"), (sizeof(PREF_STRING("There should be 3 identifiers")) / sizeof(PChar)),
+		ActOfRose::WriteLog(PREF_STRING("There should be 6 tokens"), (sizeof(PREF_STRING("There should be 6 tokens")) / sizeof(PChar)),
 			ActOfRose::ELogLevel::ELL_Error);
 		return false;
 	}
@@ -97,11 +99,12 @@ bool TestIdentifierTokenisationB()
 		(sizeof(PREF_STRING("Testing of identifier tokenisation #2")) / sizeof(PChar)),
 		ActOfRose::ELogLevel::ELL_Info);
 
-	const char* testTokenValueArr[] = { "SECOND", "__TEST__" };
+	const char* testTokenValueArr[] = { "SECOND", "var", "const", "__TEST__" };
 	const ActOfRose::Token::ETokenType testTokenTypeArr[] = { ActOfRose::Token::ETokenType::ETTIdentifier,
+		ActOfRose::Token::ETokenType::ETTKeyword, ActOfRose::Token::ETokenType::ETTKeyword,
 		ActOfRose::Token::ETokenType::ETTIdentifier };
 
-	std::string srcString = "SECOND  __TEST__";
+	std::string srcString = "SECOND var			const		            \\\n __TEST__";
 	std::istringstream strStream(srcString);
 	ActOfRose::CLexer lexer(&strStream);
 
@@ -128,9 +131,9 @@ bool TestIdentifierTokenisationB()
 
 	// ----- Checking -----
 
-	if (tokenArr.size() != 2)
+	if (tokenArr.size() != 4)
 	{
-		ActOfRose::WriteLog(PREF_STRING("There should be 2 identifiers"), (sizeof(PREF_STRING("There should be 3 identifiers")) / sizeof(PChar)),
+		ActOfRose::WriteLog(PREF_STRING("There should be 4 tokens"), (sizeof(PREF_STRING("There should be 4 tokens")) / sizeof(PChar)),
 			ActOfRose::ELogLevel::ELL_Error);
 		return false;
 	}
@@ -195,7 +198,7 @@ bool TestSkippingOfComment()
 
 	if (tokenArr.size() != 1)
 	{
-		ActOfRose::WriteLog(PREF_STRING("There should be 1 identifiers"), (sizeof(PREF_STRING("There should be 3 identifiers")) / sizeof(PChar)),
+		ActOfRose::WriteLog(PREF_STRING("There should be 1 tokens"), (sizeof(PREF_STRING("There should be 3 tokens")) / sizeof(PChar)),
 			ActOfRose::ELogLevel::ELL_Error);
 		return false;
 	}
@@ -261,7 +264,7 @@ bool TestStringTokenisation()
 
 	if (tokenArr.size() != 3)
 	{
-		ActOfRose::WriteLog(PREF_STRING("There should be 3 identifiers"), (sizeof(PREF_STRING("There should be 3 identifiers")) / sizeof(PChar)),
+		ActOfRose::WriteLog(PREF_STRING("There should be 3 tokens"), (sizeof(PREF_STRING("There should be 3 tokens")) / sizeof(PChar)),
 			ActOfRose::ELogLevel::ELL_Error);
 		return false;
 	}
@@ -326,7 +329,7 @@ bool TestStringTokenisationToFail()
 
 	if (tokenArr.size() != 1)
 	{
-		ActOfRose::WriteLog(PREF_STRING("There should be 1 identifiers"), (sizeof(PREF_STRING("There should be 3 identifiers")) / sizeof(PChar)),
+		ActOfRose::WriteLog(PREF_STRING("There should be 1 tokens"), (sizeof(PREF_STRING("There should be 3 tokens")) / sizeof(PChar)),
 			ActOfRose::ELogLevel::ELL_Error);
 		return false;
 	}
@@ -392,7 +395,7 @@ bool TestNumberTokenisation()
 
 	if (tokenArr.size() != 8)
 	{
-		ActOfRose::WriteLog(PREF_STRING("There should be 8 identifiers"), (sizeof(PREF_STRING("There should be 3 identifiers")) / sizeof(PChar)),
+		ActOfRose::WriteLog(PREF_STRING("There should be 8 tokens"), (sizeof(PREF_STRING("There should be 3 tokens")) / sizeof(PChar)),
 			ActOfRose::ELogLevel::ELL_Error);
 		return false;
 	}
@@ -458,7 +461,7 @@ bool TestNumberTokenisationToFail()
 
 	if (tokenArr.size() != 3)
 	{
-		ActOfRose::WriteLog(PREF_STRING("There should be 3 identifiers"), (sizeof(PREF_STRING("There should be 3 identifiers")) / sizeof(PChar)),
+		ActOfRose::WriteLog(PREF_STRING("There should be 3 tokens"), (sizeof(PREF_STRING("There should be 3 tokens")) / sizeof(PChar)),
 			ActOfRose::ELogLevel::ELL_Error);
 		return false;
 	}
@@ -526,7 +529,7 @@ bool TestOperatorTokenisation()
 
 	if (tokenArr.size() != 15)
 	{
-		ActOfRose::WriteLog(PREF_STRING("There should be 15 identifiers"), (sizeof(PREF_STRING("There should be 15 identifiers")) / sizeof(PChar)),
+		ActOfRose::WriteLog(PREF_STRING("There should be 15 tokens"), (sizeof(PREF_STRING("There should be 15 tokens")) / sizeof(PChar)),
 			ActOfRose::ELogLevel::ELL_Error);
 		return false;
 	}
@@ -596,7 +599,7 @@ bool TestDelimiterTokenisation()
 
 	if (tokenArr.size() != 14)
 	{
-		ActOfRose::WriteLog(PREF_STRING("There should be 14 identifiers"), (sizeof(PREF_STRING("There should be 14 identifiers")) / sizeof(PChar)),
+		ActOfRose::WriteLog(PREF_STRING("There should be 14 tokens"), (sizeof(PREF_STRING("There should be 14 tokens")) / sizeof(PChar)),
 			ActOfRose::ELogLevel::ELL_Error);
 		return false;
 	}
@@ -666,7 +669,7 @@ bool TestDelimiterTokenisationToFail()
 
 	if (tokenArr.size() != 5)
 	{
-		ActOfRose::WriteLog(PREF_STRING("There should be 5 identifiers"), (sizeof(PREF_STRING("There should be 5 identifiers")) / sizeof(PChar)),
+		ActOfRose::WriteLog(PREF_STRING("There should be 5 tokens"), (sizeof(PREF_STRING("There should be 5 tokens")) / sizeof(PChar)),
 			ActOfRose::ELogLevel::ELL_Error);
 		return false;
 	}

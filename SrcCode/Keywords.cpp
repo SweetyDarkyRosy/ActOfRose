@@ -19,7 +19,7 @@
  ]*/
 
 // Map of associations between null-terminated strings with keywords and the keyword classes
-static const std::unordered_map<const char*, ActOfRose::Keyword::EKeywords> sKeywordMap = {
+static const std::unordered_map<std::string, ActOfRose::Keyword::EKeywords> sKeywordMap = {
 	{ "var", ActOfRose::Keyword::EKeywords::EK_Var },
 	{ "const", ActOfRose::Keyword::EKeywords::EK_Const },
 	{ "func", ActOfRose::Keyword::EKeywords::EK_Func },
@@ -30,3 +30,16 @@ static const std::unordered_map<const char*, ActOfRose::Keyword::EKeywords> sKey
 	{ "while", ActOfRose::Keyword::EKeywords::EK_While },
 	{ "do", ActOfRose::Keyword::EKeywords::EK_Do },
 };
+
+
+// Checks if the given string is a keyword
+bool ActOfRose::Keyword::IsKeyword(const std::string* str)
+{
+	auto it = sKeywordMap.find(*str);
+	if (it == sKeywordMap.end())
+	{
+		return false;
+	}
+	
+	return true;
+}

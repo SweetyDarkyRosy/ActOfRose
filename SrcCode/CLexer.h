@@ -42,7 +42,7 @@ namespace ActOfRose
 
 	private:
 		// Retrieves a token of the identifier type
-		int RetrieveIdentifierToken(ActOfRose::Token::SToken* newToken);
+		int RetrieveIdentifierOrKeywordToken(ActOfRose::Token::SToken* newToken);
 		// Retrieves a token of the string type
 		int RetrieveStringToken(ActOfRose::Token::SToken* newToken);
 		// Retrieves a token of the number type

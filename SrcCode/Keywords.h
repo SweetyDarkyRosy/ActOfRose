@@ -12,6 +12,9 @@
 #ifndef __ACT_OF_ROSE_KEYWORDS_H__
 #define __ACT_OF_ROSE_KEYWORDS_H__
 
+#include <string>
+
+
 namespace ActOfRose
 {
 	namespace Keyword
@@ -29,6 +32,10 @@ namespace ActOfRose
 			EK_While,			// "while" keyword
 			EK_Do				// "do" keyword
 		};
+
+
+		// Checks if the given string is a keyword
+		bool IsKeyword(const std::string* str);
 
 	} // !namespace Keyword
 } // !namespace ActOfRose
