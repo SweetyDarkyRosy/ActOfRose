@@ -12,6 +12,9 @@
 #ifndef __ACT_OF_ROSE_VALUE_CLASS_H__
 #define __ACT_OF_ROSE_VALUE_CLASS_H__
 
+#include <string>
+
+
 namespace ActOfRose
 {
 	namespace Value
@@ -27,7 +30,57 @@ namespace ActOfRose
 			EVT_Array = 5,								// Array
 		};
 
+
+		// Abstract class of value / data type
+		class CValue
+		{
+		public:
+			// Default constructor
+			CValue(ActOfRose::Value::EValueType type) :
+				_mType(type)
+			{}
+
+		public:
+			// Returns the type of a value
+			inline ActOfRose::Value::EValueType GetValueType() const { return _mType; }
+
+			// Returns a pointer to a null-terminated UTF-8-encoded string with type name
+			inline const char* GetTypeByteString() const;
+			// Returns a pointer to a null-terminated UTF-16BE-encoded string with type name
+			inline const wchar_t* GetTypeWideString() const;
+
+
+			// Converts a value to a byte string
+			virtual std::string ConvertValueToByteString() const = 0;
+
+			// Converts a value to a wide string
+			virtual std::wstring ConvertValueToWideString() const = 0;
+
+		protected:
+			ActOfRose::Value::EValueType _mType;					// Value/data type
+
+		};
+
 	} // !namespace Value
 } // !namespace ActOfRose
+
+
+// ----- ActOfRose::Value::CValue class -----
+
+// Returns a pointer to a null-terminated UTF-8-encoded string with type name
+const char* ActOfRose::Value::CValue::GetTypeByteString() const
+{
+	static const char* valueTypeNames[] = { "Boolean", "Character", "Integer number", "Floating-point number", "String", "Array" };
+
+	return valueTypeNames[(unsigned int)_mType];
+}
+
+// Returns a pointer to a null-terminated UTF-16BE-encoded string with type name
+const wchar_t* ActOfRose::Value::CValue::GetTypeWideString() const
+{
+	static const wchar_t* valueTypeNames[] = { L"Boolean", L"Character", L"Integer number", L"Floating-point number", L"String", L"Array" };
+
+	return valueTypeNames[(unsigned int)_mType];
+}
 
 #endif // !__ACT_OF_ROSE_VALUE_CLASS_H__
