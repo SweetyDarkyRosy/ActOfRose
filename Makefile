@@ -26,6 +26,7 @@ compile:
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c SrcCode/Utility/StringConverting.cpp -o $(OBJ_DIR)/StringConverting.o
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c SrcCode/Value/CIntegerValue.cpp -o $(OBJ_DIR)/CIntegerValue.o
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c SrcCode/Value/CFloatValue.cpp -o $(OBJ_DIR)/CFloatValue.o
+	$(CXX) $(CXXFLAGS) $(INCLUDE) -c SrcCode/Value/CBooleanValue.cpp -o $(OBJ_DIR)/CBooleanValue.o
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c SrcCode/Log.cpp -o $(OBJ_DIR)/Log.o
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c SrcCode/CScript.cpp -o $(OBJ_DIR)/CScript.o
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c SrcCode/Keywords.cpp -o $(OBJ_DIR)/Keywords.o
