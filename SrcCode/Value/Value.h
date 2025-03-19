@@ -7,10 +7,10 @@
 	@Created:		18.03.2025
 	@Programmer:	Viktoriia Pashchenko (SweetyDarkyRosy)
 	
-	Classes of values (different data types). */
+	Types of values and abstract class of value. */
 
-#ifndef __ACT_OF_ROSE_VALUE_CLASS_H__
-#define __ACT_OF_ROSE_VALUE_CLASS_H__
+#ifndef __ACT_OF_ROSE_VALUE_BASIS_H__
+#define __ACT_OF_ROSE_VALUE_BASIS_H__
 
 #include <string>
 
@@ -52,7 +52,6 @@ namespace ActOfRose
 
 			// Converts a value to a byte string
 			virtual std::string ConvertValueToByteString() const = 0;
-
 			// Converts a value to a wide string
 			virtual std::wstring ConvertValueToWideString() const = 0;
 
@@ -83,4 +82,4 @@ const wchar_t* ActOfRose::Value::CValue::GetTypeWideString() const
 	return valueTypeNames[(unsigned int)_mType];
 }
 
-#endif // !__ACT_OF_ROSE_VALUE_CLASS_H__
+#endif // !__ACT_OF_ROSE_VALUE_BASIS_H__
