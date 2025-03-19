@@ -14,6 +14,7 @@
 #include <Value/CIntegerValue.h>
 #include <Value/CFloatValue.h>
 #include <Value/CBooleanValue.h>
+#include <Value/CCharValue.h>
 
 
 // High-level entry point
@@ -80,7 +81,7 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	// ----- Bpolean value -----
+	// ----- Boolean value -----
 
 	{
 		ActOfRose::Value::CBooleanValue booleanValue(false);
@@ -106,6 +107,36 @@ int main(int argc, char* argv[])
 		else
 		{
 			std::cout << "Test for booleanValue.ConvertValueToWideString() has not been passed...\n";
+			return 1;
+		}
+	}
+
+	// ----- Character -----
+
+	{
+		ActOfRose::Value::CCharValue charValue("П");
+
+		std::string utf8Str = charValue.ConvertValueToByteString();
+		if (utf8Str.compare("П") == 0)
+		{
+			std::cout << "Test for charValue.ConvertValueToByteString() has been passed\n";
+		}
+		else
+		{
+			std::cout << "Test for charValue.ConvertValueToByteString() has not been passed...\n";
+			return 1;
+		}
+
+		charValue.SetRawCharSet("𐍈");
+
+		std::wstring utf16BEStr = charValue.ConvertValueToWideString();
+		if (utf16BEStr.compare(L"\xD800\xDF48") == 0)				// "𐍈"
+		{
+			std::cout << "Test for charValue.ConvertValueToWideString() has been passed\n";
+		}
+		else
+		{
+			std::cout << "Test for charValue.ConvertValueToWideString() has not been passed...\n";
 			return 1;
 		}
 	}
