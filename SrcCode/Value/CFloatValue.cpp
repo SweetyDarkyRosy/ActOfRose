@@ -3,27 +3,27 @@
 	
 	This file is part of system source code.
 	
-	@Name:			CIntegerValue.cpp
+	@Name:			CFloatValue.cpp
 	@Created:		19.03.2025
 	@Programmer:	Viktoriia Pashchenko (SweetyDarkyRosy)
 	
 	Implementations. */
 
-#include "CIntegerValue.h"
+#include "CFloatValue.h"
 
 #include <Utility/StringConverting.h>
 
 
-// ----- ActOfRose::Value::CIntegerValue class -----
+// ----- ActOfRose::Value::CFloatValue class -----
 
 // Converts a value to a byte string
-std::string ActOfRose::Value::CIntegerValue::ConvertValueToByteString() const
+std::string ActOfRose::Value::CFloatValue::ConvertValueToByteString() const
 {
 	return std::to_string(_mValue);
 }
 
 // Converts a value to a wide string
-std::wstring ActOfRose::Value::CIntegerValue::ConvertValueToWideString() const
+std::wstring ActOfRose::Value::CFloatValue::ConvertValueToWideString() const
 {
 	std::string utf8Str = std::to_string(_mValue);
 	std::wstring utf16BEStr;

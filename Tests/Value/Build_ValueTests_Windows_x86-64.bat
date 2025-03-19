@@ -11,6 +11,7 @@ exit /b 1
 
 cl.exe /c "..\..\SrcCode\Utility\StringConverting.cpp" /Fo"StringConverting.obj" /I"..\..\SrcCode" /W3 /Od /std:c++17 /MTd /DDEBUG /D_DEBUG
 cl.exe /c "..\..\SrcCode\Value\CIntegerValue.cpp" /Fo"CIntegerValue.obj" /I"..\..\SrcCode" /W3 /Od /std:c++17 /MTd /DDEBUG /D_DEBUG
+cl.exe /c "..\..\SrcCode\Value\CFloatValue.cpp" /Fo"CFloatValue.obj" /I"..\..\SrcCode" /W3 /Od /std:c++17 /MTd /DDEBUG /D_DEBUG
 cl.exe /c ValueTests.cpp /Fo"ValueTests.obj" /I"..\..\SrcCode" /W3 /Od /std:c++17 /MTd /DDEBUG /D_DEBUG
 
 link.exe /DEBUG:FULL /MACHINE:X64 "*.obj" /OUT:"ValueTestsExec.exe"
