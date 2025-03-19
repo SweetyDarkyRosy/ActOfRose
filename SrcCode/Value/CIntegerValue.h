@@ -20,7 +20,7 @@ namespace ActOfRose
 	namespace Value
 	{
 		// Class of integer type value (32-bit integer)
-		class CIntegerValue : public CValue
+		class CIntegerValue : public ActOfRose::Value::CValue
 		{
 		public:
 			// Default constructor

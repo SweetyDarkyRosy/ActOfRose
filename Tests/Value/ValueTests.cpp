@@ -16,6 +16,7 @@
 #include <Value/CBooleanValue.h>
 #include <Value/CCharValue.h>
 #include <Value/CStringValue.h>
+#include <Value/CArrayValue.h>
 
 
 // High-level entry point
@@ -28,7 +29,6 @@ int main(int argc, char* argv[])
 
 		std::string utf8Str = intValue.ConvertValueToByteString();
 		std::wstring utf16BEStr = intValue.ConvertValueToWideString();
-
 
 		if (utf8Str.compare("352") == 0)
 		{
@@ -170,6 +170,21 @@ int main(int argc, char* argv[])
 			std::cout << "Test for testString.ConvertValueToWideString() has not been passed...\n";
 			return 1;
 		}
+	}
+
+	// ----- Array -----
+
+	{
+		ActOfRose::Value::CArrayValue array;
+
+		ActOfRose::Value::CStringValue* testString = new ActOfRose::Value::CStringValue("Test_String");
+		ActOfRose::Value::CFloatValue* testFloatValue = new ActOfRose::Value::CFloatValue(352.01436f);
+
+		array.AddValue(testString);
+		array.AddValue(testFloatValue);
+
+		std::string utf8Str = array.ConvertValueToByteString();
+		std::cout << "Array: " << utf8Str << "\n";
 	}
 
 	return 0;

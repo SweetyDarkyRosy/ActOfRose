@@ -20,7 +20,7 @@ namespace ActOfRose
 	namespace Value
 	{
 		// Class of boolean type value
-		class CBooleanValue : public CValue
+		class CBooleanValue : public ActOfRose::Value::CValue
 		{
 		public:
 			// Default constructor

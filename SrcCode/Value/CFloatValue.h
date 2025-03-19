@@ -20,7 +20,7 @@ namespace ActOfRose
 	namespace Value
 	{
 		// Class of floating-point type value (32-bit integer)
-		class CFloatValue : public CValue
+		class CFloatValue : public ActOfRose::Value::CValue
 		{
 		public:
 			// Default constructor

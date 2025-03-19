@@ -22,7 +22,7 @@ namespace ActOfRose
 	namespace Value
 	{
 		// Class of string (UTF-8-encoded)
-		class CStringValue : public CValue
+		class CStringValue : public ActOfRose::Value::CValue
 		{
 		public:
 			// Default constructor

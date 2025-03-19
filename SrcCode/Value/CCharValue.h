@@ -20,7 +20,7 @@ namespace ActOfRose
 	namespace Value
 	{
 		// Class of a single character (unicode) represented in UTF-8-encoded set of characters
-		class CCharValue : public CValue
+		class CCharValue : public ActOfRose::Value::CValue
 		{
 		public:
 			// Default constructor
