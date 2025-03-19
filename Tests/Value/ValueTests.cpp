@@ -15,6 +15,7 @@
 #include <Value/CFloatValue.h>
 #include <Value/CBooleanValue.h>
 #include <Value/CCharValue.h>
+#include <Value/CStringValue.h>
 
 
 // High-level entry point
@@ -137,6 +138,36 @@ int main(int argc, char* argv[])
 		else
 		{
 			std::cout << "Test for charValue.ConvertValueToWideString() has not been passed...\n";
+			return 1;
+		}
+	}
+
+	// ----- String -----
+
+	{
+		ActOfRose::Value::CStringValue testString("Где же мой чай?");
+
+		std::string utf8Str = testString.ConvertValueToByteString();
+		if (utf8Str.compare("Где же мой чай?") == 0)
+		{
+			std::cout << "Test for testString.ConvertValueToByteString() has been passed\n";
+		}
+		else
+		{
+			std::cout << "Test for testString.ConvertValueToByteString() has not been passed...\n";
+			return 1;
+		}
+
+		testString.SetRawString("𐍈 / Символ...");
+
+		std::wstring utf16BEStr = testString.ConvertValueToWideString();
+		if (utf16BEStr.compare(L"\xD800\xDF48\x0020\x002F\x0020\x0421\x0438\x043C\x0432\x043E\x043B\x002E\x002E\x002E") == 0)				// "𐍈 / Символ..."
+		{
+			std::cout << "Test for testString.ConvertValueToWideString() has been passed\n";
+		}
+		else
+		{
+			std::cout << "Test for testString.ConvertValueToWideString() has not been passed...\n";
 			return 1;
 		}
 	}

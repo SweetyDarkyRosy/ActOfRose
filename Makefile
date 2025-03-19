@@ -28,6 +28,7 @@ compile:
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c SrcCode/Value/CFloatValue.cpp -o $(OBJ_DIR)/CFloatValue.o
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c SrcCode/Value/CBooleanValue.cpp -o $(OBJ_DIR)/CBooleanValue.o
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c SrcCode/Value/CCharValue.cpp -o $(OBJ_DIR)/CCharValue.o
+	$(CXX) $(CXXFLAGS) $(INCLUDE) -c SrcCode/Value/CStringValue.cpp -o $(OBJ_DIR)/CStringValue.o
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c SrcCode/Log.cpp -o $(OBJ_DIR)/Log.o
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c SrcCode/CScript.cpp -o $(OBJ_DIR)/CScript.o
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c SrcCode/Keywords.cpp -o $(OBJ_DIR)/Keywords.o
