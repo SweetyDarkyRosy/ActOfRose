@@ -40,6 +40,9 @@ namespace ActOfRose
 				_mType(type)
 			{}
 
+			// Destructor
+			virtual ~CValue() {}
+
 		public:
 			// Returns the type of a value
 			inline ActOfRose::Value::EValueType GetValueType() const { return _mType; }
