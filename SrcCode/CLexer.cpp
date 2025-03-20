@@ -13,7 +13,6 @@
 
 #include "ReturnCodes.h"
 #include "Log.h"
-#include "Token.h"
 #include "Keywords.h"
 #include "Utility/StringMisc.h"
 #include "Utility/StringConverting.h"
@@ -57,6 +56,12 @@ ActOfRose::CLexer::CLexer(std::istream* scriptStream) :
 	_pScriptStream(scriptStream)
 {}
 
+
+// Tokenises a chunk of script for execution. If the function returns 0, then there is nothing else to execute
+int ActOfRose::CLexer::Tokenise()
+{
+	return (int)(_mTokensRetrieved.size());
+}
 
 // Analyses strings of a script and retrieves a token from them
 int ActOfRose::CLexer::RetrieveNextToken(ActOfRose::Token::SToken* newToken)

@@ -13,17 +13,14 @@
 #define __ACT_OF_ROSE_LEXER_CLASS_H__
 
 #include <istream>
+#include <vector>
 #include <stack>
+
+#include "Token.h"
 
 
 namespace ActOfRose
 {
-	namespace Token
-	{
-		struct SToken;				// Token structure
-
-	} // !namespace Token
-
 	// Lexer class
 	class CLexer
 	{
@@ -37,8 +34,13 @@ namespace ActOfRose
 		 ]*/
 
 	public:
+		// Tokenises a chunk of script for execution. If the function returns 0, then there is nothing else to execute
+		int Tokenise();
 		// Analyses strings of a script and retrieves a token from them
 		int RetrieveNextToken(ActOfRose::Token::SToken* newToken);
+
+		// Returns a pointer to the array of retrieved tokens
+		inline std::vector<ActOfRose::Token::SToken>* GetTokensRetrievedArr() { return & _mTokensRetrieved; }
 
 	private:
 		// Retrieves a token of the identifier type
@@ -56,8 +58,9 @@ namespace ActOfRose
 		void SkipComment();
 
 	private:
-		std::istream* _pScriptStream;						// Pointer to a script stream
-		std::stack<char> _mBlockDelimiterStack;				// Stack for collecting the starting (left) block delimiters and checking for the sequence of their use
+		std::istream* _pScriptStream;							// Pointer to a script stream
+		std::vector<ActOfRose::Token::SToken> _mTokensRetrieved;		// Array of retrieved tokens
+		std::stack<char> _mBlockDelimiterStack;					// Stack for collecting the starting (left) block delimiters and checking for the sequence of their use
 
 	};
 
