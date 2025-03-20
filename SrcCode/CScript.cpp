@@ -21,6 +21,7 @@
 #include "ReturnCodes.h"
 #include "Token.h"
 #include "CLexer.h"
+#include "CExecutor.h"
 #include "Utility/StringConverting.h"
 
 
@@ -78,9 +79,24 @@ ActOfRose::CScript::~CScript()
 int ActOfRose::CScript::Execute()
 {
 	ActOfRose::CLexer lexer(&_mScriptFile);				// Local lexer
+	int result;											// Result value
 
-	while (lexer.Tokenise() > 0)
-	{}
+	while ((result = lexer.Tokenise()) > 0)
+	{
+		// Executes a retrieved sequence of tokens
+		result = gExecutor.Execute(lexer.GetTokensRetrievedArr());
+		if (result != AOR_SUCCESS)
+		{
+			return result;
+		}
+	}
 
-	return AOR_SUCCESS;
+	if (result == 0)
+	{
+		return AOR_SUCCESS;
+	}
+	else
+	{
+		return result;
+	}
 }

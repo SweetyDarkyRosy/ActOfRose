@@ -38,4 +38,7 @@ namespace ActOfRose
 
 } // !namespace ActOfRose
 
+
+extern ActOfRose::CExecutor			gExecutor;				// Global instance of executor
+
 #endif // !__ACT_OF_ROSE_EXECUTOR_CLASS_H__

@@ -12,11 +12,19 @@
 #include "ReturnCodes.h"
 #include "Log.h"
 #include "CScript.h"
+#include "CExecutor.h"
 #include "Utility/StringMisc.h"
 
 
 #define BUILD_ROOT_SCRIPT_DEFAULT_NAME						"ActionScript.aor"
 #define BUILD_ROOT_SCRIPT_DEFAULT_NAME_PREF					PREF_STRING("ActionScript.aor")
+
+
+/*[
+	Global variables
+ ]*/
+
+ActOfRose::CExecutor					gExecutor;			// Global instance of executor
 
 
 // High-level entry point
