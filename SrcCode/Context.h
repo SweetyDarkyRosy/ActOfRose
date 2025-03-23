@@ -21,16 +21,11 @@ namespace ActOfRose
 		{
 		public:
 			// Constructor
-			CContext(ActOfRose::Context::CContext* parentContext = nullptr) :
-				_pParentContext(parentContext)
-			{}
+			CContext() {}
 
 		public:
 			// Analyses the given token, checks current sequence for logical errors and updates a context
 			virtual int ProcessToken(ActOfRose::Token::SToken* token) = 0;
-
-		protected:
-			ActOfRose::Context::CContext* _pParentContext;
 
 		};
 
