@@ -12,16 +12,24 @@
 #ifndef __ACT_OF_ROSE_SEQUENCER_CLASS_H__
 #define __ACT_OF_ROSE_SEQUENCER_CLASS_H__
 
+#include <stack>
+
+
 namespace ActOfRose
 {
 	namespace Context
 	{
+		class CContext;			// Abstract class of context
+
 		// Class for analysing sequences of tokens and determining the context
 		class CSequencer
 		{
 		public:
 			// Constructor
 			CSequencer() {}
+
+		private:
+			std::stack<ActOfRose::Context::CContext*> _mContexts;		// Stack of contexts
 
 		};
 
