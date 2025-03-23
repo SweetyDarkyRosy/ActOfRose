@@ -16,6 +16,16 @@
 
 // ----- ActOfRose::Context::CSequencer class -----
 
+// Destructor
+ActOfRose::Context::CSequencer::~CSequencer()
+{
+	while (_mContexts.size() != 0)
+	{
+		delete _mContexts.top();
+		_mContexts.pop();
+	}
+}
+
 // Analyses the given token and manages current context
 int ActOfRose::Context::CSequencer::ProcessToken(ActOfRose::Token::SToken* token)
 {

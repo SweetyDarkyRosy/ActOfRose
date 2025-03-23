@@ -33,6 +33,9 @@ namespace ActOfRose
 			// Constructor
 			CSequencer() {}
 
+			// Destructor
+			~CSequencer();
+
 		public:
 			// Analyses the given token and manages current context
 			int ProcessToken(ActOfRose::Token::SToken* token);
