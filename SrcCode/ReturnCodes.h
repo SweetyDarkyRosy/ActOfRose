@@ -15,7 +15,8 @@
 #define AOR_SUCCESS											0			// Code of successfull execution
 
 #define AOR_TOKEN_END_OF_SCRIPT								1			// Code returned if the end of a script is reached
-#define AOR_CONTEXT_COMPLETE								2			// Code returned to indicate that current context is complete and ready for execution
+#define AOR_CONTEXT_COMPLETE								2			// Code returned to indicate that current context is complete
+#define AOR_CONTEXT_EXECUTE									3			// Code returned to indicate that current context is ready for execution
 
 #define AOR_ERROR_INVALID_PARAMETER							(-1)		// Error due to invalid parameter/parameters
 #define AOR_ERROR_INVALID_CHARACTER							(-2)		// Error due to invalid character (according to actual character/string encoding)
