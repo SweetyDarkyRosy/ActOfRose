@@ -14,6 +14,7 @@
 #include "ReturnCodes.h"
 #include "Log.h"
 #include "Keywords.h"
+#include "CSequencer.h"
 #include "Utility/StringMisc.h"
 #include "Utility/StringConverting.h"
 
@@ -60,7 +61,40 @@ ActOfRose::CLexer::CLexer(std::istream* scriptStream) :
 // Tokenises a chunk of script for execution. If the function returns 0, then there is nothing else to execute
 int ActOfRose::CLexer::Tokenise()
 {
-	return (int)(_mTokensRetrieved.size());
+	_mTokensRetrieved.clear();
+
+	ActOfRose::Context::CSequencer sequencer;
+	ActOfRose::Token::SToken token;
+	int result;
+
+	while ((result = RetrieveNextToken(&token)) >= 0)
+	{
+		if (result == AOR_TOKEN_END_OF_SCRIPT)
+		{
+			if (_mTokensRetrieved.size() == 0)
+			{
+				return 0;
+			}
+			else
+			{
+				return AOR_ERROR_TOKEN_PREMATURE_END_OF_SCRIPT;
+			}
+		}
+
+		_mTokensRetrieved.push_back(token);
+
+		result = sequencer.ProcessToken(&token);
+		if (result == AOR_CONTEXT_EXECUTE)
+		{
+			return (int)(_mTokensRetrieved.size());
+		}
+		else if (result < 0)
+		{
+			break;
+		}
+	}
+
+	return result;
 }
 
 // Analyses strings of a script and retrieves a token from them
