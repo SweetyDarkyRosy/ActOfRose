@@ -26,6 +26,6 @@
 #define AOR_ERROR_TOKEN_INVALID_ESCAPE_SEQUENCE				(-5)		// Error due to invalid escape sequence found while string tokenisation
 #define AOR_ERROR_TOKEN_INVALID_NUMBER_VALUE				(-6)		// Error due to invalid number value
 #define AOR_ERROR_TOKEN_INVALID_ENDING_BLOCK_DELIMITER		(-7)		// Error due to invalid ending block delimiter encountered
-
+#define AOR_ERROR_TOKEN_PREMATURE_END_OF_SCRIPT				(-8)		// Error due to premature end of script
 
 #endif // !__ACT_OF_ROSE_ERROR_CODES_H__
