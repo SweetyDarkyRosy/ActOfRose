@@ -17,6 +17,11 @@
 
 namespace ActOfRose
 {
+	namespace Token
+	{
+		struct SToken;			// Token structure
+	} // !namespace Token
+
 	namespace Context
 	{
 		class CContext;			// Abstract class of context
@@ -27,6 +32,10 @@ namespace ActOfRose
 		public:
 			// Constructor
 			CSequencer() {}
+
+		public:
+			// Analyses the given token and manages current context
+			int ProcessToken(ActOfRose::Token::SToken* token);
 
 		private:
 			std::stack<ActOfRose::Context::CContext*> _mContexts;		// Stack of contexts
