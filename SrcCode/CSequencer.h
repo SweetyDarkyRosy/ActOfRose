@@ -14,15 +14,18 @@
 
 namespace ActOfRose
 {
-	// Class for analysing sequences of tokens and determining the context
-	class CSequencer
+	namespace Context
 	{
-	public:
-		// Constructor
-		CSequencer() {}
+		// Class for analysing sequences of tokens and determining the context
+		class CSequencer
+		{
+		public:
+			// Constructor
+			CSequencer() {}
 
-	};
+		};
 
+	} // !namespace Context
 } // !namespace ActOfRose
 
 #endif // !__ACT_OF_ROSE_SEQUENCER_CLASS_H__
