@@ -41,6 +41,10 @@ namespace ActOfRose
 			int ProcessToken(ActOfRose::Token::SToken* token);
 
 		private:
+			// Determines a context based on a given token and creates it
+			int DetermineAndCreateContext(ActOfRose::Token::SToken* token);
+
+		private:
 			std::stack<ActOfRose::Context::CContext*> _mContexts;		// Stack of contexts
 
 		};

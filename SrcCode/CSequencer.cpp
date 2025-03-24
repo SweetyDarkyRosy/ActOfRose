@@ -12,6 +12,10 @@
 #include "CSequencer.h"
 
 #include "ReturnCodes.h"
+#include "Log.h"
+#include "Token.h"
+#include "Context.h"
+#include "Utility/StringMisc.h"
 
 
 // ----- ActOfRose::Context::CSequencer class -----
@@ -30,4 +34,19 @@ ActOfRose::Context::CSequencer::~CSequencer()
 int ActOfRose::Context::CSequencer::ProcessToken(ActOfRose::Token::SToken* token)
 {
 	return AOR_SUCCESS;
+}
+
+// Determines a context based on a given token and creates it
+int ActOfRose::Context::CSequencer::DetermineAndCreateContext(ActOfRose::Token::SToken* token)
+{
+	switch (token->type)
+	{
+		default:
+		{
+			ActOfRose::WriteLog(PREF_STRING("Could not determine context"), (sizeof(PREF_STRING("Could not determine context")) / sizeof(PChar)),
+				ActOfRose::ELogLevel::ELL_Error);
+
+			return AOR_ERROR_CONTEXT_DETERMINATION_ERROR;
+		}
+	}
 }
