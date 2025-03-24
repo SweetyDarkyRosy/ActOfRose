@@ -67,33 +67,22 @@ int ActOfRose::CLexer::Tokenise()
 	ActOfRose::Token::SToken token;
 	int result;
 
-	while ((result = RetrieveNextToken(&token)) >= 0)
+	while ((result = RetrieveNextToken(&token)) == AOR_SUCCESS)
 	{
-		if (result == AOR_TOKEN_END_OF_SCRIPT)
-		{
-			if (_mTokensRetrieved.size() == 0)
-			{
-				return 0;
-			}
-			else
-			{
-				return AOR_ERROR_TOKEN_PREMATURE_END_OF_SCRIPT;
-			}
-		}
-
 		_mTokensRetrieved.push_back(token);
 
 		result = sequencer.ProcessToken(&token);
-		if (result == AOR_CONTEXT_EXECUTE)
+		if (result != AOR_SUCCESS)
 		{
-			return (int)(_mTokensRetrieved.size());
-		}
-		else if (result < 0)
-		{
-			break;
+			return result;
 		}
 	}
 
+	if ((result == AOR_TOKEN_END_OF_SCRIPT) && (_mTokensRetrieved.size() != 0))
+	{
+		return AOR_ERROR_TOKEN_PREMATURE_END_OF_SCRIPT;
+	}
+	
 	return result;
 }
 

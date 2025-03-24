@@ -33,7 +33,64 @@ ActOfRose::Context::CSequencer::~CSequencer()
 // Analyses the given token and manages current context
 int ActOfRose::Context::CSequencer::ProcessToken(ActOfRose::Token::SToken* token)
 {
-	return AOR_SUCCESS;
+	int result;
+
+	if (_mContexts.size() == 0)
+	{
+		if (DetermineAndCreateContext(token) == AOR_ERROR_CONTEXT_DETERMINATION_ERROR)
+		{
+			return AOR_ERROR_CONTEXT_DETERMINATION_ERROR;
+		}
+	}
+
+	result = _mContexts.top()->ProcessToken(token);
+
+	switch (result)
+	{
+		case AOR_CONTEXT_CREATE:
+		{
+			if ((result = DetermineAndCreateContext(token)) < 0)
+			{
+				break;
+			}
+
+			result = _mContexts.top()->ProcessToken(token);
+			
+			break;
+		}
+
+		case AOR_CONTEXT_COMPLETE:
+		{
+			delete _mContexts.top();
+			_mContexts.pop();
+
+			if (_mContexts.size() != 0)
+			{
+				result = _mContexts.top()->ProcessToken(token);
+
+				/**
+					Parent context cannot create a new context anyway without further token
+				 */
+			}
+
+			break;
+		}
+
+		case AOR_CONTEXT_EXECUTE:
+		{
+			delete _mContexts.top();
+			_mContexts.pop();
+
+			break;
+		}
+
+		default:
+		{
+			break;
+		}
+	}
+
+	return result;
 }
 
 // Determines a context based on a given token and creates it

@@ -81,22 +81,27 @@ int ActOfRose::CScript::Execute()
 	ActOfRose::CLexer lexer(&_mScriptFile);				// Local lexer
 	int result;											// Result value
 
-	while ((result = lexer.Tokenise()) > 0)
+	while (true)
 	{
-		// Executes a retrieved sequence of tokens
-		result = gExecutor.Execute(lexer.GetTokensRetrievedArr());
-		if (result != AOR_SUCCESS)
+		result = lexer.Tokenise();
+		if (result == AOR_TOKEN_END_OF_SCRIPT)
 		{
-			return result;
+			return AOR_SUCCESS;
+		}
+		else if (result == AOR_CONTEXT_EXECUTE)
+		{
+			// Executes a retrieved sequence of tokens
+			result = gExecutor.Execute(lexer.GetTokensRetrievedArr());
+			if (result != AOR_SUCCESS)
+			{
+				break;
+			}
+		}
+		else if (result < 0)
+		{
+			break;
 		}
 	}
 
-	if (result == 0)
-	{
-		return AOR_SUCCESS;
-	}
-	else
-	{
-		return result;
-	}
+	return result;
 }
