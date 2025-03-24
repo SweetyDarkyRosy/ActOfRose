@@ -89,6 +89,8 @@ int ActOfRose::CLexer::Tokenise()
 // Analyses strings of a script and retrieves a token from them
 int ActOfRose::CLexer::RetrieveNextToken(ActOfRose::Token::SToken* newToken)
 {
+	newToken->value.clear();
+
 	while (_pScriptStream->eof() == false)
 	{
 		char retrievedChar = _pScriptStream->peek();
