@@ -43,3 +43,17 @@ bool ActOfRose::Keyword::IsKeyword(const std::string* str)
 	
 	return true;
 }
+
+// Returns a keyword determined by string
+bool ActOfRose::Keyword::GetKeyword(ActOfRose::Keyword::EKeywords* keywordHolder, const std::string* str)
+{
+	auto it = sKeywordMap.find(*str);
+	if (it == sKeywordMap.end())
+	{
+		return false;
+	}
+	
+	*keywordHolder = it->second;
+
+	return true;
+}

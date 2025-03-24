@@ -37,6 +37,9 @@ namespace ActOfRose
 		// Checks if the given string is a keyword
 		bool IsKeyword(const std::string* str);
 
+		// Returns a keyword determined by string
+		bool GetKeyword(ActOfRose::Keyword::EKeywords* keywordHolder, const std::string* str);
+
 	} // !namespace Keyword
 } // !namespace ActOfRose
 
