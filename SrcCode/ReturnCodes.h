@@ -28,6 +28,7 @@
 #define AOR_ERROR_TOKEN_INVALID_NUMBER_VALUE				(-7)		// Error due to invalid number value
 #define AOR_ERROR_TOKEN_INVALID_ENDING_BLOCK_DELIMITER		(-8)		// Error due to invalid ending block delimiter encountered
 #define AOR_ERROR_TOKEN_PREMATURE_END_OF_SCRIPT				(-9)		// Error due to premature end of script
-#define AOR_ERROR_CONTEXT_DETERMINATION_ERROR				(-10)		// Error due to the fact that the context could not be determined
+#define AOR_ERROR_TOKEN_IDENTIFIER_EXPECTED					(-10)		// Error due to that identifier was expected while tokenisation
+#define AOR_ERROR_CONTEXT_DETERMINATION_ERROR				(-11)		// Error due to the fact that the context could not be determined
 
 #endif // !__ACT_OF_ROSE_ERROR_CODES_H__
