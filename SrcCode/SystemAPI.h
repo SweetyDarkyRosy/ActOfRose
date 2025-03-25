@@ -12,6 +12,9 @@
 #ifndef __ACT_OF_ROSE_SYSTEM_API_H__
 #define __ACT_OF_ROSE_SYSTEM_API_H__
 
+#include "Element.h"
+
+
 namespace ActOfRose
 {
 	namespace Token
@@ -28,6 +31,9 @@ namespace ActOfRose
 	/*[
 		Functions for working with elements
 	 ]*/
+
+	// Registers an identifier and builds an association with an element (variable, constant or function)
+	ActOfRose::SElement* AORSystemRegisterIdentifierAndElement(const char* identifier, ActOfRose::EElementType type, void* addr);
 
 	// Checks if the identifier is already in use
 	bool AORSystemIsIdentifierUsed(const char* identifier);

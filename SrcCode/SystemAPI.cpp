@@ -17,7 +17,6 @@
 
 #include "ReturnCodes.h"
 #include "Log.h"
-#include "Element.h"
 #include "Token.h"
 #include "Utility/StringMisc.h"
 
@@ -38,6 +37,21 @@ extern std::map<std::string, ActOfRose::SElement>		gIdentifierMap;		// Map of as
 /*[
 	Functions for working with elements
  ]*/
+
+// Registers an identifier and builds an association with an element (variable, constant, function, or class)
+ActOfRose::SElement* ActOfRose::AORSystemRegisterIdentifierAndElement(const char* identifier, ActOfRose::EElementType type, void* addr)
+{
+	std::pair<std::map<std::string, ActOfRose::SElement>::iterator, bool> result = gIdentifierMap.insert({ identifier, { type, addr } });
+	
+	if (result.second == true)
+	{
+		std::pair<const std::string, ActOfRose::SElement>* newElPair = &(*(result.first));
+
+		return &(newElPair->second);
+	}
+
+	return nullptr;
+}
 
 // Checks if the identifier is already in use
 bool ActOfRose::AORSystemIsIdentifierUsed(const char* identifier)
