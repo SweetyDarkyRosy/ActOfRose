@@ -14,12 +14,31 @@
 
 namespace ActOfRose
 {
+	namespace Token
+	{
+		struct SToken;			// Token structure
+	} // !namespace Token
+
+	namespace Value
+	{
+		class CValue;			// Abstract class of value / data type
+	} // !namespace Value
+
+
 	/*[
 		Functions for working with elements
 	 ]*/
 
 	// Checks if the identifier is already in use
 	bool AORSystemIsIdentifierUsed(const char* identifier);
+
+
+	/*[
+		Functions for working with values
+	 ]*/
+	
+	// Creates a value from token and saves it to a value holder pointed to by valueHolder
+	int CreateValueFromToken(ActOfRose::Value::CValue** valueHolder, ActOfRose::Token::SToken* token);
 
 } // !namespace ActOfRose
 
