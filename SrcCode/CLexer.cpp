@@ -91,7 +91,7 @@ int ActOfRose::CLexer::RetrieveNextToken(ActOfRose::Token::SToken* newToken)
 {
 	newToken->value.clear();
 
-	while (_pScriptStream->eof() == false)
+	while (_pScriptStream->peek() != EOF)
 	{
 		char retrievedChar = _pScriptStream->peek();
 
@@ -181,7 +181,7 @@ int ActOfRose::CLexer::RetrieveNextToken(ActOfRose::Token::SToken* newToken)
 // Retrieves a token of the identifier type
 int ActOfRose::CLexer::RetrieveIdentifierOrKeywordToken(ActOfRose::Token::SToken* newToken)
 {
-	while (_pScriptStream->eof() == false)
+	while (_pScriptStream->peek() != EOF)
 	{
 		char retrievedChar = _pScriptStream->peek();
 
@@ -232,7 +232,7 @@ int ActOfRose::CLexer::RetrieveStringToken(ActOfRose::Token::SToken* newToken)
 		isStartedWithQuotation = true;
 	}
 
-	while (_pScriptStream->eof() == false)
+	while (_pScriptStream->peek() != EOF)
 	{
 		if (isSkipping == true)
 		{
@@ -377,7 +377,7 @@ int ActOfRose::CLexer::RetrieveNumberToken(ActOfRose::Token::SToken* newToken)
 		isDotFound = true;
 	}
 
-	while (_pScriptStream->eof() == false)
+	while (_pScriptStream->peek() != EOF)
 	{
 		char retrievedChar = _pScriptStream->peek();
 
@@ -433,7 +433,7 @@ int ActOfRose::CLexer::RetrieveOperatorToken(ActOfRose::Token::SToken* newToken)
 {
 	newToken->type = ActOfRose::Token::ETokenType::ETTOperator;
 
-	while (_pScriptStream->eof() == false)
+	while (_pScriptStream->peek() != EOF)
 	{
 		char retrievedChar = _pScriptStream->peek();
 
@@ -617,7 +617,7 @@ int ActOfRose::CLexer::RetrieveDelimiterToken(ActOfRose::Token::SToken* newToken
 // Skips a comment
 void ActOfRose::CLexer::SkipComment()
 {
-	while (_pScriptStream->eof() == false)
+	while (_pScriptStream->peek() != EOF)
 	{
 		char retrievedChar = _pScriptStream->get();
 
