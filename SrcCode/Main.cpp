@@ -9,10 +9,14 @@
 	
 	High-level entry point. */
 
+#include <string>
+#include <map>
+
 #include "ReturnCodes.h"
 #include "Log.h"
 #include "CScript.h"
 #include "CExecutor.h"
+#include "Element.h"
 #include "Utility/StringMisc.h"
 
 
@@ -24,7 +28,8 @@
 	Global variables
  ]*/
 
-ActOfRose::CExecutor					gExecutor;			// Global instance of executor
+ActOfRose::CExecutor							gExecutor;			// Global instance of executor
+std::map<std::string, ActOfRose::SElement>		gIdentifierMap;		// Map of associations between identifiers and elements
 
 
 // High-level entry point
