@@ -14,6 +14,11 @@
 
 namespace ActOfRose
 {
+	namespace Token
+	{
+		struct SToken;			// Token structure
+	} // !namespace Token
+
 	namespace Context
 	{
 		// Abstract class of context
@@ -29,6 +34,34 @@ namespace ActOfRose
 		public:
 			// Analyses the given token, checks current sequence for logical errors and updates a context
 			virtual int ProcessToken(ActOfRose::Token::SToken* token) = 0;
+
+		};
+
+
+		/*[
+			Context classes
+		 ]*/
+
+		// Class of variable declaration context
+		class CVarDeclarationContext : public CContext
+		{
+			// States of variable declaration context
+			enum EVarDeclarationCtxStates
+			{
+				EVDCS_VariableName,				// Identifier with variable name is expected
+				EVDCS_InitDisjunction,			// Initialisation branching between two options
+			};
+
+		public:
+			// Constructor
+			CVarDeclarationContext();
+
+		public:
+			// Analyses the given token, checks current sequence for logical errors and updates a context
+			virtual int ProcessToken(ActOfRose::Token::SToken* token) override;
+
+		private:
+			ActOfRose::Context::CVarDeclarationContext::EVarDeclarationCtxStates	_mState;		// Context state
 
 		};
 

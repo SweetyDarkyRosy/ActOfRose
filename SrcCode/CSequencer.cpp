@@ -14,6 +14,7 @@
 #include "ReturnCodes.h"
 #include "Log.h"
 #include "Token.h"
+#include "Keywords.h"
 #include "Context.h"
 #include "Utility/StringMisc.h"
 
@@ -37,56 +38,55 @@ int ActOfRose::Context::CSequencer::ProcessToken(ActOfRose::Token::SToken* token
 
 	if (_mContexts.size() == 0)
 	{
-		if (DetermineAndCreateContext(token) == AOR_ERROR_CONTEXT_DETERMINATION_ERROR)
-		{
-			return AOR_ERROR_CONTEXT_DETERMINATION_ERROR;
-		}
+		result = DetermineAndCreateContext(token);
 	}
-
-	result = _mContexts.top()->ProcessToken(token);
-
-	switch (result)
+	else
 	{
-		case AOR_CONTEXT_CREATE:
+		result = _mContexts.top()->ProcessToken(token);
+
+		switch (result)
 		{
-			if ((result = DetermineAndCreateContext(token)) < 0)
+			case AOR_CONTEXT_CREATE:
 			{
+				if ((result = DetermineAndCreateContext(token)) != AOR_SUCCESS)
+				{
+					break;
+				}
+
+				result = _mContexts.top()->ProcessToken(token);
+				
 				break;
 			}
 
-			result = _mContexts.top()->ProcessToken(token);
-			
-			break;
-		}
-
-		case AOR_CONTEXT_COMPLETE:
-		{
-			delete _mContexts.top();
-			_mContexts.pop();
-
-			if (_mContexts.size() != 0)
+			case AOR_CONTEXT_COMPLETE:
 			{
-				result = _mContexts.top()->ProcessToken(token);
+				delete _mContexts.top();
+				_mContexts.pop();
 
-				/**
-					Parent context cannot create a new context anyway without further token
-				 */
+				if (_mContexts.size() != 0)
+				{
+					result = _mContexts.top()->ProcessToken(token);
+
+					/**
+						Parent context cannot create a new context anyway without further token
+					*/
+				}
+
+				break;
 			}
 
-			break;
-		}
+			case AOR_CONTEXT_EXECUTE:
+			{
+				delete _mContexts.top();
+				_mContexts.pop();
 
-		case AOR_CONTEXT_EXECUTE:
-		{
-			delete _mContexts.top();
-			_mContexts.pop();
+				break;
+			}
 
-			break;
-		}
-
-		default:
-		{
-			break;
+			default:
+			{
+				break;
+			}
 		}
 	}
 
@@ -98,12 +98,41 @@ int ActOfRose::Context::CSequencer::DetermineAndCreateContext(ActOfRose::Token::
 {
 	switch (token->type)
 	{
+		case ActOfRose::Token::ETTKeyword:
+		{
+			ActOfRose::Keyword::EKeywords keyword;
+			if (GetKeyword(&keyword, &(token->value)) == false)
+			{
+				return AOR_ERROR_INTERNAL_ERROR;
+			}
+
+			switch (keyword)
+			{
+				case ActOfRose::Keyword::EKeywords::EK_Var:
+				{
+					_mContexts.push(new ActOfRose::Context::CVarDeclarationContext());
+
+					break;
+				}
+
+				default:
+				{
+					goto DetermineAndCreateContextError;
+				}
+			}
+
+			break;
+		}
+
 		default:
 		{
+		DetermineAndCreateContextError:
 			ActOfRose::WriteLog(PREF_STRING("Could not determine context"), (sizeof(PREF_STRING("Could not determine context")) / sizeof(PChar)),
 				ActOfRose::ELogLevel::ELL_Error);
 
 			return AOR_ERROR_CONTEXT_DETERMINATION_ERROR;
 		}
 	}
+
+	return AOR_SUCCESS;
 }

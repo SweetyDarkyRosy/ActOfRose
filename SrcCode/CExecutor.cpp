@@ -12,6 +12,8 @@
 #include "CExecutor.h"
 
 #include "ReturnCodes.h"
+#include "Log.h"
+#include "Utility/StringMisc.h"
 
 
 // ----- ActOfRose::CExecutor class -----
@@ -26,6 +28,10 @@ int ActOfRose::CExecutor::Execute(std::vector<ActOfRose::Token::SToken>* tokenGr
 {
 	_pCurrTokenGroup = tokenGroup;
 	_mCurrTokenIndex = 0;
+
+#ifdef _DEBUG
+	ActOfRose::WriteLog(PREF_STRING("Execution"), (sizeof(PREF_STRING("Execution")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Debug);
+#endif
 
 	return AOR_SUCCESS;
 }
