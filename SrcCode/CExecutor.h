@@ -31,6 +31,14 @@ namespace ActOfRose
 		int Execute(std::vector<ActOfRose::Token::SToken>* tokenGroup);
 
 	private:
+		// Executes a variable declaration and initialisation
+		int DeclareAndInitialiseVariable(std::vector<ActOfRose::Token::SToken>* tokenGroup);
+
+
+		// Logs information about that a specified identifier already used
+		void LogAlreadyUsedIdentifier(const char* identifier);
+
+	private:
 		std::vector<ActOfRose::Token::SToken>* _pCurrTokenGroup;			// Pointer to a current array of retrieved tokens (token group)
 		unsigned int _mCurrTokenIndex;								// Index of current token in the array
 

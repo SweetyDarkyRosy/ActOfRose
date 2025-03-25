@@ -103,6 +103,9 @@ int ActOfRose::Context::CSequencer::DetermineAndCreateContext(ActOfRose::Token::
 			ActOfRose::Keyword::EKeywords keyword;
 			if (GetKeyword(&keyword, &(token->value)) == false)
 			{
+				ActOfRose::WriteLog(PREF_STRING("Keyword not found. Internal error"),
+					(sizeof(PREF_STRING("Keyword not found. Internal error")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
 				return AOR_ERROR_INTERNAL_ERROR;
 			}
 
