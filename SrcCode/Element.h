@@ -22,6 +22,13 @@ namespace ActOfRose
 		EET_Function						// Function
 	};
 
+	// Structure of information about element
+	struct SElement
+	{
+		ActOfRose::EElementType type;		// Type of element
+		void* addr;							// Address of element
+	};
+
 } // !namespace ActOfRose
 
 #endif // !__ACT_OF_ROSE_ELEMENTS_H__
