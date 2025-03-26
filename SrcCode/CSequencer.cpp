@@ -127,6 +127,18 @@ int ActOfRose::Context::CSequencer::DetermineAndCreateContext(ActOfRose::Token::
 			break;
 		}
 
+		case ActOfRose::Token::ETokenType::ETTNumber:
+		case ActOfRose::Token::ETokenType::ETTString:
+		case ActOfRose::Token::ETokenType::ETTIdentifier:
+		case ActOfRose::Token::ETokenType::ETTOperator:
+		case ActOfRose::Token::ETokenType::ETTRoundBracketLeft:
+		case ActOfRose::Token::ETokenType::ETTCurlyBracketLeft:
+		{
+			_mContexts.push(new ActOfRose::Context::CExpressionEvaluationContext());
+
+			break;
+		}
+
 		default:
 		{
 		DetermineAndCreateContextError:

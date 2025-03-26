@@ -50,6 +50,8 @@ namespace ActOfRose
 			{
 				EVDCS_VariableName,				// Identifier with variable name is expected
 				EVDCS_InitDisjunction,			// Initialisation branching between two options
+				EVDCS_ExpressionBegin,			// Expression is expected
+				EVDCS_ExpressionEnd,			// Ending of expression (semicolon) is expected
 			};
 
 		public:
@@ -62,6 +64,22 @@ namespace ActOfRose
 
 		private:
 			ActOfRose::Context::CVarDeclarationContext::EVarDeclarationCtxStates	_mState;		// Context state
+
+		};
+
+		// Class of expression evaluation context
+		class CExpressionEvaluationContext : public CContext
+		{
+		public:
+			// Constructor
+			CExpressionEvaluationContext();
+
+		public:
+			// Analyses the given token, checks current sequence for logical errors and updates a context
+			virtual int ProcessToken(ActOfRose::Token::SToken* token) override;
+
+		private:
+			unsigned int _mNestingDepth;			// Nesting depth
 
 		};
 
