@@ -14,6 +14,11 @@
 
 namespace ActOfRose
 {
+	namespace Value
+	{
+		class CValue;				// Abstract class of value / data type
+	} // !namespace Value
+
 	namespace AST
 	{
 		// Types of nodes for expression's AST
@@ -23,6 +28,36 @@ namespace ActOfRose
 			EESTNTOperand,						// Operand node
 			EESTNTRoundBracket,					// Round bracket (left) node
 			EESTNTCurlyBracket					// Curly bracket (left) node
+		};
+
+		// Abstract class of a node for an AST for expression evaluation
+		class CExprASTNode
+		{
+		public:
+			// Constructor
+			CExprASTNode(ActOfRose::AST::EExprASTNodeType nodeType, ActOfRose::AST::CExprASTNode* parentNode = nullptr) :
+				_mType(nodeType), _pParentNode(parentNode)
+			{}
+
+			// Destructor
+			virtual ~CExprASTNode() {}
+
+		public:
+			// Returns the type of an expression AST's node
+			inline ActOfRose::AST::EExprASTNodeType GetType() const { return _mType; }
+
+			// Sets a specified node as the parent node
+			inline void SetParent(ActOfRose::AST::CExprASTNode* parentNode) { _pParentNode = parentNode; }
+			// Returns a pointer to a node specified as a parent node
+			inline ActOfRose::AST::CExprASTNode* GetParent() { return _pParentNode; }
+
+			// Retrieves a value and sets it to the value holder pointed to by valueHolder
+			virtual int RetrieveValue(ActOfRose::Value::CValue** valueHolder) = 0;
+
+		protected:
+			ActOfRose::AST::EExprASTNodeType		_mType;			// Node type
+			ActOfRose::AST::CExprASTNode*			_pParentNode;	// Pointer to a parent node
+
 		};
 
 	} // !namespace AST
