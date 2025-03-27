@@ -72,6 +72,14 @@ namespace ActOfRose
 			EVC_LValue = 2,							// lvalue
 		};
 
+
+		// Structure of value reference
+		struct SValueReference
+		{
+			ActOfRose::Value::CValue* value;					// Pointer to a value
+			ActOfRose::Value::EValueCategories category;		// Value category
+		};
+
 	} // !namespace Value
 } // !namespace ActOfRose
 
