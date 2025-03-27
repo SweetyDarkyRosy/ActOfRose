@@ -80,6 +80,9 @@ int ActOfRose::CLexer::Tokenise()
 
 	if ((result == AOR_TOKEN_END_OF_SCRIPT) && (_mTokensRetrieved.size() != 0))
 	{
+		ActOfRose::WriteLog(PREF_STRING("Premature end of script"),
+			(sizeof(PREF_STRING("Premature end of script")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
 		return AOR_ERROR_TOKEN_PREMATURE_END_OF_SCRIPT;
 	}
 	

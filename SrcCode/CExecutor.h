@@ -19,6 +19,11 @@
 
 namespace ActOfRose
 {
+	namespace AST
+	{
+		class CExprASTNode;					// Abstract class of a node for an AST for expression evaluation
+	} // !namespace AST
+
 	// Class of script executor
 	class CExecutor
 	{
@@ -33,7 +38,12 @@ namespace ActOfRose
 	private:
 		// Executes a variable declaration and initialisation
 		int DeclareAndInitialiseVariable(std::vector<ActOfRose::Token::SToken>* tokenGroup);
-
+		
+		/**
+			Builds an AST for expression evaluation based on given token array and saves a root of the expression AST to a
+			pointer pointed to by treeRootNodeHolder
+		 */
+		int BuildExpressionAST(ActOfRose::AST::CExprASTNode** treeRootNodeHolder);
 
 		// Logs information about that a specified identifier already used
 		void LogAlreadyUsedIdentifier(const char* identifier);

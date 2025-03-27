@@ -16,6 +16,7 @@
 #include "SystemAPI.h"
 #include "Keywords.h"
 #include "CVariable.h"
+#include "Expression.h"
 #include "Utility/StringMisc.h"
 
 
@@ -88,7 +89,41 @@ int ActOfRose::CExecutor::DeclareAndInitialiseVariable(std::vector<ActOfRose::To
 	}
 
 	// New variable
-	ActOfRose::CVariable* newVariable = new ActOfRose::CVariable();
+	ActOfRose::CVariable* newVariable;
+
+	if ((*tokenGroup)[2].type == ActOfRose::Token::ETokenType::ETTSemicolon)
+	{
+		newVariable = new ActOfRose::CVariable();
+	}
+	else if (((*tokenGroup)[2].type == ActOfRose::Token::ETokenType::ETTOperator) &&
+		((*tokenGroup)[2].value.compare("=") == 0))
+	{
+		ActOfRose::Value::CValue* newValue;
+		{
+			ActOfRose::AST::CExprASTNode* exprRoot;
+			{
+				int result = BuildExpressionAST(&exprRoot);
+				if (result != AOR_SUCCESS)
+				{
+					delete exprRoot;
+
+					return result;
+				}
+			}
+
+			int result = exprRoot->RetrieveValue(&newValue);
+			delete exprRoot;
+
+			if (result != AOR_SUCCESS)
+			{
+				delete exprRoot;
+
+				return result;
+			}
+		}
+
+		newVariable = new ActOfRose::CVariable(newValue);
+	}
 
 	if (AORSystemRegisterIdentifierAndElement((*tokenGroup)[1].value.c_str(), ActOfRose::EElementType::EET_Variable, (void*)newVariable) == nullptr)
 	{
@@ -113,6 +148,16 @@ int ActOfRose::CExecutor::DeclareAndInitialiseVariable(std::vector<ActOfRose::To
 	}
 #endif
 
+	return AOR_SUCCESS;
+}
+
+
+/**
+	Builds an AST for expression evaluation based on given token array and saves a root of the expression AST to a pointer pointed
+	to by treeRootNodeHolder
+ */
+int ActOfRose::CExecutor::BuildExpressionAST(ActOfRose::AST::CExprASTNode** treeRootNodeHolder)
+{
 	return AOR_SUCCESS;
 }
 

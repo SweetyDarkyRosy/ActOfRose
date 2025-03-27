@@ -12,6 +12,9 @@
 #ifndef __ACT_OF_ROSE_VARIABLE_CLASS_H__
 #define __ACT_OF_ROSE_VARIABLE_CLASS_H__
 
+#include "Value/Value.h"
+
+
 namespace ActOfRose
 {
 	namespace Value
