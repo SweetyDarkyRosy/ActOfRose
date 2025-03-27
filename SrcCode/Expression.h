@@ -16,7 +16,7 @@ namespace ActOfRose
 {
 	namespace Value
 	{
-		class CValue;				// Abstract class of value / data type
+		struct SValueReference;			// Structure of value reference
 	} // !namespace Value
 
 	namespace AST
@@ -51,8 +51,8 @@ namespace ActOfRose
 			// Returns a pointer to a node specified as a parent node
 			inline ActOfRose::AST::CExprASTNode* GetParent() { return _pParentNode; }
 
-			// Retrieves a value and sets it to the value holder pointed to by valueHolder
-			virtual int RetrieveValue(ActOfRose::Value::CValue** valueHolder) = 0;
+			// Retrieves a value and sets it to the value reference holder pointed to by valueRefHolder
+			virtual int RetrieveValue(ActOfRose::Value::SValueReference* valueRefHolder) = 0;
 
 		protected:
 			ActOfRose::AST::EExprASTNodeType		_mType;			// Node type

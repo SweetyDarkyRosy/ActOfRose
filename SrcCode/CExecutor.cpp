@@ -98,7 +98,7 @@ int ActOfRose::CExecutor::DeclareAndInitialiseVariable(std::vector<ActOfRose::To
 	else if (((*tokenGroup)[2].type == ActOfRose::Token::ETokenType::ETTOperator) &&
 		((*tokenGroup)[2].value.compare("=") == 0))
 	{
-		ActOfRose::Value::CValue* newValue;
+		ActOfRose::Value::SValueReference newValueRef;
 		{
 			ActOfRose::AST::CExprASTNode* exprRoot;
 			{
@@ -111,7 +111,7 @@ int ActOfRose::CExecutor::DeclareAndInitialiseVariable(std::vector<ActOfRose::To
 				}
 			}
 
-			int result = exprRoot->RetrieveValue(&newValue);
+			int result = exprRoot->RetrieveValue(&newValueRef);
 			delete exprRoot;
 
 			if (result != AOR_SUCCESS)
@@ -122,7 +122,7 @@ int ActOfRose::CExecutor::DeclareAndInitialiseVariable(std::vector<ActOfRose::To
 			}
 		}
 
-		newVariable = new ActOfRose::CVariable(newValue);
+		newVariable = new ActOfRose::CVariable(newValueRef.value);
 	}
 
 	if (AORSystemRegisterIdentifierAndElement((*tokenGroup)[1].value.c_str(), ActOfRose::EElementType::EET_Variable, (void*)newVariable) == nullptr)
