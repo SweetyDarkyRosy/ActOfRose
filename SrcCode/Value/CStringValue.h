@@ -33,6 +33,9 @@ namespace ActOfRose
 			// Constructor that takes a C-style null-terminated byte string
 			CStringValue(const char* string);
 
+			// Constructor that takes another string value and makes a copy
+			CStringValue(const ActOfRose::Value::CStringValue* string);
+
 		public:
 			// Sets the UTF-8-encoded null-terminated byte string
 			void SetRawString(const char* string);

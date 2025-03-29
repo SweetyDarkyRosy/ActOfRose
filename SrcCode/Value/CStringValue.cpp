@@ -23,6 +23,11 @@ ActOfRose::Value::CStringValue::CStringValue(const char* string) :
 	SetRawString(string);
 }
 
+// Constructor that takes another string value and makes a copy
+ActOfRose::Value::CStringValue::CStringValue(const ActOfRose::Value::CStringValue* string) :
+	CValue(ActOfRose::Value::EValueType::EVT_String), _mRawString(string->_mRawString), _mUnicodeIndices(string->_mUnicodeIndices)
+{}
+
 // Sets the UTF-8-encoded null-terminated byte string
 void ActOfRose::Value::CStringValue::SetRawString(const char* string)
 {
