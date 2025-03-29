@@ -24,6 +24,7 @@
 #include "Value/CFloatValue.h"
 #include "Value/CBooleanValue.h"
 #include "Value/CStringValue.h"
+#include "Value/CCharValue.h"
 
 
 /*[
@@ -176,6 +177,21 @@ ActOfRose::Value::CValue* ActOfRose::CopyValue(ActOfRose::Value::CValue* origina
 		#endif
 
 			newValue = (ActOfRose::Value::CValue*)newFloatValue;
+
+			break;
+		}
+
+		case ActOfRose::Value::EValueType::EVT_Character:
+		{
+			ActOfRose::Value::CCharValue* newCharValue = new ActOfRose::Value::CCharValue(
+				((ActOfRose::Value::CCharValue*)originalValue)->GetRawCharSet());
+
+		#ifdef _DEBUG
+			std::string logMsg = "Copy of character value has been created (" + newCharValue->ConvertValueToByteString() + ")";
+			ActOfRose::WriteLog(logMsg.c_str(), logMsg.size(), ActOfRose::ELogLevel::ELL_Debug);
+		#endif
+
+			newValue = (ActOfRose::Value::CValue*)newCharValue;
 
 			break;
 		}
