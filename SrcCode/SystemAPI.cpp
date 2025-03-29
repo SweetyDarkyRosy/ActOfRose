@@ -150,6 +150,21 @@ ActOfRose::Value::CValue* ActOfRose::CopyValue(ActOfRose::Value::CValue* origina
 			break;
 		}
 
+		case ActOfRose::Value::EValueType::EVT_FloatingPoint:
+		{
+			ActOfRose::Value::CFloatValue* newFloatValue = new ActOfRose::Value::CFloatValue(
+				((ActOfRose::Value::CFloatValue*)originalValue)->GetRawValue());
+
+		#ifdef _DEBUG
+			std::string logMsg = "New copy of floating-point value has been created (" + newFloatValue->ConvertValueToByteString() + ")";
+			ActOfRose::WriteLog(logMsg.c_str(), logMsg.size(), ActOfRose::ELogLevel::ELL_Debug);
+		#endif
+
+			newValue = (ActOfRose::Value::CValue*)newFloatValue;
+
+			break;
+		}
+
 		default:
 		{
 			std::string errorMsg = "Copying of values of type \"";
