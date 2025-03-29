@@ -26,7 +26,6 @@
 #include "Value/CStringValue.h"
 
 
-
 /*[
 	Global variables
  ]*/
@@ -127,4 +126,41 @@ int ActOfRose::CreateValueFromToken(ActOfRose::Value::CValue** valueHolder, ActO
 	}
 
 	return AOR_SUCCESS;
+}
+
+// Creates a copy of a value pointed to by originalValue and returns a pointer to the copy
+ActOfRose::Value::CValue* ActOfRose::CopyValue(ActOfRose::Value::CValue* originalValue)
+{
+	ActOfRose::Value::CValue* newValue = nullptr;
+
+	switch (originalValue->GetValueType())
+	{
+		case ActOfRose::Value::EValueType::EVT_Integer:
+		{
+			ActOfRose::Value::CIntegerValue* newIntValue = new ActOfRose::Value::CIntegerValue(
+				((ActOfRose::Value::CIntegerValue*)originalValue)->GetRawValue());
+
+		#ifdef _DEBUG
+			std::string logMsg = "New copy of integer value has been created (" + newIntValue->ConvertValueToByteString() + ")";
+			ActOfRose::WriteLog(logMsg.c_str(), logMsg.size(), ActOfRose::ELogLevel::ELL_Debug);
+		#endif
+
+			newValue = (ActOfRose::Value::CValue*)newIntValue;
+
+			break;
+		}
+
+		default:
+		{
+			std::string errorMsg = "Copying of values of type \"";
+				errorMsg += originalValue->GetTypeByteString();
+				errorMsg += "\" is not supported";
+	
+			ActOfRose::WriteLog(errorMsg.c_str(), errorMsg.length(), ActOfRose::ELogLevel::ELL_Error);
+
+			break;
+		}
+	}
+
+	return newValue;
 }

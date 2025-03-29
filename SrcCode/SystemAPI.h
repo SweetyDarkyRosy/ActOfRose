@@ -46,6 +46,9 @@ namespace ActOfRose
 	// Creates a value from token and saves it to a value holder pointed to by valueHolder
 	int CreateValueFromToken(ActOfRose::Value::CValue** valueHolder, ActOfRose::Token::SToken* token);
 
+	// Creates a copy of a value pointed to by originalValue and returns a pointer to the copy
+	ActOfRose::Value::CValue* CopyValue(ActOfRose::Value::CValue* originalValue);
+
 } // !namespace ActOfRose
 
 #endif // !__ACT_OF_ROSE_SYSTEM_API_H__
