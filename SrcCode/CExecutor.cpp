@@ -122,7 +122,14 @@ int ActOfRose::CExecutor::DeclareAndInitialiseVariable(std::vector<ActOfRose::To
 			}
 		}
 
-		newVariable = new ActOfRose::CVariable(newValueRef.value);
+		if (newValueRef.category == ActOfRose::Value::EValueCategories::EVC_LValue)
+		{
+			newVariable = new ActOfRose::CVariable(CopyValue(newValueRef.value));
+		}
+		else
+		{
+			newVariable = new ActOfRose::CVariable(newValueRef.value);
+		}
 	}
 
 	if (AORSystemRegisterIdentifierAndElement((*tokenGroup)[1].value.c_str(), ActOfRose::EElementType::EET_Variable, (void*)newVariable) == nullptr)

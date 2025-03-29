@@ -25,6 +25,7 @@
 #include "Value/CBooleanValue.h"
 #include "Value/CStringValue.h"
 #include "Value/CCharValue.h"
+#include "Value/CArrayValue.h"
 
 
 /*[
@@ -217,7 +218,7 @@ ActOfRose::Value::CValue* ActOfRose::CopyValue(ActOfRose::Value::CValue* origina
 				(ActOfRose::Value::CArrayValue*)originalValue);
 
 		#ifdef _DEBUG
-			std::string logMsg = "Copy of array has been created (\"" + newString->ConvertValueToByteString() + "\")";
+			std::string logMsg = "Copy of array has been created (\"" + newArray->ConvertValueToByteString() + "\")";
 			ActOfRose::WriteLog(logMsg.c_str(), logMsg.size(), ActOfRose::ELogLevel::ELL_Debug);
 		#endif
 
