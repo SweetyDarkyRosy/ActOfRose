@@ -211,6 +211,21 @@ ActOfRose::Value::CValue* ActOfRose::CopyValue(ActOfRose::Value::CValue* origina
 			break;
 		}
 
+		case ActOfRose::Value::EValueType::EVT_Array:
+		{
+			ActOfRose::Value::CArrayValue* newArray = new ActOfRose::Value::CArrayValue(
+				(ActOfRose::Value::CArrayValue*)originalValue);
+
+		#ifdef _DEBUG
+			std::string logMsg = "Copy of array has been created (\"" + newString->ConvertValueToByteString() + "\")";
+			ActOfRose::WriteLog(logMsg.c_str(), logMsg.size(), ActOfRose::ELogLevel::ELL_Debug);
+		#endif
+
+			newValue = (ActOfRose::Value::CValue*)newArray;
+
+			break;
+		}
+
 		default:
 		{
 			std::string errorMsg = "Copying of values of type \"";
