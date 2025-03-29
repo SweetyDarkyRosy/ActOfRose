@@ -30,6 +30,9 @@ namespace ActOfRose
 				CValue(ActOfRose::Value::EValueType::EVT_Array), _mValueArray()
 			{}
 
+			// Constructor that takes another array and makes a copy
+			CArrayValue(const ActOfRose::Value::CArrayValue* array);
+
 			// Destructor
 			~CArrayValue();
 

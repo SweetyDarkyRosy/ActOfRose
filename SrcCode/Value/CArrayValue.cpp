@@ -13,8 +13,21 @@
 
 #include <Utility/StringConverting.h>
 
+#include "SystemAPI.h"
+
 
 // ----- ActOfRose::Value::CArrayValue class -----
+
+// Constructor that takes another array and makes a copy
+ActOfRose::Value::CArrayValue::CArrayValue(const ActOfRose::Value::CArrayValue* array) :
+	CValue(ActOfRose::Value::EValueType::EVT_Array)
+{
+	for (unsigned int valueIt = 0; valueIt < (unsigned int)(array->_mValueArray.size()); valueIt++)
+	{
+		ActOfRose::Value::CValue* newValue = CopyValue(array->_mValueArray[valueIt]);
+		_mValueArray.push_back(newValue);
+	}
+}
 
 // Destructor
 ActOfRose::Value::CArrayValue::~CArrayValue()
