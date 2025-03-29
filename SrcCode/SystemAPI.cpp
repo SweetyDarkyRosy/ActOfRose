@@ -135,13 +135,28 @@ ActOfRose::Value::CValue* ActOfRose::CopyValue(ActOfRose::Value::CValue* origina
 
 	switch (originalValue->GetValueType())
 	{
+		case ActOfRose::Value::EValueType::EVT_Boolean:
+		{
+			ActOfRose::Value::CBooleanValue* newBooleanValue = new ActOfRose::Value::CBooleanValue(
+				((ActOfRose::Value::CBooleanValue*)originalValue)->GetRawValue());
+
+		#ifdef _DEBUG
+			std::string logMsg = "Copy of boolean value has been created (" + newBooleanValue->ConvertValueToByteString() + ")";
+			ActOfRose::WriteLog(logMsg.c_str(), logMsg.size(), ActOfRose::ELogLevel::ELL_Debug);
+		#endif
+
+			newValue = (ActOfRose::Value::CValue*)newBooleanValue;
+
+			break;
+		}
+
 		case ActOfRose::Value::EValueType::EVT_Integer:
 		{
 			ActOfRose::Value::CIntegerValue* newIntValue = new ActOfRose::Value::CIntegerValue(
 				((ActOfRose::Value::CIntegerValue*)originalValue)->GetRawValue());
 
 		#ifdef _DEBUG
-			std::string logMsg = "New copy of integer value has been created (" + newIntValue->ConvertValueToByteString() + ")";
+			std::string logMsg = "Copy of integer value has been created (" + newIntValue->ConvertValueToByteString() + ")";
 			ActOfRose::WriteLog(logMsg.c_str(), logMsg.size(), ActOfRose::ELogLevel::ELL_Debug);
 		#endif
 
@@ -156,7 +171,7 @@ ActOfRose::Value::CValue* ActOfRose::CopyValue(ActOfRose::Value::CValue* origina
 				((ActOfRose::Value::CFloatValue*)originalValue)->GetRawValue());
 
 		#ifdef _DEBUG
-			std::string logMsg = "New copy of floating-point value has been created (" + newFloatValue->ConvertValueToByteString() + ")";
+			std::string logMsg = "Copy of floating-point value has been created (" + newFloatValue->ConvertValueToByteString() + ")";
 			ActOfRose::WriteLog(logMsg.c_str(), logMsg.size(), ActOfRose::ELogLevel::ELL_Debug);
 		#endif
 
