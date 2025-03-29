@@ -196,6 +196,21 @@ ActOfRose::Value::CValue* ActOfRose::CopyValue(ActOfRose::Value::CValue* origina
 			break;
 		}
 
+		case ActOfRose::Value::EValueType::EVT_String:
+		{
+			ActOfRose::Value::CStringValue* newString = new ActOfRose::Value::CStringValue(
+				(ActOfRose::Value::CStringValue*)originalValue);
+
+		#ifdef _DEBUG
+			std::string logMsg = "Copy of string has been created (\"" + newString->ConvertValueToByteString() + "\")";
+			ActOfRose::WriteLog(logMsg.c_str(), logMsg.size(), ActOfRose::ELogLevel::ELL_Debug);
+		#endif
+
+			newValue = (ActOfRose::Value::CValue*)newString;
+
+			break;
+		}
+
 		default:
 		{
 			std::string errorMsg = "Copying of values of type \"";
