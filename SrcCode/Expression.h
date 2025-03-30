@@ -12,13 +12,11 @@
 #ifndef __ACT_OF_ROSE_EXPRESSION_EVALUATION_H__
 #define __ACT_OF_ROSE_EXPRESSION_EVALUATION_H__
 
+#include "Value/Value.h"
+
+
 namespace ActOfRose
 {
-	namespace Value
-	{
-		struct SValueReference;			// Structure of value reference
-	} // !namespace Value
-
 	namespace AST
 	{
 		// Types of nodes for expression's AST
@@ -57,6 +55,28 @@ namespace ActOfRose
 		protected:
 			ActOfRose::AST::EExprASTNodeType		_mType;			// Node type
 			ActOfRose::AST::CExprASTNode*			_pParentNode;	// Pointer to a parent node
+
+		};
+
+		// Class of an operand node for an AST for expression evaluation
+		class CExprASTOperandNode : public ActOfRose::AST::CExprASTNode
+		{
+		public:
+			// Constructor
+			CExprASTOperandNode(ActOfRose::Value::CValue* value, ActOfRose::Value::EValueCategories valueCategory,
+				ActOfRose::AST::CExprASTNode* parentNode = nullptr) :
+				ActOfRose::AST::CExprASTNode(ActOfRose::AST::EExprASTNodeType::EESTNTOperand, parentNode), _mValueRef{ value, valueCategory }
+			{}
+
+			// Destructor
+			~CExprASTOperandNode();
+
+		public:
+			// Retrieves a value and sets it to the value reference holder pointed to by valueRefHolder
+			virtual int RetrieveValue(ActOfRose::Value::SValueReference* valueRefHolder) override;
+
+		private:
+			ActOfRose::Value::SValueReference _mValueRef;					// Reference to an associated value
 
 		};
 
