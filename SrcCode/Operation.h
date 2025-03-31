@@ -22,7 +22,8 @@ namespace ActOfRose
 			EO_Summation,				// Summation
 			EO_Subtraction,				// Subtraction
 			EO_Multiplication,			// Multiplication
-			EO_Division					// Division
+			EO_Division,				// Division
+			EO_Assignment				// Assignment
 		};
 
 	} // !namespace Operation
