@@ -32,5 +32,6 @@
 #define AOR_ERROR_TOKEN_IDENTIFIER_EXPECTED					(-11)		// Error due to that identifier was expected while tokenisation
 #define AOR_ERROR_CONTEXT_DETERMINATION_ERROR				(-12)		// Error due to the fact that the context could not be determined
 #define AOR_ERROR_EXEC_IDENTIFIER_ALREADY_IN_USE			(-13)		// Error due to that a given identifier is already in use
+#define AOR_ERROR_EXEC_NO_OPERATOR_CHILD					(-14)		// Error due to that an operator node has no child operand nodes
 
 #endif // !__ACT_OF_ROSE_ERROR_CODES_H__

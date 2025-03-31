@@ -26,3 +26,18 @@ static const std::unordered_map<std::string, ActOfRose::Operation::EOperations> 
 	{ "/", ActOfRose::Operation::EOperations::EO_Division },
 	{ "=", ActOfRose::Operation::EOperations::EO_Assignment }
 };
+
+
+// Returns an operation type determined by string
+bool ActOfRose::Operation::GetOperationType(ActOfRose::Operation::EOperations* operationHolder, const std::string* str)
+{
+	auto it = sOperationMap.find(*str);
+	if (it == sOperationMap.end())
+	{
+		return false;
+	}
+	
+	*operationHolder = it->second;
+
+	return true;
+}

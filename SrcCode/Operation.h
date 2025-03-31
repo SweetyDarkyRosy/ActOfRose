@@ -26,6 +26,10 @@ namespace ActOfRose
 			EO_Assignment				// Assignment
 		};
 
+
+		// Returns an operation type determined by string
+		bool GetOperationType(ActOfRose::Operation::EOperations* operationHolder, const std::string* str);
+
 	} // !namespace Operation
 } // !namespace ActOfRose
 
