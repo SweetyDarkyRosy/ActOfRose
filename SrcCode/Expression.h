@@ -12,6 +12,7 @@
 #ifndef __ACT_OF_ROSE_EXPRESSION_EVALUATION_H__
 #define __ACT_OF_ROSE_EXPRESSION_EVALUATION_H__
 
+#include "Operation.h"
 #include "Value/Value.h"
 
 
@@ -77,6 +78,55 @@ namespace ActOfRose
 
 		private:
 			ActOfRose::Value::SValueReference _mValueRef;					// Reference to an associated value
+
+		};
+
+		// Class of an operator node for an AST for expression evaluation
+		class CExprASTOperatorNode : public ActOfRose::AST::CExprASTNode
+		{
+		public:
+			// Constructor
+			CExprASTOperatorNode(ActOfRose::Operation::EOperationTypes opType, ActOfRose::AST::CExprASTNode* parentNode = nullptr) :
+				ActOfRose::AST::CExprASTNode(ActOfRose::AST::EExprASTNodeType::EESTNTOperator, parentNode),
+				_mOperationType(opType), _pLeftChild(nullptr), _pRightChild(nullptr)
+			{}
+
+			// Destructor
+			~CExprASTOperatorNode();
+
+		public:
+			// Returns an operation type
+			inline ActOfRose::Operation::EOperationTypes GetOperationType() const { return _mOperationType; }
+
+			// Returns the precedence of an operator
+			unsigned int GetPrecedence() const;
+
+			// Returns a pointer to the left child
+			inline ActOfRose::AST::CExprASTNode* GetLeftChild() { return _pLeftChild; }
+			// Sets the node as a left child
+			inline void SetLeftChild(ActOfRose::AST::CExprASTNode* node)
+			{
+				_pLeftChild = node;
+				_pLeftChild->SetParent(this);
+			}
+
+			// Returns a pointer to the right child
+			inline ActOfRose::AST::CExprASTNode* GetRightChild() { return _pRightChild; }
+			// Sets the node as a right child
+			inline void SetRightChild(ActOfRose::AST::CExprASTNode* node)
+			{
+				_pRightChild = node;
+				_pRightChild->SetParent(this);
+			}
+
+			// Retrieves a value and sets it to the value reference holder pointed to by valueRefHolder
+			virtual int RetrieveValue(ActOfRose::Value::SValueReference* valueRefHolder) override;
+
+		private:
+			ActOfRose::Operation::EOperationTypes _mOperationType;		// Operation type
+
+			ActOfRose::AST::CExprASTNode* _pLeftChild;					// Left child node
+			ActOfRose::AST::CExprASTNode* _pRightChild;					// Right child node
 
 		};
 

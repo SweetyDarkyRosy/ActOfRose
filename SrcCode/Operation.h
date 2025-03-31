@@ -12,12 +12,15 @@
 #ifndef __ACT_OF_ROSE_OPERATIONS_H__
 #define __ACT_OF_ROSE_OPERATIONS_H__
 
+#include <string>
+
+
 namespace ActOfRose
 {
 	namespace Operation
 	{
 		// Types of operations
-		enum class EOperations
+		enum class EOperationTypes
 		{
 			EO_Summation,				// Summation
 			EO_Subtraction,				// Subtraction
@@ -28,7 +31,7 @@ namespace ActOfRose
 
 
 		// Returns an operation type determined by string
-		bool GetOperationType(ActOfRose::Operation::EOperations* operationHolder, const std::string* str);
+		bool GetOperationType(ActOfRose::Operation::EOperationTypes* operationHolder, const std::string* str);
 
 	} // !namespace Operation
 } // !namespace ActOfRose
