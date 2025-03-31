@@ -19,6 +19,11 @@
 
 namespace ActOfRose
 {
+	namespace Value
+	{
+		struct SValueReference;				// Structure of value reference
+	} // !namespace Value
+
 	namespace AST
 	{
 		class CExprASTNode;					// Abstract class of a node for an AST for expression evaluation
@@ -39,6 +44,9 @@ namespace ActOfRose
 		// Executes a variable declaration and initialisation
 		int DeclareAndInitialiseVariable(std::vector<ActOfRose::Token::SToken>* tokenGroup);
 		
+		// Retrieves a value starting in a token with the current index and saved into the value reference pointer to by valueRefHolder
+		int RetrieveValue(ActOfRose::Value::SValueReference* valueRefHolder);
+
 		/**
 			Builds an AST for expression evaluation based on given token array and saves a root of the expression AST to a
 			pointer pointed to by treeRootNodeHolder
