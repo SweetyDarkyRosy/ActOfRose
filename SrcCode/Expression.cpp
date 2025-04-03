@@ -18,20 +18,52 @@
 
 // ----- ActOfRose::AST::CExprASTOperandNode class -----
 
-// Destructor
-ActOfRose::AST::CExprASTOperandNode::~CExprASTOperandNode()
+// Constructor
+ActOfRose::AST::CExprASTOperandNode::CExprASTOperandNode(ActOfRose::Value::CValue** valueHolder, ActOfRose::Value::EValueCategories valueCategory,
+	ActOfRose::AST::CExprASTNode* parentNode) :
+	ActOfRose::AST::CExprASTNode(ActOfRose::AST::EExprASTNodeType::EESTNTOperand, parentNode)
 {
-	if ((_mValueRef.value != nullptr) && (_mValueRef.category != ActOfRose::Value::EValueCategories::EVC_LValue))
+	_mValueRef.category = valueCategory;
+
+	if (_mValueRef.category == ActOfRose::Value::EValueCategories::EVC_LValue)
 	{
-		delete _mValueRef.value;
+		_mValueRef.value.valueHolder = valueHolder;
+	}
+	else
+	{
+		_mValueRef.value.value = *valueHolder;
+	}
+}
+
+// Constructor that takes another value reference to copy data
+ActOfRose::AST::CExprASTOperandNode::CExprASTOperandNode(ActOfRose::Value::SValueReference* valueRef, ActOfRose::AST::CExprASTNode* parentNode) :
+	ActOfRose::AST::CExprASTNode(ActOfRose::AST::EExprASTNodeType::EESTNTOperand, parentNode)
+{
+	_mValueRef.category = valueRef->category;
+
+	if (_mValueRef.category == ActOfRose::Value::EValueCategories::EVC_LValue)
+	{
+		_mValueRef.value.valueHolder = valueRef->value.valueHolder;
+	}
+	else
+	{
+		_mValueRef.value.value = valueRef->value.value;
 	}
 }
 
 // Retrieves a value and sets it to the value reference holder pointed to by valueRefHolder
 int ActOfRose::AST::CExprASTOperandNode::RetrieveValue(ActOfRose::Value::SValueReference* valueRefHolder)
 {
-	valueRefHolder->value = _mValueRef.value;
 	valueRefHolder->category = _mValueRef.category;
+
+	if (_mValueRef.category == ActOfRose::Value::EValueCategories::EVC_LValue)
+	{
+		valueRefHolder->value.valueHolder = _mValueRef.value.valueHolder;
+	}
+	else
+	{
+		valueRefHolder->value.value = _mValueRef.value.value;
+	}
 
 	return AOR_SUCCESS;
 }

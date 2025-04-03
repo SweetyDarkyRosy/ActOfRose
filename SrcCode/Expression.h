@@ -64,13 +64,13 @@ namespace ActOfRose
 		{
 		public:
 			// Constructor
-			CExprASTOperandNode(ActOfRose::Value::CValue* value, ActOfRose::Value::EValueCategories valueCategory,
-				ActOfRose::AST::CExprASTNode* parentNode = nullptr) :
-				ActOfRose::AST::CExprASTNode(ActOfRose::AST::EExprASTNodeType::EESTNTOperand, parentNode), _mValueRef{ value, valueCategory }
-			{}
+			CExprASTOperandNode(ActOfRose::Value::CValue** valueHolder, ActOfRose::Value::EValueCategories valueCategory,
+				ActOfRose::AST::CExprASTNode* parentNode = nullptr);
+			// Constructor that takes another value reference to copy data
+			CExprASTOperandNode(ActOfRose::Value::SValueReference* valueRef, ActOfRose::AST::CExprASTNode* parentNode = nullptr);
 
 			// Destructor
-			~CExprASTOperandNode();
+			~CExprASTOperandNode() {}
 
 		public:
 			// Retrieves a value and sets it to the value reference holder pointed to by valueRefHolder

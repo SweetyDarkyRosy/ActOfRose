@@ -118,12 +118,24 @@ int ActOfRose::CExecutor::DeclareAndInitialiseVariable(std::vector<ActOfRose::To
 			int result = exprRoot->RetrieveValue(&newValueRef);
 			if (result != AOR_SUCCESS)
 			{
+				if (newValueRef.category != ActOfRose::Value::EValueCategories::EVC_LValue)
+				{
+					delete newValueRef.value.value;
+				}
+
 				delete exprRoot;
 
 				return result;
 			}
 
-			newValue = CopyValue(newValueRef.value);
+			if (newValueRef.category == ActOfRose::Value::EValueCategories::EVC_LValue)
+			{
+				newValue = CopyValue(*(newValueRef.value.valueHolder));
+			}
+			else
+			{
+				newValue = newValueRef.value.value;
+			}
 
 			delete exprRoot;
 		}
@@ -180,7 +192,7 @@ int ActOfRose::CExecutor::RetrieveValue(ActOfRose::Value::SValueReference* value
 			return AOR_ERROR_INTERNAL_ERROR;
 		}
 
-		valueRefHolder->value = newValue;
+		valueRefHolder->value.value = newValue;
 		valueRefHolder->category = ActOfRose::Value::EValueCategories::EVC_RValue;
 	}
 	else
@@ -234,7 +246,7 @@ int ActOfRose::CExecutor::BuildExpressionAST(ActOfRose::AST::CExprASTNode** tree
 				}
 
 				// New operand node
-				ActOfRose::AST::CExprASTOperandNode* newOperandNode = new ActOfRose::AST::CExprASTOperandNode(valueRef.value, valueRef.category);
+				ActOfRose::AST::CExprASTOperandNode* newOperandNode = new ActOfRose::AST::CExprASTOperandNode(&valueRef);
 				*treeRootNodeHolder = newOperandNode;
 			}
 		}

@@ -76,7 +76,12 @@ namespace ActOfRose
 		// Structure of value reference
 		struct SValueReference
 		{
-			ActOfRose::Value::CValue* value;					// Pointer to a value
+			union
+			{
+				ActOfRose::Value::CValue* value;				// Pointer to a value
+				ActOfRose::Value::CValue** valueHolder;			// Pointer to a value holder (pointer to a pointer to a value)
+			} value;
+
 			ActOfRose::Value::EValueCategories category;		// Value category
 		};
 
