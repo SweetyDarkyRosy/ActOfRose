@@ -51,6 +51,15 @@ ActOfRose::AST::CExprASTOperandNode::CExprASTOperandNode(ActOfRose::Value::SValu
 	}
 }
 
+// Destructor
+ActOfRose::AST::CExprASTOperandNode::~CExprASTOperandNode()
+{
+	if (_mValueRef.category != ActOfRose::Value::EValueCategories::EVC_LValue)
+	{
+		delete _mValueRef.value.value;
+	}
+}
+
 // Retrieves a value and sets it to the value reference holder pointed to by valueRefHolder
 int ActOfRose::AST::CExprASTOperandNode::RetrieveValue(ActOfRose::Value::SValueReference* valueRefHolder)
 {

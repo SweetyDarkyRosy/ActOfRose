@@ -118,11 +118,6 @@ int ActOfRose::CExecutor::DeclareAndInitialiseVariable(std::vector<ActOfRose::To
 			int result = exprRoot->RetrieveValue(&newValueRef);
 			if (result != AOR_SUCCESS)
 			{
-				if (newValueRef.category != ActOfRose::Value::EValueCategories::EVC_LValue)
-				{
-					delete newValueRef.value.value;
-				}
-
 				delete exprRoot;
 
 				return result;
@@ -134,7 +129,7 @@ int ActOfRose::CExecutor::DeclareAndInitialiseVariable(std::vector<ActOfRose::To
 			}
 			else
 			{
-				newValue = newValueRef.value.value;
+				newValue = CopyValue(newValueRef.value.value);
 			}
 
 			delete exprRoot;

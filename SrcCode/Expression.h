@@ -70,7 +70,7 @@ namespace ActOfRose
 			CExprASTOperandNode(ActOfRose::Value::SValueReference* valueRef, ActOfRose::AST::CExprASTNode* parentNode = nullptr);
 
 			// Destructor
-			~CExprASTOperandNode() {}
+			~CExprASTOperandNode();
 
 		public:
 			// Retrieves a value and sets it to the value reference holder pointed to by valueRefHolder
