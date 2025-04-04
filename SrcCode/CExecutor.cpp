@@ -12,6 +12,7 @@
 #include "CExecutor.h"
 
 #include "ReturnCodes.h"
+#include "Global.h"
 #include "Log.h"
 #include "SystemAPI.h"
 #include "Keywords.h"

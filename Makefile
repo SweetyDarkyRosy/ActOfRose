@@ -45,4 +45,5 @@ compile:
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c SrcCode/CExecutor.cpp -o $(OBJ_DIR)/CExecutor.o
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c SrcCode/Function.cpp -o $(OBJ_DIR)/Function.o
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c SrcCode/BuiltIn/BuiltInFuncOS.cpp -o $(OBJ_DIR)/BuiltInFuncOS.o
+	$(CXX) $(CXXFLAGS) $(INCLUDE) -c SrcCode/System.cpp -o $(OBJ_DIR)/System.o
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c SrcCode/Main.cpp -o $(OBJ_DIR)/Main.o
