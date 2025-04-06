@@ -58,6 +58,8 @@ namespace ActOfRose
 
 		// Returns a pointer to an underlying value
 		inline ActOfRose::Value::CValue* GetValue() { return _pValue; }
+		// Returns a pointer to a local value holder
+		inline ActOfRose::Value::CValue** GetValueHolder() { return &_pValue; }
 
 	private:
 		ActOfRose::Value::CValue* _pValue;				// Underlying value

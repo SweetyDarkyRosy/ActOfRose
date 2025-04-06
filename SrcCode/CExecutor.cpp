@@ -83,6 +83,120 @@ int ActOfRose::CExecutor::Execute(std::vector<ActOfRose::Token::SToken>* tokenGr
 }
 
 
+// Retrieves a value starting in a token with the current index and saved into the value reference pointer to by valueRefHolder
+int ActOfRose::CExecutor::RetrieveValue(ActOfRose::Value::SValueReference* valueRefHolder)
+{
+	switch ((*_pCurrTokenGroup)[_mCurrTokenIndex].type)
+	{
+		case ActOfRose::Token::ETokenType::ETTNumber:
+		case ActOfRose::Token::ETokenType::ETTString:
+		{
+			ActOfRose::Value::CValue* newValue;
+			int createValueResult = CreateValueFromToken(&newValue, &((*_pCurrTokenGroup)[_mCurrTokenIndex]));
+			if (createValueResult != AOR_SUCCESS)
+			{
+				return AOR_ERROR_INTERNAL_ERROR;
+			}
+
+			valueRefHolder->value.value = newValue;
+			valueRefHolder->category = ActOfRose::Value::EValueCategories::EVC_RValue;
+
+			break;
+		}
+
+		case ActOfRose::Token::ETokenType::ETTCurlyBracketLeft:
+		{
+			ActOfRose::Value::CArrayValue* newArray = new ActOfRose::Value::CArrayValue();
+			bool isExprExpected = true;
+
+			_mCurrTokenIndex++;
+
+			while (_mCurrTokenIndex != _pCurrTokenGroup->size())
+			{
+				if ((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTCurlyBracketRight)
+				{
+					valueRefHolder->value.value = (ActOfRose::Value::CValue*)newArray;
+					valueRefHolder->category = ActOfRose::Value::EValueCategories::EVC_RValue;
+
+					return AOR_SUCCESS;
+				}
+
+				if (isExprExpected == false)
+				{
+					if ((*_pCurrTokenGroup)[_mCurrTokenIndex].type != ActOfRose::Token::ETokenType::ETTComma)
+					{
+						ActOfRose::WriteLog(PREF_STRING("Expected ','"), (sizeof(PREF_STRING("Expected ','")) / sizeof(PChar)),
+							ActOfRose::ELogLevel::ELL_Error);
+
+						delete newArray;
+
+						return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
+					}
+
+					isExprExpected = true;
+
+					_mCurrTokenIndex++;
+				}
+				else
+				{
+					switch ((*_pCurrTokenGroup)[_mCurrTokenIndex].type)
+					{
+						case ActOfRose::Token::ETokenType::ETTNumber:
+						case ActOfRose::Token::ETokenType::ETTString:
+						case ActOfRose::Token::ETokenType::ETTCurlyBracketLeft:
+						case ActOfRose::Token::ETokenType::ETTIdentifier:
+						{
+							ActOfRose::Value::CValue* newValue;
+							{
+								int exprEvalResult = EvaluateExpression(&newValue);
+								if (exprEvalResult != AOR_SUCCESS)
+								{
+									delete newArray;
+
+									return exprEvalResult;
+								}
+							}
+
+							newArray->AddValue(newValue);
+
+							break;
+						}
+
+						default:
+						{
+							ActOfRose::WriteLog(PREF_STRING("Expected expression"), (sizeof(PREF_STRING("Expected expression")) / sizeof(PChar)),
+								ActOfRose::ELogLevel::ELL_Error);
+
+							delete newArray;
+
+							return AOR_ERROR_EXEC_EXPRESSION_EXPECTED;
+						}
+					}
+
+					isExprExpected = false;
+				}
+			}
+
+			return AOR_ERROR_TOKEN_PREMATURE_END_OF_SCRIPT;
+		}
+
+		case ActOfRose::Token::ETokenType::ETTIdentifier:
+		{
+			int idProcResult = ProcessIdentifier(valueRefHolder);
+			
+			return idProcResult;
+		}
+
+		default:
+		{
+			return AOR_ERROR_EXEC_NON_VALUE_TOKEN;
+		}
+	}
+
+	return AOR_SUCCESS;
+}
+
+
 /**
 	Builds an AST for expression evaluation based on given token array and saves a root of the expression AST to a pointer pointed
 	to by treeRootNodeHolder
@@ -111,7 +225,8 @@ int ActOfRose::CExecutor::BuildExpressionAST(ActOfRose::AST::CExprASTNode** tree
 		}
 		else if (((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTNumber) ||
 			((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTString) ||
-			((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTCurlyBracketLeft))
+			((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTCurlyBracketLeft) ||
+			((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTIdentifier))
 		{
 			// ----- If an operand is encountered -----
 
@@ -248,106 +363,26 @@ int ActOfRose::CExecutor::DeclareAndInitialiseVariable(std::vector<ActOfRose::To
 	return AOR_SUCCESS;
 }
 
-// Retrieves a value starting in a token with the current index and saved into the value reference pointer to by valueRefHolder
-int ActOfRose::CExecutor::RetrieveValue(ActOfRose::Value::SValueReference* valueRefHolder)
+// Processes an encountered identifier and returns a value or a reference to value if possible
+int ActOfRose::CExecutor::ProcessIdentifier(ActOfRose::Value::SValueReference* valueRefHolder)
 {
-	switch ((*_pCurrTokenGroup)[_mCurrTokenIndex].type)
+	ActOfRose::SElement* element = ActOfRose::AORSystemGetElementByIdentifier((*_pCurrTokenGroup)[_mCurrTokenIndex].value.c_str());
+	if (element == nullptr)
 	{
-		case ActOfRose::Token::ETokenType::ETTNumber:
-		case ActOfRose::Token::ETokenType::ETTString:
-		{
-			ActOfRose::Value::CValue* newValue;
-			int createValueResult = CreateValueFromToken(&newValue, &((*_pCurrTokenGroup)[_mCurrTokenIndex]));
-			if (createValueResult != AOR_SUCCESS)
-			{
-				return AOR_ERROR_INTERNAL_ERROR;
-			}
+		return AOR_ERROR_EXEC_UNDECLARED_IDENTIFIER;
+	}
 
-			valueRefHolder->value.value = newValue;
-			valueRefHolder->category = ActOfRose::Value::EValueCategories::EVC_RValue;
+	if (element->type == ActOfRose::EElementType::EET_Variable)
+	{
+		valueRefHolder->value.valueHolder = ((ActOfRose::CVariable*)(element->addr))->GetValueHolder();
+		valueRefHolder->category = ActOfRose::Value::EValueCategories::EVC_LValue;
+	}
+	else
+	{
+		ActOfRose::WriteLog(PREF_STRING("Only variables can be processed using identifiers"),
+			(sizeof(PREF_STRING("Only variables can be processed using identifiers")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
 
-			break;
-		}
-
-		case ActOfRose::Token::ETokenType::ETTCurlyBracketLeft:
-		{
-			ActOfRose::Value::CArrayValue* newArray = new ActOfRose::Value::CArrayValue();
-			bool isExprExpected = true;
-
-			_mCurrTokenIndex++;
-
-			while (_mCurrTokenIndex != _pCurrTokenGroup->size())
-			{
-				if ((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTCurlyBracketRight)
-				{
-					valueRefHolder->value.value = (ActOfRose::Value::CValue*)newArray;
-					valueRefHolder->category = ActOfRose::Value::EValueCategories::EVC_RValue;
-
-					return AOR_SUCCESS;
-				}
-
-				if (isExprExpected == false)
-				{
-					if ((*_pCurrTokenGroup)[_mCurrTokenIndex].type != ActOfRose::Token::ETokenType::ETTComma)
-					{
-						ActOfRose::WriteLog(PREF_STRING("Expected ','"), (sizeof(PREF_STRING("Expected ','")) / sizeof(PChar)),
-							ActOfRose::ELogLevel::ELL_Error);
-
-						delete newArray;
-
-						return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
-					}
-
-					isExprExpected = true;
-
-					_mCurrTokenIndex++;
-				}
-				else
-				{
-					switch ((*_pCurrTokenGroup)[_mCurrTokenIndex].type)
-					{
-						case ActOfRose::Token::ETokenType::ETTNumber:
-						case ActOfRose::Token::ETokenType::ETTString:
-						case ActOfRose::Token::ETokenType::ETTCurlyBracketLeft:
-						{
-							ActOfRose::Value::CValue* newValue;
-							{
-								int exprEvalResult = EvaluateExpression(&newValue);
-								if (exprEvalResult != AOR_SUCCESS)
-								{
-									delete newArray;
-
-									return exprEvalResult;
-								}
-							}
-
-							newArray->AddValue(newValue);
-
-							break;
-						}
-
-						default:
-						{
-							ActOfRose::WriteLog(PREF_STRING("Expected expression"), (sizeof(PREF_STRING("Expected expression")) / sizeof(PChar)),
-								ActOfRose::ELogLevel::ELL_Error);
-
-							delete newArray;
-
-							return AOR_ERROR_EXEC_EXPRESSION_EXPECTED;
-						}
-					}
-
-					isExprExpected = false;
-				}
-			}
-
-			return AOR_ERROR_TOKEN_PREMATURE_END_OF_SCRIPT;
-		}
-
-		default:
-		{
-			return AOR_ERROR_EXEC_NON_VALUE_TOKEN;
-		}
+		return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
 	}
 
 	return AOR_SUCCESS;

@@ -42,6 +42,10 @@ namespace ActOfRose
 		int Execute(std::vector<ActOfRose::Token::SToken>* tokenGroup);
 
 	private:
+		// Retrieves a value starting in a token with the current index and saved into the value reference pointer to by valueRefHolder
+		int RetrieveValue(ActOfRose::Value::SValueReference* valueRefHolder);
+
+
 		/**
 			Builds an AST for expression evaluation based on given token array and saves a root of the expression AST to a
 			pointer pointed to by treeRootNodeHolder
@@ -54,9 +58,9 @@ namespace ActOfRose
 
 		// Executes a variable declaration and initialisation
 		int DeclareAndInitialiseVariable(std::vector<ActOfRose::Token::SToken>* tokenGroup);
-		
-		// Retrieves a value starting in a token with the current index and saved into the value reference pointer to by valueRefHolder
-		int RetrieveValue(ActOfRose::Value::SValueReference* valueRefHolder);
+
+		// Processes an encountered identifier and returns a value or a reference to value if possible
+		int ProcessIdentifier(ActOfRose::Value::SValueReference* valueRefHolder);
 
 
 		// Logs information about that a specified identifier already used
