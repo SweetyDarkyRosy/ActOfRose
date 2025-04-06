@@ -67,6 +67,7 @@ namespace ActOfRose
 		// Categories of values
 		enum EValueCategories
 		{
+			EVC_None = -1,							// None (no value)
 			EVC_PRValue = 0,						// prvalue
 			EVC_RValue = 1,							// rvalue
 			EVC_LValue = 2,							// lvalue
