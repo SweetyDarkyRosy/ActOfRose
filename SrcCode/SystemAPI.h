@@ -38,6 +38,9 @@ namespace ActOfRose
 	// Checks if the identifier is already in use
 	bool AORSystemIsIdentifierUsed(const char* identifier);
 
+	// Returns a pointer to a block of information about registered element by the given identifier if it exists
+	ActOfRose::SElement* AORSystemGetElementByIdentifier(const char* identifier);
+
 
 	/*[
 		Functions for working with values

@@ -58,13 +58,26 @@ ActOfRose::SElement* ActOfRose::AORSystemRegisterIdentifierAndElement(const char
 bool ActOfRose::AORSystemIsIdentifierUsed(const char* identifier)
 {
 	std::map<std::string, ActOfRose::SElement>::iterator identifierIt = gIdentifierMap.find(identifier);
-
 	if (identifierIt == gIdentifierMap.end())
 	{
 		return false;
 	}
 
 	return true;
+}
+
+// Returns a pointer to a block of information about registered element by the given identifier if it exists
+ActOfRose::SElement* ActOfRose::AORSystemGetElementByIdentifier(const char* identifier)
+{
+	std::map<std::string, ActOfRose::SElement>::iterator identifierIt = gIdentifierMap.find(identifier);
+	if (identifierIt == gIdentifierMap.end())
+	{
+		return nullptr;
+	}
+
+	std::pair<const std::string, ActOfRose::SElement>* elementPair = &(*identifierIt);
+	
+	return &(elementPair->second);
 }
 
 
