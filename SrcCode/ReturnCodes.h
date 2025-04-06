@@ -35,5 +35,6 @@
 #define AOR_ERROR_EXEC_NO_OPERATOR_CHILD					(-14)		// Error due to that an operator node has no child operand nodes
 #define AOR_ERROR_EXEC_UNSUPPORTED_OPERATION				(-15)		// Error due to unsupported operation
 #define AOR_ERROR_EXEC_NON_VALUE_TOKEN						(-16)		// Error due to trying to retrieve a value from a non-value token
+#define AOR_ERROR_EXEC_EXPRESSION_EXPECTED					(-17)		// Error due to that expression was expected
 
 #endif // !__ACT_OF_ROSE_ERROR_CODES_H__
