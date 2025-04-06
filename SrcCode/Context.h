@@ -63,7 +63,7 @@ namespace ActOfRose
 			virtual int ProcessToken(ActOfRose::Token::SToken* token) override;
 
 		private:
-			ActOfRose::Context::CVarDeclarationContext::EVarDeclarationCtxStates	_mState;		// Context state
+			ActOfRose::Context::CVarDeclarationContext::EVarDeclarationCtxStates _mState;		// Context state
 
 		};
 

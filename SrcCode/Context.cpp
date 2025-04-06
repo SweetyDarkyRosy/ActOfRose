@@ -121,7 +121,7 @@ int ActOfRose::Context::CVarDeclarationContext::ProcessToken(ActOfRose::Token::S
 
 				default:
 				{
-					ActOfRose::WriteLog(PREF_STRING("expected ';'"), (sizeof(PREF_STRING("expected ';'")) / sizeof(PChar)),
+					ActOfRose::WriteLog(PREF_STRING("Expected ';'"), (sizeof(PREF_STRING("Expected ';'")) / sizeof(PChar)),
 						ActOfRose::ELogLevel::ELL_Error);
 
 					return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
@@ -196,12 +196,14 @@ int ActOfRose::Context::CExpressionEvaluationContext::ProcessToken(ActOfRose::To
 			}
 		}
 
+		case ActOfRose::Token::ETokenType::ETTCurlyBracketLeft:
 		case ActOfRose::Token::ETokenType::ETTRoundBracketLeft:
 		{
 			_mNestingDepth++;
 			break;
 		}
 
+		case ActOfRose::Token::ETokenType::ETTCurlyBracketRight:
 		case ActOfRose::Token::ETokenType::ETTRoundBracketRight:
 		{
 			if (_mNestingDepth == 0)
@@ -211,23 +213,6 @@ int ActOfRose::Context::CExpressionEvaluationContext::ProcessToken(ActOfRose::To
 			else
 			{
 				_mNestingDepth--;
-				break;
-			}
-		}
-
-		case ActOfRose::Token::ETokenType::ETTCurlyBracketLeft:
-		{
-			return AOR_CONTEXT_CREATE;
-		}
-
-		case ActOfRose::Token::ETokenType::ETTCurlyBracketRight:
-		{
-			if (_mNestingDepth == 0)
-			{
-				return AOR_CONTEXT_COMPLETE;
-			}
-			else
-			{
 				break;
 			}
 		}

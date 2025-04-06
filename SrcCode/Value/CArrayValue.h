@@ -27,7 +27,7 @@ namespace ActOfRose
 		public:
 			// Constructor
 			CArrayValue() :
-				CValue(ActOfRose::Value::EValueType::EVT_Array), _mValueArray()
+				CValue(ActOfRose::Value::EValueType::EVT_Array)
 			{}
 
 			// Constructor that takes another array and makes a copy
