@@ -21,6 +21,7 @@ namespace ActOfRose
 {
 	namespace Value
 	{
+		class CValue;						// Abstract class of value / data type
 		struct SValueReference;				// Structure of value reference
 	} // !namespace Value
 
@@ -41,17 +42,22 @@ namespace ActOfRose
 		int Execute(std::vector<ActOfRose::Token::SToken>* tokenGroup);
 
 	private:
+		/**
+			Builds an AST for expression evaluation based on given token array and saves a root of the expression AST to a
+			pointer pointed to by treeRootNodeHolder
+		 */
+		int BuildExpressionAST(ActOfRose::AST::CExprASTNode** treeRootNodeHolder);
+
+		// Evaluates an encountered expression
+		int EvaluateExpression(ActOfRose::Value::CValue** valueHolder);
+
+
 		// Executes a variable declaration and initialisation
 		int DeclareAndInitialiseVariable(std::vector<ActOfRose::Token::SToken>* tokenGroup);
 		
 		// Retrieves a value starting in a token with the current index and saved into the value reference pointer to by valueRefHolder
 		int RetrieveValue(ActOfRose::Value::SValueReference* valueRefHolder);
 
-		/**
-			Builds an AST for expression evaluation based on given token array and saves a root of the expression AST to a
-			pointer pointed to by treeRootNodeHolder
-		 */
-		int BuildExpressionAST(ActOfRose::AST::CExprASTNode** treeRootNodeHolder);
 
 		// Logs information about that a specified identifier already used
 		void LogAlreadyUsedIdentifier(const char* identifier);

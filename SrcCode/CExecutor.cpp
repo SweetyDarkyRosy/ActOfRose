@@ -82,6 +82,113 @@ int ActOfRose::CExecutor::Execute(std::vector<ActOfRose::Token::SToken>* tokenGr
 	return AOR_SUCCESS;
 }
 
+
+/**
+	Builds an AST for expression evaluation based on given token array and saves a root of the expression AST to a pointer pointed
+	to by treeRootNodeHolder
+ */
+int ActOfRose::CExecutor::BuildExpressionAST(ActOfRose::AST::CExprASTNode** treeRootNodeHolder)
+{
+	*treeRootNodeHolder = nullptr;
+
+	ActOfRose::AST::CExprASTOperatorNode* currPrecedenceLastOperatorNode = nullptr;		// Parent node of a sequence of operands of current precedence
+	unsigned int depthLevel = 0;														// Current depth level based on how many left round brackets have been encountered
+
+	while (_mCurrTokenIndex != _pCurrTokenGroup->size())
+	{
+		if (((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTSemicolon) ||
+			((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTComma))
+		{
+			return AOR_SUCCESS;
+		}
+		else if (((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTRoundBracketRight) ||
+			((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTCurlyBracketRight))
+		{
+			if (depthLevel == 0)
+			{
+				return AOR_SUCCESS;
+			}
+		}
+		else if (((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTNumber) ||
+			((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTString) ||
+			((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTCurlyBracketLeft))
+		{
+			// ----- If an operand is encountered -----
+
+			if (*treeRootNodeHolder == nullptr)
+			{
+				// Reference to a new value
+				ActOfRose::Value::SValueReference valueRef;
+
+				int valueRetrievingResult = RetrieveValue(&valueRef);
+				if (valueRetrievingResult != AOR_SUCCESS)
+				{
+					return valueRetrievingResult;
+				}
+
+				// New operand node
+				ActOfRose::AST::CExprASTOperandNode* newOperandNode = new ActOfRose::AST::CExprASTOperandNode(&valueRef);
+				*treeRootNodeHolder = newOperandNode;
+			}
+		}
+
+		_mCurrTokenIndex++;
+	}
+
+	return AOR_ERROR_TOKEN_PREMATURE_END_OF_SCRIPT;
+}
+
+// Evaluates an encountered expression
+int ActOfRose::CExecutor::EvaluateExpression(ActOfRose::Value::CValue** valueHolder)
+{
+	ActOfRose::AST::CExprASTNode* exprRoot;
+	{
+		int result = BuildExpressionAST(&exprRoot);
+		if (result != AOR_SUCCESS)
+		{
+			delete exprRoot;
+
+			return result;
+		}
+	}
+
+	ActOfRose::Value::SValueReference newValueRef;
+	int result = exprRoot->RetrieveValue(&newValueRef);
+	if (result != AOR_SUCCESS)
+	{
+		delete exprRoot;
+
+		return result;
+	}
+
+	ActOfRose::Value::CValue* newValue;
+	if (newValueRef.category == ActOfRose::Value::EValueCategories::EVC_LValue)
+	{
+		newValue = CopyValue(*(newValueRef.value.valueHolder));
+	}
+	else
+	{
+		newValue = CopyValue(newValueRef.value.value);
+	}
+
+	delete exprRoot;
+
+#ifdef _DEBUG
+	{
+		std::string msg = "Value ";
+		msg += newValue->ConvertValueToByteString();
+		msg += " has been retrieved while expression evaluation";
+
+		ActOfRose::WriteLog(msg.c_str(), msg.length(), ActOfRose::ELogLevel::ELL_Debug);
+	}
+#endif
+
+	*valueHolder = newValue;
+
+	return AOR_SUCCESS;
+}
+
+
 // Executes a variable declaration and initialisation
 int ActOfRose::CExecutor::DeclareAndInitialiseVariable(std::vector<ActOfRose::Token::SToken>* tokenGroup)
 {
@@ -105,47 +212,12 @@ int ActOfRose::CExecutor::DeclareAndInitialiseVariable(std::vector<ActOfRose::To
 
 		ActOfRose::Value::CValue* newValue;
 		{
-			ActOfRose::AST::CExprASTNode* exprRoot;
+			int exprEvalResult = EvaluateExpression(&newValue);
+			if (exprEvalResult != AOR_SUCCESS)
 			{
-				int result = BuildExpressionAST(&exprRoot);
-				if (result != AOR_SUCCESS)
-				{
-					delete exprRoot;
-
-					return result;
-				}
+				return exprEvalResult;
 			}
-
-			ActOfRose::Value::SValueReference newValueRef;
-			int result = exprRoot->RetrieveValue(&newValueRef);
-			if (result != AOR_SUCCESS)
-			{
-				delete exprRoot;
-
-				return result;
-			}
-
-			if (newValueRef.category == ActOfRose::Value::EValueCategories::EVC_LValue)
-			{
-				newValue = CopyValue(*(newValueRef.value.valueHolder));
-			}
-			else
-			{
-				newValue = CopyValue(newValueRef.value.value);
-			}
-
-			delete exprRoot;
 		}
-
-	#ifdef _DEBUG
-		{
-			std::string msg = "Value ";
-			msg += newValue->ConvertValueToByteString();
-			msg += " has been retrieved while expression evaluation";
-
-			ActOfRose::WriteLog(msg.c_str(), msg.length(), ActOfRose::ELogLevel::ELL_Debug);
-		}
-	#endif
 
 		newVariable = new ActOfRose::CVariable(newValue);
 	}
@@ -240,49 +312,14 @@ int ActOfRose::CExecutor::RetrieveValue(ActOfRose::Value::SValueReference* value
 						{
 							ActOfRose::Value::CValue* newValue;
 							{
-								ActOfRose::AST::CExprASTNode* exprRoot;
-								{
-									int result = BuildExpressionAST(&exprRoot);
-									if (result != AOR_SUCCESS)
-									{
-										delete newArray;
-										delete exprRoot;
-
-										return result;
-									}
-								}
-
-								ActOfRose::Value::SValueReference newValueRef;
-								int result = exprRoot->RetrieveValue(&newValueRef);
-								if (result != AOR_SUCCESS)
+								int exprEvalResult = EvaluateExpression(&newValue);
+								if (exprEvalResult != AOR_SUCCESS)
 								{
 									delete newArray;
-									delete exprRoot;
 
-									return result;
+									return exprEvalResult;
 								}
-
-								if (newValueRef.category == ActOfRose::Value::EValueCategories::EVC_LValue)
-								{
-									newValue = CopyValue(*(newValueRef.value.valueHolder));
-								}
-								else
-								{
-									newValue = CopyValue(newValueRef.value.value);
-								}
-
-								delete exprRoot;
 							}
-
-						#ifdef _DEBUG
-							{
-								std::string msg = "Value ";
-								msg += newValue->ConvertValueToByteString();
-								msg += " has been retrieved while expression evaluation";
-
-								ActOfRose::WriteLog(msg.c_str(), msg.length(), ActOfRose::ELogLevel::ELL_Debug);
-							}
-						#endif
 
 							newArray->AddValue(newValue);
 
@@ -314,62 +351,6 @@ int ActOfRose::CExecutor::RetrieveValue(ActOfRose::Value::SValueReference* value
 	}
 
 	return AOR_SUCCESS;
-}
-
-
-/**
-	Builds an AST for expression evaluation based on given token array and saves a root of the expression AST to a pointer pointed
-	to by treeRootNodeHolder
- */
-int ActOfRose::CExecutor::BuildExpressionAST(ActOfRose::AST::CExprASTNode** treeRootNodeHolder)
-{
-	*treeRootNodeHolder = nullptr;
-
-	ActOfRose::AST::CExprASTOperatorNode* currPrecedenceLastOperatorNode = nullptr;		// Parent node of a sequence of operands of current precedence
-	unsigned int depthLevel = 0;														// Current depth level based on how many left round brackets have been encountered
-
-	while (_mCurrTokenIndex != _pCurrTokenGroup->size())
-	{
-		if (((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTSemicolon) ||
-			((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTComma))
-		{
-			return AOR_SUCCESS;
-		}
-		else if (((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTRoundBracketRight) ||
-			((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTCurlyBracketRight))
-		{
-			if (depthLevel == 0)
-			{
-				return AOR_SUCCESS;
-			}
-		}
-		else if (((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTNumber) ||
-			((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTString) ||
-			((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTCurlyBracketLeft))
-		{
-			// ----- If an operand is encountered -----
-
-			if (*treeRootNodeHolder == nullptr)
-			{
-				// Reference to a new value
-				ActOfRose::Value::SValueReference valueRef;
-
-				int valueRetrievingResult = RetrieveValue(&valueRef);
-				if (valueRetrievingResult != AOR_SUCCESS)
-				{
-					return valueRetrievingResult;
-				}
-
-				// New operand node
-				ActOfRose::AST::CExprASTOperandNode* newOperandNode = new ActOfRose::AST::CExprASTOperandNode(&valueRef);
-				*treeRootNodeHolder = newOperandNode;
-			}
-		}
-
-		_mCurrTokenIndex++;
-	}
-
-	return AOR_ERROR_TOKEN_PREMATURE_END_OF_SCRIPT;
 }
 
 
