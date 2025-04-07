@@ -281,9 +281,13 @@ int ActOfRose::CExecutor::EvaluateExpression(ActOfRose::Value::CValue** valueHol
 	{
 		newValue = CopyValue(*(newValueRef.value.valueHolder));
 	}
-	else
+	else if (newValueRef.category == ActOfRose::Value::EValueCategories::EVC_RValue)
 	{
 		newValue = CopyValue(newValueRef.value.value);
+	}
+	else if (newValueRef.category == ActOfRose::Value::EValueCategories::EVC_PRValue)
+	{
+		newValue = newValueRef.value.value;
 	}
 
 	delete exprRoot;
