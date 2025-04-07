@@ -13,6 +13,8 @@
 
 #include <unordered_map>
 
+#include "ReturnCodes.h"
+
 
 /*[
 	Global variables
@@ -40,4 +42,11 @@ bool ActOfRose::Operation::GetOperationType(ActOfRose::Operation::EOperationType
 	*operationHolder = it->second;
 
 	return true;
+}
+
+// Performs an operation of a specified type on the specified operands
+int ActOfRose::Operation::ExecuteOperation(ActOfRose::Value::SValueReference* retValueRefHolder, ActOfRose::Operation::EOperationTypes,
+	ActOfRose::Value::SValueReference* leftValRef, ActOfRose::Value::SValueReference* rightValRef)
+{
+	return AOR_SUCCESS;
 }

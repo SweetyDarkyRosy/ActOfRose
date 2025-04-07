@@ -17,6 +17,11 @@
 
 namespace ActOfRose
 {
+	namespace Value
+	{
+		struct SValueReference;				// Structure of value reference
+	} // !namespace Value
+
 	namespace Operation
 	{
 		// Types of operations
@@ -32,6 +37,10 @@ namespace ActOfRose
 
 		// Returns an operation type determined by string
 		bool GetOperationType(ActOfRose::Operation::EOperationTypes* operationHolder, const std::string* str);
+
+		// Performs an operation of a specified type on the specified operands
+		int ExecuteOperation(ActOfRose::Value::SValueReference* retValueRefHolder, ActOfRose::Operation::EOperationTypes,
+			ActOfRose::Value::SValueReference* leftValRef, ActOfRose::Value::SValueReference* rightValRef);
 
 	} // !namespace Operation
 } // !namespace ActOfRose

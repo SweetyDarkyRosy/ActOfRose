@@ -13,7 +13,9 @@
 
 #include "ReturnCodes.h"
 #include "Log.h"
+#include "Operation.h"
 #include "Utility/StringMisc.h"
+#include "Value/Value.h"
 
 
 // ----- ActOfRose::AST::CExprASTOperandNode class -----
@@ -134,5 +136,45 @@ int ActOfRose::AST::CExprASTOperatorNode::RetrieveValue(ActOfRose::Value::SValue
 		return AOR_ERROR_EXEC_NO_OPERATOR_CHILD;
 	}
 
-	return AOR_SUCCESS;
+	ActOfRose::Value::SValueReference leftValueRef;
+	if (_pLeftChild == nullptr)
+	{
+		leftValueRef.category = ActOfRose::Value::EValueCategories::EVC_None;
+	}
+	else
+	{
+		int valueRetrievingResult = _pLeftChild->RetrieveValue(&leftValueRef);
+		if (valueRetrievingResult != AOR_SUCCESS)
+		{
+			return valueRetrievingResult;
+		}
+	}
+
+	ActOfRose::Value::SValueReference rightValueRef;
+	{
+		int valueRetrievingResult = _pRightChild->RetrieveValue(&rightValueRef);
+		if (valueRetrievingResult != AOR_SUCCESS)
+		{
+			if (leftValueRef.category == ActOfRose::Value::EValueCategories::EVC_PRValue)
+			{
+				delete leftValueRef.value.value;
+			}
+
+			return valueRetrievingResult;
+		}
+	}
+
+	int execResult = ActOfRose::Operation::ExecuteOperation(valueRefHolder, _mOperationType, &leftValueRef, &rightValueRef);
+
+	if (leftValueRef.category == ActOfRose::Value::EValueCategories::EVC_PRValue)
+	{
+		delete leftValueRef.value.value;
+	}
+
+	if (rightValueRef.category == ActOfRose::Value::EValueCategories::EVC_PRValue)
+	{
+		delete rightValueRef.value.value;
+	}
+
+	return execResult;
 }
