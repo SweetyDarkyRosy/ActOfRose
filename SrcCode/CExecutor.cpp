@@ -17,6 +17,7 @@
 #include "Keywords.h"
 #include "CVariable.h"
 #include "Expression.h"
+#include "Operation.h"
 #include "Utility/StringMisc.h"
 
 #include "Value/Value.h"
@@ -223,6 +224,147 @@ int ActOfRose::CExecutor::BuildExpressionAST(ActOfRose::AST::CExprASTNode** tree
 				return AOR_SUCCESS;
 			}
 		}
+		else if ((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTOperator)
+		{
+			// ----- If an operator is encountered -----
+
+			ActOfRose::Operation::EOperationTypes opType;
+			if (GetOperationType(&opType, &((*_pCurrTokenGroup)[_mCurrTokenIndex].value)) == false)
+			{
+				ActOfRose::WriteLog(PREF_STRING("Unsupported operation encountered"),
+					(sizeof(PREF_STRING("Unsupported operation encountered")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
+			}
+
+			if (*treeRootNodeHolder == nullptr)
+			{
+				if ((opType != ActOfRose::Operation::EOperationTypes::EO_Summation) && (opType != ActOfRose::Operation::EOperationTypes::EO_Subtraction))
+				{
+					{
+						std::string msg = "Invalid expression. Operator ";
+						msg += (*_pCurrTokenGroup)[_mCurrTokenIndex].value;
+						msg += " cannot be used as unary operator";
+
+						ActOfRose::WriteLog(msg.c_str(), msg.length(), ActOfRose::ELogLevel::ELL_Error);
+					}
+
+					return AOR_ERROR_EXEC_INVALID_EXPRESSION;
+				}
+			}
+
+
+			// New operator node
+			ActOfRose::AST::CExprASTOperatorNode* newOperatorNode = new ActOfRose::AST::CExprASTOperatorNode(opType);
+
+			if (*treeRootNodeHolder == nullptr)
+			{
+				*treeRootNodeHolder = newOperatorNode;
+			}
+			else if ((*treeRootNodeHolder)->GetType() == ActOfRose::AST::EExprASTNodeType::EESTNTOperand)
+			{
+				newOperatorNode->SetLeftChild(*treeRootNodeHolder);
+				*treeRootNodeHolder = newOperatorNode;
+			}
+			else
+			{
+				if (*treeRootNodeHolder == currPrecedenceLastOperatorNode)
+				{
+					*treeRootNodeHolder = newOperatorNode;
+				}
+				else
+				{
+					ActOfRose::AST::CExprASTOperatorNode* higherParent = (ActOfRose::AST::CExprASTOperatorNode*)(currPrecedenceLastOperatorNode->GetParent());
+
+					if (higherParent->GetLeftChild() == currPrecedenceLastOperatorNode)
+					{
+						higherParent->SetLeftChild(newOperatorNode);
+					}
+					else if (higherParent->GetRightChild() == currPrecedenceLastOperatorNode)
+					{
+						higherParent->SetRightChild(newOperatorNode);
+					}
+				}
+
+				newOperatorNode->SetLeftChild(currPrecedenceLastOperatorNode);
+			}
+
+			currPrecedenceLastOperatorNode = newOperatorNode;
+
+
+			// ----- Retrieving of other operators in a sequence -----
+
+			// Pointer to last operator node created
+			ActOfRose::AST::CExprASTOperatorNode* lastOperatorNode = newOperatorNode;
+
+			_mCurrTokenIndex++;
+
+			while (((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTOperator) &&
+				(_mCurrTokenIndex != _pCurrTokenGroup->size()))
+			{
+				if (GetOperationType(&opType, &((*_pCurrTokenGroup)[_mCurrTokenIndex].value)) == false)
+				{
+					ActOfRose::WriteLog(PREF_STRING("Unsupported operation encountered"),
+						(sizeof(PREF_STRING("Unsupported operation encountered")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+					return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
+				}
+
+				if ((opType != ActOfRose::Operation::EOperationTypes::EO_Summation) && (opType != ActOfRose::Operation::EOperationTypes::EO_Subtraction))
+				{
+					{
+						std::string msg = "Invalid expression. Operator ";
+						msg += (*_pCurrTokenGroup)[_mCurrTokenIndex].value;
+						msg += " cannot be used as unary operator";
+
+						ActOfRose::WriteLog(msg.c_str(), msg.length(), ActOfRose::ELogLevel::ELL_Error);
+					}
+
+					return AOR_ERROR_EXEC_INVALID_EXPRESSION;
+				}
+
+				newOperatorNode = new ActOfRose::AST::CExprASTOperatorNode(opType);
+
+				lastOperatorNode->SetRightChild(newOperatorNode);
+				lastOperatorNode = newOperatorNode;
+
+				_mCurrTokenIndex++;
+			}
+
+			if (_mCurrTokenIndex == _pCurrTokenGroup->size())
+			{
+				break;
+			}
+			else if (((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTNumber) ||
+				((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTString) ||
+				((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTCurlyBracketLeft) ||
+				((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTIdentifier))
+			{
+				ActOfRose::AST::CExprASTOperandNode* newOperandNode;
+				{
+					// Reference to a new value
+					ActOfRose::Value::SValueReference valueRef;
+
+					int valueRetrievingResult = RetrieveValue(&valueRef);
+					if (valueRetrievingResult != AOR_SUCCESS)
+					{
+						return valueRetrievingResult;
+					}
+
+					// New operand node
+					newOperandNode = new ActOfRose::AST::CExprASTOperandNode(&valueRef);
+				}
+
+				lastOperatorNode->SetRightChild(newOperandNode);
+			}
+			else
+			{
+				ActOfRose::WriteLog(PREF_STRING("Invalid expression. Only operands can be after operator"),
+					(sizeof(PREF_STRING("Invalid expression. Only operands can be after operator")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_EXEC_INVALID_EXPRESSION;
+			}
+		}
 		else if (((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTNumber) ||
 			((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTString) ||
 			((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTCurlyBracketLeft) ||
@@ -230,7 +372,7 @@ int ActOfRose::CExecutor::BuildExpressionAST(ActOfRose::AST::CExprASTNode** tree
 		{
 			// ----- If an operand is encountered -----
 
-			if (*treeRootNodeHolder == nullptr)
+			ActOfRose::AST::CExprASTOperandNode* newOperandNode;
 			{
 				// Reference to a new value
 				ActOfRose::Value::SValueReference valueRef;
@@ -242,8 +384,21 @@ int ActOfRose::CExecutor::BuildExpressionAST(ActOfRose::AST::CExprASTNode** tree
 				}
 
 				// New operand node
-				ActOfRose::AST::CExprASTOperandNode* newOperandNode = new ActOfRose::AST::CExprASTOperandNode(&valueRef);
+				newOperandNode = new ActOfRose::AST::CExprASTOperandNode(&valueRef);
+			}
+
+			if (*treeRootNodeHolder == nullptr)
+			{
 				*treeRootNodeHolder = newOperandNode;
+			}
+			else if ((*treeRootNodeHolder)->GetType() == ActOfRose::AST::EExprASTNodeType::EESTNTOperand)
+			{
+				ActOfRose::WriteLog(PREF_STRING("Invalid expression. Operand after another operand detected"),
+					(sizeof(PREF_STRING("Invalid expression. Operand after another operand detected")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+				delete newOperandNode;
+
+				return AOR_ERROR_EXEC_INVALID_EXPRESSION;
 			}
 		}
 
