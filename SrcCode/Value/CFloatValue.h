@@ -44,6 +44,11 @@ namespace ActOfRose
 			virtual std::string ConvertValueToByteString() const override;
 			// Converts a value to a wide string
 			virtual std::wstring ConvertValueToWideString() const override;
+			
+
+			// Performs an operation of a specified type with a current value and a given right value
+			virtual int ExecuteOperation(ActOfRose::Value::SValueReference* retValueRefHolder,
+				ActOfRose::Operation::EOperationTypes opType, ActOfRose::Value::SValueReference* rightValRef) override;
 
 		private:
 			float _mValue;		// Raw 32-bit IEEE-754 single-precision floating-point value

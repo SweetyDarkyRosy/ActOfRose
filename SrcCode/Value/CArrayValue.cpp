@@ -14,6 +14,7 @@
 #include <Utility/StringConverting.h>
 
 #include "SystemAPI.h"
+#include "ReturnCodes.h"
 
 
 // ----- ActOfRose::Value::CArrayValue class -----
@@ -94,4 +95,11 @@ std::wstring ActOfRose::Value::CArrayValue::ConvertValueToWideString() const
 	resultValueStr += L" }";
 
 	return resultValueStr;
+}
+
+// Performs an operation of a specified type with a current value and a given right value
+int ActOfRose::Value::CArrayValue::ExecuteOperation(ActOfRose::Value::SValueReference* retValueRefHolder,
+	ActOfRose::Operation::EOperationTypes opType, ActOfRose::Value::SValueReference* rightValRef)
+{
+	return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
 }

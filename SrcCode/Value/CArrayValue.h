@@ -49,6 +49,11 @@ namespace ActOfRose
 			// Converts the array to a wide string
 			virtual std::wstring ConvertValueToWideString() const override;
 
+
+			// Performs an operation of a specified type with a current value and a given right value
+			virtual int ExecuteOperation(ActOfRose::Value::SValueReference* retValueRefHolder,
+				ActOfRose::Operation::EOperationTypes opType, ActOfRose::Value::SValueReference* rightValRef) override;
+
 		private:
 			std::vector<ActOfRose::Value::CValue*>					_mValueArray;	// Underlying array of values
 

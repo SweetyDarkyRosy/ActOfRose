@@ -13,6 +13,8 @@
 
 #include <Utility/StringConverting.h>
 
+#include "ReturnCodes.h"
+
 
 // ----- ActOfRose::Value::CStringValue class -----
 
@@ -79,4 +81,12 @@ std::wstring ActOfRose::Value::CStringValue::ConvertValueToWideString() const
 	ConvertStringUTF8ToUTF16BE(&utf16BEStr, _mRawString.c_str(), _mRawString.length());
 
 	return utf16BEStr;
+}
+
+
+// Performs an operation of a specified type with a current value and a given right value
+int ActOfRose::Value::CStringValue::ExecuteOperation(ActOfRose::Value::SValueReference* retValueRefHolder,
+	ActOfRose::Operation::EOperationTypes opType, ActOfRose::Value::SValueReference* rightValRef)
+{
+	return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
 }

@@ -14,6 +14,8 @@
 
 #include <string>
 
+#include <Operation.h>
+
 
 namespace ActOfRose
 {
@@ -29,6 +31,9 @@ namespace ActOfRose
 			EVT_String = 4,								// String
 			EVT_Array = 5,								// Array
 		};
+
+
+		struct SValueReference;							// Structure of value reference
 
 
 		// Abstract class of value / data type
@@ -57,6 +62,11 @@ namespace ActOfRose
 			virtual std::string ConvertValueToByteString() const = 0;
 			// Converts a value to a wide string
 			virtual std::wstring ConvertValueToWideString() const = 0;
+
+
+			// Performs an operation of a specified type with a current value and a given right value
+			virtual int ExecuteOperation(ActOfRose::Value::SValueReference* retValueRefHolder,
+				ActOfRose::Operation::EOperationTypes opType, ActOfRose::Value::SValueReference* rightValRef) = 0;
 
 		protected:
 			ActOfRose::Value::EValueType _mType;					// Value/data type

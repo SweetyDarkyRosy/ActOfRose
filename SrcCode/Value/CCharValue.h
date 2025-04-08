@@ -43,6 +43,11 @@ namespace ActOfRose
 			// Converts a value to a wide string
 			virtual std::wstring ConvertValueToWideString() const override;
 
+
+			// Performs an operation of a specified type with a current value and a given right value
+			virtual int ExecuteOperation(ActOfRose::Value::SValueReference* retValueRefHolder,
+				ActOfRose::Operation::EOperationTypes opType, ActOfRose::Value::SValueReference* rightValRef) override;
+
 		private:
 			char _mChar[5];		// Raw set of characters to form a unicode
 
