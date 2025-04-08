@@ -30,6 +30,25 @@ static const std::unordered_map<std::string, ActOfRose::Operation::EOperationTyp
 };
 
 
+/*[
+	Internal functions for operation executions
+ ]*/
+
+// Performs a binary operation of a specified type on the given operands
+static int ExecuteBinaryOperation(ActOfRose::Value::SValueReference* retValueRefHolder, ActOfRose::Operation::EOperationTypes opType,
+	ActOfRose::Value::SValueReference* leftOperandRef, ActOfRose::Value::SValueReference* rightOperandRef)
+{
+	return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
+}
+
+// Performs a unary operation of a specified type on the given operand
+static int ExecuteUnaryOperation(ActOfRose::Value::SValueReference* retValueRefHolder, ActOfRose::Operation::EOperationTypes opType,
+	ActOfRose::Value::SValueReference* operandRef)
+{
+	return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
+}
+
+
 // Returns an operation type determined by string
 bool ActOfRose::Operation::GetOperationType(ActOfRose::Operation::EOperationTypes* operationHolder, const std::string* str)
 {
@@ -44,9 +63,16 @@ bool ActOfRose::Operation::GetOperationType(ActOfRose::Operation::EOperationType
 	return true;
 }
 
-// Performs an operation of a specified type on the specified operands
-int ActOfRose::Operation::ExecuteOperation(ActOfRose::Value::SValueReference* retValueRefHolder, ActOfRose::Operation::EOperationTypes,
+// Performs an operation of a specified type on the given operands
+int ActOfRose::Operation::ExecuteOperation(ActOfRose::Value::SValueReference* retValueRefHolder, ActOfRose::Operation::EOperationTypes opType,
 	ActOfRose::Value::SValueReference* leftValRef, ActOfRose::Value::SValueReference* rightValRef)
 {
-	return AOR_SUCCESS;
+	if (leftValRef->category == ActOfRose::Value::EValueCategories::EVC_None)
+	{
+		return ExecuteUnaryOperation(retValueRefHolder, opType, rightValRef);
+	}
+	else
+	{
+		return ExecuteBinaryOperation(retValueRefHolder, opType, leftValRef, rightValRef);
+	}
 }
