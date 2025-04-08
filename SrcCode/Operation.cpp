@@ -14,6 +14,9 @@
 #include <unordered_map>
 
 #include "ReturnCodes.h"
+#include "Log.h"
+#include "Value/Value.h"
+#include "Utility/StringMisc.h"
 
 
 /*[
@@ -38,7 +41,17 @@ static const std::unordered_map<std::string, ActOfRose::Operation::EOperationTyp
 static int ExecuteBinaryOperation(ActOfRose::Value::SValueReference* retValueRefHolder, ActOfRose::Operation::EOperationTypes opType,
 	ActOfRose::Value::SValueReference* leftOperandRef, ActOfRose::Value::SValueReference* rightOperandRef)
 {
-	return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
+	ActOfRose::Value::CValue* leftValue;
+	if (leftOperandRef->category == ActOfRose::Value::EValueCategories::EVC_LValue)
+	{
+		leftValue = *(leftOperandRef->value.valueHolder);
+	}
+	else
+	{
+		leftValue = leftOperandRef->value.value;
+	}
+
+	return leftValue->ExecuteOperation(retValueRefHolder, opType, rightOperandRef);
 }
 
 // Performs a unary operation of a specified type on the given operand
@@ -67,12 +80,23 @@ bool ActOfRose::Operation::GetOperationType(ActOfRose::Operation::EOperationType
 int ActOfRose::Operation::ExecuteOperation(ActOfRose::Value::SValueReference* retValueRefHolder, ActOfRose::Operation::EOperationTypes opType,
 	ActOfRose::Value::SValueReference* leftValRef, ActOfRose::Value::SValueReference* rightValRef)
 {
+	int opExecResult;
 	if (leftValRef->category == ActOfRose::Value::EValueCategories::EVC_None)
 	{
-		return ExecuteUnaryOperation(retValueRefHolder, opType, rightValRef);
+		opExecResult = ExecuteUnaryOperation(retValueRefHolder, opType, rightValRef);
 	}
 	else
 	{
-		return ExecuteBinaryOperation(retValueRefHolder, opType, leftValRef, rightValRef);
+		opExecResult = ExecuteBinaryOperation(retValueRefHolder, opType, leftValRef, rightValRef);
 	}
+
+	if (opExecResult != AOR_SUCCESS)
+	{
+		if (opExecResult == AOR_ERROR_EXEC_UNSUPPORTED_OPERATION)
+		{
+			ActOfRose::WriteLog(PREF_STRING("Unsupported operation"), (sizeof(PREF_STRING("Unsupported operation")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+		}
+	}
+
+	return opExecResult;
 }
