@@ -39,5 +39,49 @@ std::wstring ActOfRose::Value::CIntegerValue::ConvertValueToWideString() const
 int ActOfRose::Value::CIntegerValue::ExecuteOperation(ActOfRose::Value::SValueReference* retValueRefHolder,
 	ActOfRose::Operation::EOperationTypes opType, ActOfRose::Value::SValueReference* rightValRef)
 {
-	return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
+	ActOfRose::Value::CValue* rightValue;
+	if (rightValRef->category == ActOfRose::Value::EValueCategories::EVC_LValue)
+	{
+		rightValue = *(rightValRef->value.valueHolder);
+	}
+	else
+	{
+		rightValue = rightValRef->value.value;
+	}
+
+	switch (rightValue->GetValueType())
+	{
+		case ActOfRose::Value::EValueType::EVT_Integer:
+		{
+			ActOfRose::Value::CIntegerValue* rightIntValue = (ActOfRose::Value::CIntegerValue*)rightValue;
+			int intResult;
+
+			switch (opType)
+			{
+				case ActOfRose::Operation::EOperationTypes::EO_Summation:
+				{
+					intResult = _mValue + rightIntValue->GetRawValue();
+					break;
+				}
+
+				default:
+				{
+					return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
+				}
+			}
+
+			retValueRefHolder->value.value = new ActOfRose::Value::CIntegerValue(intResult);
+
+			break;
+		}
+
+		default:
+		{
+			return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
+		}
+	}
+
+	retValueRefHolder->category = ActOfRose::Value::EValueCategories::EVC_PRValue;
+
+	return AOR_SUCCESS;
 }
