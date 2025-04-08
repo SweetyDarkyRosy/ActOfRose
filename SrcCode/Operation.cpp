@@ -41,6 +41,28 @@ static const std::unordered_map<std::string, ActOfRose::Operation::EOperationTyp
 static int ExecuteBinaryOperation(ActOfRose::Value::SValueReference* retValueRefHolder, ActOfRose::Operation::EOperationTypes opType,
 	ActOfRose::Value::SValueReference* leftOperandRef, ActOfRose::Value::SValueReference* rightOperandRef)
 {
+	// ----- Checking if the operation type is the assignment and if left value is lvalue -----
+
+	switch (opType)
+	{
+		case ActOfRose::Operation::EOperationTypes::EO_Assignment:
+		{
+			if (leftOperandRef->category != ActOfRose::Value::EValueCategories::EVC_LValue)
+			{
+				ActOfRose::WriteLog(PREF_STRING("lvalue required as left operand"),
+					(sizeof(PREF_STRING("lvalue required as left operand")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+				
+				return AOR_ERROR_EXEC_LVALUE_REQUIRED;
+			}
+		}
+
+		default:
+		{
+			break;
+		}
+	}
+
+
 	ActOfRose::Value::CValue* leftValue;
 	if (leftOperandRef->category == ActOfRose::Value::EValueCategories::EVC_LValue)
 	{
