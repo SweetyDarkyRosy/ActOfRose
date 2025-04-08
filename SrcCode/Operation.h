@@ -39,7 +39,7 @@ namespace ActOfRose
 		bool GetOperationType(ActOfRose::Operation::EOperationTypes* operationHolder, const std::string* str);
 
 		// Performs an operation of a specified type on the specified operands
-		int ExecuteOperation(ActOfRose::Value::SValueReference* retValueRefHolder, ActOfRose::Operation::EOperationTypes,
+		int ExecuteOperation(ActOfRose::Value::SValueReference* retValueRefHolder, ActOfRose::Operation::EOperationTypes opType,
 			ActOfRose::Value::SValueReference* leftValRef, ActOfRose::Value::SValueReference* rightValRef);
 
 	} // !namespace Operation

@@ -146,6 +146,8 @@ int ActOfRose::CExecutor::RetrieveValue(ActOfRose::Value::SValueReference* value
 						case ActOfRose::Token::ETokenType::ETTString:
 						case ActOfRose::Token::ETokenType::ETTCurlyBracketLeft:
 						case ActOfRose::Token::ETokenType::ETTIdentifier:
+						case ActOfRose::Token::ETokenType::ETTOperator:
+						case ActOfRose::Token::ETokenType::ETTRoundBracketLeft:
 						{
 							ActOfRose::Value::CValue* newValue;
 							{
