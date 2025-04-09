@@ -31,7 +31,8 @@ namespace ActOfRose
 			EO_Subtraction,				// Subtraction
 			EO_Multiplication,			// Multiplication
 			EO_Division,				// Division
-			EO_Assignment				// Assignment
+			EO_Assignment,				// Assignment
+			EO_Negation					// Negation
 		};
 
 
