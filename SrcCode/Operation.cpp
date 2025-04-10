@@ -15,6 +15,7 @@
 
 #include "ReturnCodes.h"
 #include "Log.h"
+#include "SystemAPI.h"
 #include "Value/Value.h"
 #include "Utility/StringMisc.h"
 
@@ -80,7 +81,35 @@ static int ExecuteBinaryOperation(ActOfRose::Value::SValueReference* retValueRef
 static int ExecuteUnaryOperation(ActOfRose::Value::SValueReference* retValueRefHolder, ActOfRose::Operation::EOperationTypes opType,
 	ActOfRose::Value::SValueReference* operandRef)
 {
-	return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
+	switch (opType)
+	{
+		case ActOfRose::Operation::EOperationTypes::EO_Summation:
+		{
+			if (operandRef->category == ActOfRose::Value::EValueCategories::EVC_PRValue)
+			{
+				retValueRefHolder->value.value = ActOfRose::CopyValue(operandRef->value.value);
+			}
+			else if (operandRef->category == ActOfRose::Value::EValueCategories::EVC_LValue)
+			{
+				retValueRefHolder->value.valueHolder = operandRef->value.valueHolder;
+			}
+			else
+			{
+				retValueRefHolder->value.value = operandRef->value.value;
+			}
+
+			retValueRefHolder->category = operandRef->category;
+
+			break;
+		}
+
+		default:
+		{
+			return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
+		}
+	}
+
+	return AOR_SUCCESS;
 }
 
 
