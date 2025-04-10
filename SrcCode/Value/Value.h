@@ -87,6 +87,23 @@ namespace ActOfRose
 		// Structure of value reference
 		struct SValueReference
 		{
+			ActOfRose::Value::CValue* GetValue() const
+			{
+				if (category == ActOfRose::Value::EValueCategories::EVC_LValue)
+				{
+					return *(value.valueHolder);
+				}
+				else if (category == ActOfRose::Value::EValueCategories::EVC_None)
+				{
+					return nullptr;
+				}
+				else
+				{
+					return value.value;
+				}
+			}
+
+
 			union
 			{
 				ActOfRose::Value::CValue* value;				// Pointer to a value
