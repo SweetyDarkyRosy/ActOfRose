@@ -39,28 +39,20 @@ std::wstring ActOfRose::Value::CIntegerValue::ConvertValueToWideString() const
 int ActOfRose::Value::CIntegerValue::ExecuteOperation(ActOfRose::Value::SValueReference* retValueRefHolder,
 	ActOfRose::Operation::EOperationTypes opType, ActOfRose::Value::SValueReference* rightValRef)
 {
-	ActOfRose::Value::CValue* rightValue;
-	if (rightValRef->category == ActOfRose::Value::EValueCategories::EVC_LValue)
+	switch (opType)
 	{
-		rightValue = *(rightValRef->value.valueHolder);
-	}
-	else
-	{
-		rightValue = rightValRef->value.value;
-	}
-
-	switch (rightValue->GetValueType())
-	{
-		case ActOfRose::Value::EValueType::EVT_Integer:
+		case ActOfRose::Operation::EOperationTypes::EO_Summation:
 		{
-			ActOfRose::Value::CIntegerValue* rightIntValue = (ActOfRose::Value::CIntegerValue*)rightValue;
-			int intResult;
-
-			switch (opType)
+			ActOfRose::Value::CValue* rightValue = rightValRef->GetValue();
+			switch (rightValue->GetValueType())
 			{
-				case ActOfRose::Operation::EOperationTypes::EO_Summation:
+				case ActOfRose::Value::EValueType::EVT_Integer:
 				{
-					intResult = _mValue + rightIntValue->GetRawValue();
+					ActOfRose::Value::CIntegerValue* rightIntValue = (ActOfRose::Value::CIntegerValue*)rightValue;
+					int intResult = _mValue + rightIntValue->GetRawValue();
+
+					retValueRefHolder->value.value = new ActOfRose::Value::CIntegerValue(intResult);
+
 					break;
 				}
 
@@ -70,7 +62,12 @@ int ActOfRose::Value::CIntegerValue::ExecuteOperation(ActOfRose::Value::SValueRe
 				}
 			}
 
-			retValueRefHolder->value.value = new ActOfRose::Value::CIntegerValue(intResult);
+			break;
+		}
+
+		case ActOfRose::Operation::EOperationTypes::EO_Negation:
+		{
+			retValueRefHolder->value.value = new ActOfRose::Value::CIntegerValue(_mValue * (-1));
 
 			break;
 		}
