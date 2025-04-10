@@ -103,6 +103,39 @@ static int ExecuteUnaryOperation(ActOfRose::Value::SValueReference* retValueRefH
 			break;
 		}
 
+		case ActOfRose::Operation::EOperationTypes::EO_Subtraction:
+		{
+			ActOfRose::Value::CValue* currValue;
+			if (operandRef->category == ActOfRose::Value::EValueCategories::EVC_LValue)
+			{
+				currValue = *(operandRef->value.valueHolder);
+			}
+			else
+			{
+				currValue = operandRef->value.value;
+			}
+
+			switch (currValue->GetValueType())
+			{
+				case ActOfRose::Value::EValueType::EVT_Boolean:
+				case ActOfRose::Value::EValueType::EVT_Integer:
+				case ActOfRose::Value::EValueType::EVT_FloatingPoint:
+				{
+					break;
+				}
+
+				default:
+				{
+					ActOfRose::WriteLog(PREF_STRING("Invalid operand to unary expression"),
+						(sizeof(PREF_STRING("Invalid operand to unary expression")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+					return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
+				}
+			}
+
+			return operandRef->GetValue()->ExecuteOperation(retValueRefHolder, ActOfRose::Operation::EOperationTypes::EO_Negation, nullptr);
+		}
+
 		default:
 		{
 			return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
