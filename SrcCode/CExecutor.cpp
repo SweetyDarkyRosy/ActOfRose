@@ -270,25 +270,66 @@ int ActOfRose::CExecutor::BuildExpressionAST(ActOfRose::AST::CExprASTNode** tree
 			}
 			else
 			{
-				if (*treeRootNodeHolder == currPrecedenceLastOperatorNode)
+				if (newOperatorNode->GetPrecedence() < currPrecedenceLastOperatorNode->GetPrecedence())
 				{
-					*treeRootNodeHolder = newOperatorNode;
+					newOperatorNode->SetLeftChild(currPrecedenceLastOperatorNode->GetRightChild());
+					currPrecedenceLastOperatorNode->SetRightChild(newOperatorNode);
 				}
-				else
+				else if (newOperatorNode->GetPrecedence() == currPrecedenceLastOperatorNode->GetPrecedence())
 				{
-					ActOfRose::AST::CExprASTOperatorNode* higherParent = (ActOfRose::AST::CExprASTOperatorNode*)(currPrecedenceLastOperatorNode->GetParent());
-
-					if (higherParent->GetLeftChild() == currPrecedenceLastOperatorNode)
+					if (*treeRootNodeHolder == currPrecedenceLastOperatorNode)
 					{
-						higherParent->SetLeftChild(newOperatorNode);
+						*treeRootNodeHolder = newOperatorNode;
 					}
-					else if (higherParent->GetRightChild() == currPrecedenceLastOperatorNode)
+					else
 					{
-						higherParent->SetRightChild(newOperatorNode);
+						ActOfRose::AST::CExprASTOperatorNode* higherParent = (ActOfRose::AST::CExprASTOperatorNode*)(currPrecedenceLastOperatorNode->GetParent());
+
+						if (higherParent->GetLeftChild() == currPrecedenceLastOperatorNode)
+						{
+							higherParent->SetLeftChild(newOperatorNode);
+						}
+						else if (higherParent->GetRightChild() == currPrecedenceLastOperatorNode)
+						{
+							higherParent->SetRightChild(newOperatorNode);
+						}
+					}
+
+					newOperatorNode->SetLeftChild(currPrecedenceLastOperatorNode);
+				}
+				else	// if (newOperatorNode->GetPrecedence() > currPrecedenceLastOperatorNode->GetPrecedence())
+				{
+					ActOfRose::AST::CExprASTOperatorNode* operatorNodeWalker = currPrecedenceLastOperatorNode;
+
+					while ((operatorNodeWalker->GetParent() != nullptr) &&
+						(newOperatorNode->GetPrecedence() >= ((ActOfRose::AST::CExprASTOperatorNode*)(operatorNodeWalker->GetParent()))->GetPrecedence()))
+					{
+						operatorNodeWalker = (ActOfRose::AST::CExprASTOperatorNode*)(operatorNodeWalker->GetParent());
+					}
+
+					if (operatorNodeWalker == *treeRootNodeHolder)
+					{
+						newOperatorNode->SetLeftChild(*treeRootNodeHolder);
+						newOperatorNode->SetParent(nullptr);
+
+						*treeRootNodeHolder = newOperatorNode;
+					}
+					else
+					{
+						ActOfRose::AST::CExprASTOperatorNode* higherParent = (ActOfRose::AST::CExprASTOperatorNode*)(operatorNodeWalker->GetParent());
+
+						if (higherParent->GetLeftChild() == operatorNodeWalker)
+						{
+							higherParent->SetLeftChild(newOperatorNode);
+						}
+						else if (higherParent->GetRightChild() == operatorNodeWalker)
+						{
+							higherParent->SetRightChild(newOperatorNode);
+						}
+						
+						newOperatorNode->SetLeftChild(operatorNodeWalker);
 					}
 				}
-
-				newOperatorNode->SetLeftChild(currPrecedenceLastOperatorNode);
 			}
 
 			currPrecedenceLastOperatorNode = newOperatorNode;
