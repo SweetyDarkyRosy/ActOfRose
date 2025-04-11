@@ -56,6 +56,7 @@ int ActOfRose::CExecutor::Execute(std::vector<ActOfRose::Token::SToken>* tokenGr
 
 			switch (keyword)
 			{
+				case ActOfRose::Keyword::EKeywords::EK_Override:
 				case ActOfRose::Keyword::EKeywords::EK_Var:
 				{
 					return DeclareAndInitialiseVariable(tokenGroup);
@@ -676,42 +677,85 @@ int ActOfRose::CExecutor::EvaluateExpression(ActOfRose::Value::CValue** valueHol
 // Executes a variable declaration and initialisation
 int ActOfRose::CExecutor::DeclareAndInitialiseVariable(std::vector<ActOfRose::Token::SToken>* tokenGroup)
 {
-	if (AORSystemIsIdentifierUsed((*tokenGroup)[1].value.c_str()) == true)
+	// New value
+	ActOfRose::Value::CValue* newValue = nullptr;
+
 	{
-		LogAlreadyUsedIdentifier((*tokenGroup)[1].value.c_str());
+		ActOfRose::Keyword::EKeywords keyword;
+		if (GetKeyword(&keyword, &((*tokenGroup)[_mCurrTokenIndex].value)) == false)
+		{
+			ActOfRose::WriteLog(PREF_STRING("Keyword not found. Internal error"),
+				(sizeof(PREF_STRING("Keyword not found. Internal error")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+			return AOR_ERROR_INTERNAL_ERROR;
+		}
+
+		if (keyword == ActOfRose::Keyword::EKeywords::EK_Override)
+		{
+			/*!
+				TODO: Implement reading of predefined values associated with predefined identifiers from a cache file and from
+				a command line
+			 */
+
+			_mCurrTokenIndex += 2;
+		}
+		else
+		{
+			_mCurrTokenIndex++;
+		}
+	}
+
+
+	// Variable name
+	const char* variableName = (*tokenGroup)[_mCurrTokenIndex].value.c_str();
+
+
+	if (AORSystemIsIdentifierUsed(variableName) == true)
+	{
+		LogAlreadyUsedIdentifier(variableName);
+
 		return AOR_ERROR_EXEC_IDENTIFIER_ALREADY_IN_USE;
 	}
+
+	_mCurrTokenIndex++;
+
 
 	// New variable
 	ActOfRose::CVariable* newVariable;
 
-	if ((*tokenGroup)[2].type == ActOfRose::Token::ETokenType::ETTSemicolon)
+	if (newValue == nullptr)
 	{
-		newVariable = new ActOfRose::CVariable();
-	}
-	else if (((*tokenGroup)[2].type == ActOfRose::Token::ETokenType::ETTOperator) &&
-		((*tokenGroup)[2].value.compare("=") == 0))
-	{
-		_mCurrTokenIndex = 3;
-
-		ActOfRose::Value::CValue* newValue;
+		if ((*tokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTSemicolon)
 		{
-			int exprEvalResult = EvaluateExpression(&newValue);
-			if (exprEvalResult != AOR_SUCCESS)
-			{
-				return exprEvalResult;
-			}
+			newVariable = new ActOfRose::CVariable();
 		}
+		else if (((*tokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTOperator) &&
+			((*tokenGroup)[_mCurrTokenIndex].value.compare("=") == 0))
+		{
+			_mCurrTokenIndex++;
 
+			{
+				int exprEvalResult = EvaluateExpression(&newValue);
+				if (exprEvalResult != AOR_SUCCESS)
+				{
+					return exprEvalResult;
+				}
+			}
+
+			newVariable = new ActOfRose::CVariable(newValue);
+		}
+	}
+	else
+	{
 		newVariable = new ActOfRose::CVariable(newValue);
 	}
 
-	if (AORSystemRegisterIdentifierAndElement((*tokenGroup)[1].value.c_str(), ActOfRose::EElementType::EET_Variable, (void*)newVariable) == nullptr)
+	if (AORSystemRegisterIdentifierAndElement(variableName, ActOfRose::EElementType::EET_Variable, (void*)newVariable) == nullptr)
 	{
 		delete newVariable;
 
 		std::string errorMsg = "Runtime error. Failed to declare the ";
-		errorMsg += (*_pCurrTokenGroup)[1].value;
+		errorMsg += variableName;
 		errorMsg += " variable";
 
 		ActOfRose::WriteLog(errorMsg.c_str(), errorMsg.length(), ActOfRose::ELogLevel::ELL_Error);
@@ -722,7 +766,7 @@ int ActOfRose::CExecutor::DeclareAndInitialiseVariable(std::vector<ActOfRose::To
 #ifdef _DEBUG
 	{
 		std::string msg = "Variable ";
-		msg += (*_pCurrTokenGroup)[1].value;
+		msg += variableName;
 		msg += " has been created";
 
 		ActOfRose::WriteLog(msg.c_str(), msg.length(), ActOfRose::ELogLevel::ELL_Debug);

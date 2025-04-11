@@ -20,14 +20,28 @@
 // ----- ActOfRose::Context::CVarDeclarationContext class -----
 
 // Constructor
-ActOfRose::Context::CVarDeclarationContext::CVarDeclarationContext() :
-	_mState(ActOfRose::Context::CVarDeclarationContext::EVarDeclarationCtxStates::EVDCS_VariableName)
+ActOfRose::Context::CVarDeclarationContext::CVarDeclarationContext(ActOfRose::Keyword::EKeywords keyword)
 {
 #ifdef _DEBUG
 	ActOfRose::WriteLog(PREF_STRING("New variable declaration context has been created"),
 		(sizeof(PREF_STRING("New variable declaration context has been created")) / sizeof(PChar)),
 		ActOfRose::ELogLevel::ELL_Debug);
 #endif
+
+	switch (keyword)
+	{
+		case ActOfRose::Keyword::EKeywords::EK_Override:
+		{
+			_mState = ActOfRose::Context::CVarDeclarationContext::EVarDeclarationCtxStates::EVDCS_VarKeyword;
+			break;
+		}
+
+		default:
+		{
+			_mState = ActOfRose::Context::CVarDeclarationContext::EVarDeclarationCtxStates::EVDCS_VariableName;
+			break;
+		}
+	}
 }
 
 // Analyses the given token, checks current sequence for logical errors and updates a context
@@ -35,6 +49,38 @@ int ActOfRose::Context::CVarDeclarationContext::ProcessToken(ActOfRose::Token::S
 {
 	switch (_mState)
 	{
+		case ActOfRose::Context::CVarDeclarationContext::EVarDeclarationCtxStates::EVDCS_VarKeyword:
+		{
+			if (token->type != ActOfRose::Token::ETokenType::ETTKeyword)
+			{
+				ActOfRose::WriteLog(PREF_STRING("Expected 'var' keyword"),
+					(sizeof(PREF_STRING("Expected 'var' keyword")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+	
+				return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
+			}
+
+			ActOfRose::Keyword::EKeywords keyword;
+			if (GetKeyword(&keyword, &(token->value)) == false)
+			{
+				ActOfRose::WriteLog(PREF_STRING("Keyword not found. Internal error"),
+					(sizeof(PREF_STRING("Keyword not found. Internal error")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_INTERNAL_ERROR;
+			}
+
+			if (keyword != ActOfRose::Keyword::EKeywords::EK_Var)
+			{
+				ActOfRose::WriteLog(PREF_STRING("Expected 'var' keyword"),
+					(sizeof(PREF_STRING("Expected 'var' keyword")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+	
+				return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
+			}
+
+			_mState = ActOfRose::Context::CVarDeclarationContext::EVarDeclarationCtxStates::EVDCS_VariableName;
+
+			break;
+		}
+
 		case ActOfRose::Context::CVarDeclarationContext::EVarDeclarationCtxStates::EVDCS_VariableName:
 		{
 			if (token->type == ActOfRose::Token::ETokenType::ETTIdentifier)

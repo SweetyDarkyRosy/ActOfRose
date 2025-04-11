@@ -112,8 +112,9 @@ int ActOfRose::Context::CSequencer::DetermineAndCreateContext(ActOfRose::Token::
 			switch (keyword)
 			{
 				case ActOfRose::Keyword::EKeywords::EK_Var:
+				case ActOfRose::Keyword::EKeywords::EK_Override:
 				{
-					_mContexts.push(new ActOfRose::Context::CVarDeclarationContext());
+					_mContexts.push(new ActOfRose::Context::CVarDeclarationContext(keyword));
 
 					break;
 				}

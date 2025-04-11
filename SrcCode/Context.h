@@ -12,6 +12,9 @@
 #ifndef __ACT_OF_ROSE_CONTEXT_CLASSES_H__
 #define __ACT_OF_ROSE_CONTEXT_CLASSES_H__
 
+#include "Keywords.h"
+
+
 namespace ActOfRose
 {
 	namespace Token
@@ -25,9 +28,6 @@ namespace ActOfRose
 		class CContext
 		{
 		public:
-			// Constructor
-			CContext() {}
-
 			// Destructor
 			virtual ~CContext() {}
 
@@ -48,6 +48,7 @@ namespace ActOfRose
 			// States of variable declaration context
 			enum EVarDeclarationCtxStates
 			{
+				EVDCS_VarKeyword,				// "var" keyword is expected
 				EVDCS_VariableName,				// Identifier with variable name is expected
 				EVDCS_InitDisjunction,			// Initialisation branching between two options
 				EVDCS_ExpressionBegin,			// Expression is expected
@@ -56,7 +57,7 @@ namespace ActOfRose
 
 		public:
 			// Constructor
-			CVarDeclarationContext();
+			CVarDeclarationContext(ActOfRose::Keyword::EKeywords keyword);
 
 		public:
 			// Analyses the given token, checks current sequence for logical errors and updates a context
