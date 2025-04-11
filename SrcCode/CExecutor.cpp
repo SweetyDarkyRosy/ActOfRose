@@ -209,6 +209,7 @@ int ActOfRose::CExecutor::BuildExpressionAST(ActOfRose::AST::CExprASTNode** tree
 	*treeRootNodeHolder = nullptr;
 
 	ActOfRose::AST::CExprASTOperatorNode* currPrecedenceLastOperatorNode = nullptr;		// Parent node of a sequence of operands of current precedence
+	ActOfRose::AST::CExprASTRoundBracketNode* lastRoundBracketNode = nullptr;			// Pointer to a last round bracket (left) node
 	unsigned int depthLevel = 0;														// Current depth level based on how many left round brackets have been encountered
 
 	while (_mCurrTokenIndex != _pCurrTokenGroup->size())
@@ -218,13 +219,109 @@ int ActOfRose::CExecutor::BuildExpressionAST(ActOfRose::AST::CExprASTNode** tree
 		{
 			return AOR_SUCCESS;
 		}
-		else if (((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTRoundBracketRight) ||
-			((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTCurlyBracketRight))
+		else if ((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTCurlyBracketRight)
 		{
 			if (depthLevel == 0)
 			{
 				return AOR_SUCCESS;
 			}
+		}
+		else if ((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTRoundBracketLeft)
+		{
+			if (*treeRootNodeHolder == nullptr)
+			{
+				ActOfRose::AST::CExprASTRoundBracketNode* newRoundBracketNode = new ActOfRose::AST::CExprASTRoundBracketNode();
+
+				*treeRootNodeHolder = newRoundBracketNode;
+				lastRoundBracketNode = newRoundBracketNode;
+			}
+			else if ((lastRoundBracketNode != nullptr) && (lastRoundBracketNode->GetChild() == nullptr))
+			{
+				ActOfRose::AST::CExprASTRoundBracketNode* newRoundBracketNode = new ActOfRose::AST::CExprASTRoundBracketNode();
+
+				lastRoundBracketNode->SetChild(newRoundBracketNode);
+				lastRoundBracketNode = newRoundBracketNode;
+			}
+			else
+			{
+				ActOfRose::WriteLog(PREF_STRING("Invalid expression. Left bracket cannot be placed after an operand"),
+					(sizeof(PREF_STRING("Invalid expression. Left bracket cannot be placed after an operand")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_EXEC_INVALID_EXPRESSION;
+			}
+		
+			depthLevel++;
+		}
+		else if ((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTRoundBracketRight)
+		{
+			if (depthLevel == 0)
+			{
+				return AOR_SUCCESS;
+			}
+
+			if (*treeRootNodeHolder == lastRoundBracketNode)
+			{
+				lastRoundBracketNode->GetChild()->SetParent(nullptr);
+				*treeRootNodeHolder = lastRoundBracketNode->GetChild();
+
+				delete lastRoundBracketNode;
+				lastRoundBracketNode = nullptr;
+			}
+			else if (lastRoundBracketNode->GetParent()->GetType() == ActOfRose::AST::EExprASTNodeType::EESTNTRoundBracket)
+			{
+				ActOfRose::AST::CExprASTRoundBracketNode* parentRoundBracket = (ActOfRose::AST::CExprASTRoundBracketNode*)(lastRoundBracketNode->GetParent());
+				parentRoundBracket->SetChild(lastRoundBracketNode->GetChild());
+
+				delete lastRoundBracketNode;
+				lastRoundBracketNode = parentRoundBracket;
+			}
+			else // if (lastRoundBracketNode->GetParent()->GetType() == ActOfRose::EExprASTNodeType::EESTNTOperator)
+			{
+				ActOfRose::AST::CExprASTOperatorNode* parentOperator = (ActOfRose::AST::CExprASTOperatorNode*)(lastRoundBracketNode->GetParent());
+				if (parentOperator->GetLeftChild() == lastRoundBracketNode)
+				{
+					parentOperator->SetLeftChild(lastRoundBracketNode->GetChild());
+				}
+				else if (parentOperator->GetRightChild() == lastRoundBracketNode)
+				{
+					parentOperator->SetRightChild(lastRoundBracketNode->GetChild());
+				}
+
+				{
+					ActOfRose::AST::CExprASTOperatorNode* operatorNodeWalker = parentOperator;
+
+					while ((operatorNodeWalker->GetLeftChild() == nullptr) && (operatorNodeWalker != *treeRootNodeHolder) &&
+						(operatorNodeWalker->GetParent()->GetType() != ActOfRose::AST::EExprASTNodeType::EESTNTRoundBracket))
+					{
+						operatorNodeWalker = (ActOfRose::AST::CExprASTOperatorNode*)(operatorNodeWalker->GetParent());
+					}
+
+					currPrecedenceLastOperatorNode = operatorNodeWalker;
+				}
+
+
+				// ----- Deleting current last last round bracket and moving up through AST for finding another last round bracket if there is one at least -----
+
+				if (depthLevel == 1)
+				{
+					delete lastRoundBracketNode;
+					lastRoundBracketNode = nullptr;
+				}
+				else
+				{
+					ActOfRose::AST::CExprASTNode* nodeWalker = parentOperator;
+
+					while (nodeWalker->GetType() != ActOfRose::AST::EExprASTNodeType::EESTNTRoundBracket)
+					{
+						nodeWalker = nodeWalker->GetParent();
+					}
+
+					delete lastRoundBracketNode;
+					lastRoundBracketNode = (ActOfRose::AST::CExprASTRoundBracketNode*)nodeWalker;
+				}
+			}
+
+			depthLevel--;
 		}
 		else if ((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTOperator)
 		{
@@ -263,6 +360,15 @@ int ActOfRose::CExecutor::BuildExpressionAST(ActOfRose::AST::CExprASTNode** tree
 			{
 				*treeRootNodeHolder = newOperatorNode;
 			}
+			else if ((lastRoundBracketNode != nullptr) && (lastRoundBracketNode->GetChild() == nullptr))
+			{
+				lastRoundBracketNode->SetChild(newOperatorNode);
+			}
+			else if ((lastRoundBracketNode != nullptr) && (lastRoundBracketNode->GetChild()->GetType() == ActOfRose::AST::EExprASTNodeType::EESTNTOperand))
+			{
+				newOperatorNode->SetLeftChild(lastRoundBracketNode->GetChild());
+				lastRoundBracketNode->SetChild(newOperatorNode);
+			}
 			else if ((*treeRootNodeHolder)->GetType() == ActOfRose::AST::EExprASTNodeType::EESTNTOperand)
 			{
 				newOperatorNode->SetLeftChild(*treeRootNodeHolder);
@@ -280,6 +386,13 @@ int ActOfRose::CExecutor::BuildExpressionAST(ActOfRose::AST::CExprASTNode** tree
 					if (*treeRootNodeHolder == currPrecedenceLastOperatorNode)
 					{
 						*treeRootNodeHolder = newOperatorNode;
+					}
+					else if (currPrecedenceLastOperatorNode->GetParent()->GetType() == ActOfRose::AST::EExprASTNodeType::EESTNTRoundBracket)
+					{
+						ActOfRose::AST::CExprASTRoundBracketNode* parentLeftRoundBracket = (ActOfRose::AST::CExprASTRoundBracketNode*)(currPrecedenceLastOperatorNode->GetParent());
+
+						newOperatorNode->SetLeftChild(parentLeftRoundBracket->GetChild());
+						parentLeftRoundBracket->SetChild(newOperatorNode);
 					}
 					else
 					{
@@ -302,6 +415,7 @@ int ActOfRose::CExecutor::BuildExpressionAST(ActOfRose::AST::CExprASTNode** tree
 					ActOfRose::AST::CExprASTOperatorNode* operatorNodeWalker = currPrecedenceLastOperatorNode;
 
 					while ((operatorNodeWalker->GetParent() != nullptr) &&
+						(((ActOfRose::AST::CExprASTOperatorNode*)(operatorNodeWalker->GetParent()))->GetType() != ActOfRose::AST::EExprASTNodeType::EESTNTRoundBracket) &&
 						(newOperatorNode->GetPrecedence() >= ((ActOfRose::AST::CExprASTOperatorNode*)(operatorNodeWalker->GetParent()))->GetPrecedence()))
 					{
 						operatorNodeWalker = (ActOfRose::AST::CExprASTOperatorNode*)(operatorNodeWalker->GetParent());
@@ -313,6 +427,13 @@ int ActOfRose::CExecutor::BuildExpressionAST(ActOfRose::AST::CExprASTNode** tree
 						newOperatorNode->SetParent(nullptr);
 
 						*treeRootNodeHolder = newOperatorNode;
+					}
+					else if (operatorNodeWalker->GetParent()->GetType() == ActOfRose::AST::EExprASTNodeType::EESTNTRoundBracket)
+					{
+						ActOfRose::AST::CExprASTRoundBracketNode* parentLeftRoundBracket = (ActOfRose::AST::CExprASTRoundBracketNode*)(operatorNodeWalker->GetParent());
+
+						newOperatorNode->SetLeftChild(parentLeftRoundBracket->GetChild());
+						parentLeftRoundBracket->SetChild(newOperatorNode);
 					}
 					else
 					{
@@ -400,6 +521,15 @@ int ActOfRose::CExecutor::BuildExpressionAST(ActOfRose::AST::CExprASTNode** tree
 
 				lastOperatorNode->SetRightChild(newOperandNode);
 			}
+			else if ((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTRoundBracketLeft)
+			{
+				ActOfRose::AST::CExprASTRoundBracketNode* newRoundBracketNode = new ActOfRose::AST::CExprASTRoundBracketNode();
+
+				lastRoundBracketNode = newRoundBracketNode;
+				depthLevel++;
+
+				lastOperatorNode->SetRightChild(newRoundBracketNode);
+			}
 			else
 			{
 				ActOfRose::WriteLog(PREF_STRING("Invalid expression. Only operands can be after operator"),
@@ -434,10 +564,47 @@ int ActOfRose::CExecutor::BuildExpressionAST(ActOfRose::AST::CExprASTNode** tree
 			{
 				*treeRootNodeHolder = newOperandNode;
 			}
-			else if ((*treeRootNodeHolder)->GetType() == ActOfRose::AST::EExprASTNodeType::EESTNTOperand)
+			else if (lastRoundBracketNode != nullptr)
 			{
-				ActOfRose::WriteLog(PREF_STRING("Invalid expression. Operand after another operand detected"),
+				if (lastRoundBracketNode->GetChild() == nullptr)
+				{
+					lastRoundBracketNode->SetChild(newOperandNode);
+				}
+				else
+				{
+					if (lastRoundBracketNode->GetChild()->GetType() == ActOfRose::AST::EExprASTNodeType::EESTNTOperand)
+					{
+						ActOfRose::WriteLog(PREF_STRING("Invalid expression. Operand after another operand detected"),
+							(sizeof(PREF_STRING("Invalid expression. Operand after another operand detected")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+					}
+					else if (lastRoundBracketNode->GetChild()->GetType() == ActOfRose::AST::EExprASTNodeType::EESTNTRoundBracket)
+					{
+						ActOfRose::WriteLog(PREF_STRING("Invalid expression. Operand after left round bracket detected"),
+							(sizeof(PREF_STRING("Invalid expression. Operand after left round bracket detected")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+					}
+
+					delete newOperandNode;
+
+					return AOR_ERROR_EXEC_INVALID_EXPRESSION;
+				}
+			}
+			else	// if ((*treeRootNodeHolder)->GetType() == ActOfRose::AST::EExprASTNodeType::EESTNTOperand) || ((*treeRootNodeHolder)->GetType() == ActOfRose::AST::EExprASTNodeType::EESTNTRoundBracket))
+			{
+				if ((*treeRootNodeHolder)->GetType() == ActOfRose::AST::EExprASTNodeType::EESTNTOperand)
+				{
+					ActOfRose::WriteLog(PREF_STRING("Invalid expression. Operand after another operand detected"),
 					(sizeof(PREF_STRING("Invalid expression. Operand after another operand detected")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+				}
+				else if ((*treeRootNodeHolder)->GetType() == ActOfRose::AST::EExprASTNodeType::EESTNTRoundBracket)
+				{
+					ActOfRose::WriteLog(PREF_STRING("Invalid expression. Operand after left round bracket detected"),
+							(sizeof(PREF_STRING("Invalid expression. Operand after left round bracket detected")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+				}
+				else // if ((*treeRootNodeHolder)->GetType() == ActOfRose::AST::EExprASTNodeType::EESTNTOperator)
+				{
+					ActOfRose::WriteLog(PREF_STRING("Internal error. Operand after operator in another routine found"),
+							(sizeof(PREF_STRING("Internal error. Operand after operator in another routine found")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+				}
 
 				delete newOperandNode;
 
