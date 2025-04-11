@@ -130,6 +130,37 @@ namespace ActOfRose
 
 		};
 
+		// Class of a round bracket (left) node for an AST for expression evaluation
+		class CExprASTRoundBracketNode : public ActOfRose::AST::CExprASTNode
+		{
+		public:
+			// Constructor
+			CExprASTRoundBracketNode(ActOfRose::AST::CExprASTNode* parentNode = nullptr) :
+				ActOfRose::AST::CExprASTNode(ActOfRose::AST::EExprASTNodeType::EESTNTRoundBracket, parentNode),
+				_pChildNode(nullptr)
+			{}
+
+			// Destructor
+			~CExprASTRoundBracketNode() {}
+
+		public:
+			// Returns a pointer to the child
+			inline ActOfRose::AST::CExprASTNode* GetChild() { return _pChildNode; }
+			// Sets the node as a child
+			inline void SetChild(ActOfRose::AST::CExprASTNode* node)
+			{
+				_pChildNode = node;
+				_pChildNode->SetParent(this);
+			}
+
+			// Retrieves a value and sets it to the value reference holder pointed to by valueRefHolder
+			virtual int RetrieveValue(ActOfRose::Value::SValueReference* valueRefHolder) override;
+
+		private:
+			ActOfRose::AST::CExprASTNode* _pChildNode;				// Pointer to a parent node
+
+		};
+
 	} // !namespace AST
 } // !namespace ActOfRose
 

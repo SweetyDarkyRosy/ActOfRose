@@ -178,3 +178,12 @@ int ActOfRose::AST::CExprASTOperatorNode::RetrieveValue(ActOfRose::Value::SValue
 
 	return execResult;
 }
+
+
+// ----- ActOfRose::AST::CExprASTRoundBracketNode class -----
+
+// Retrieves a value and sets it to the value reference holder pointed to by valueRefHolder
+int ActOfRose::AST::CExprASTRoundBracketNode::RetrieveValue(ActOfRose::Value::SValueReference* valueRefHolder)
+{
+	return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
+}
