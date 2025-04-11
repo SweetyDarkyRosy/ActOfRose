@@ -29,6 +29,7 @@ static const std::unordered_map<std::string, ActOfRose::Keyword::EKeywords> sKey
 	{ "for", ActOfRose::Keyword::EKeywords::EK_For },
 	{ "while", ActOfRose::Keyword::EKeywords::EK_While },
 	{ "do", ActOfRose::Keyword::EKeywords::EK_Do },
+	{ "override", ActOfRose::Keyword::EKeywords::EK_Override },
 };
 
 
