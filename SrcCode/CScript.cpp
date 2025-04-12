@@ -21,6 +21,7 @@
 #include "ReturnCodes.h"
 #include "Token.h"
 #include "CLexer.h"
+#include "Log.h"
 #include "CExecutor.h"
 #include "Utility/StringConverting.h"
 
@@ -39,11 +40,13 @@ ActOfRose::CScript::CScript(const char* scriptFilePath)
 		WideCharToMultiByte(CP_ACP, 0, utf16BEPath.c_str(), (-1), ansiPath, ansiStrLength, 0, 0);
 
 		_mScriptFile.open(ansiPath);
+		_mScriptPath = ansiPath;
 
 		free(ansiPath);
 	}
 #elif defined (__linux__)
 	_mScriptFile.open(scriptFilePath);
+	_mScriptPath = scriptFilePath;
 #endif
 }
 
@@ -56,14 +59,13 @@ ActOfRose::CScript::CScript(const wchar_t* scriptFilePath)
 	WideCharToMultiByte(CP_ACP, 0, scriptFilePath, (-1), ansiPath, ansiStrLength, 0, 0);
 
 	_mScriptFile.open(ansiPath);
+	_mScriptPath = ansiPath;
 
 	free(ansiPath);
 #elif defined (__linux__)
-	std::string utf8Path;
-
-	if (ConvertStringUTF16BEToUTF8(&utf8Path, scriptFilePath, std::wcslen(scriptFilePath)) == AOR_SUCCESS)
+	if (ConvertStringUTF16BEToUTF8(&_mScriptPath, scriptFilePath, std::wcslen(scriptFilePath)) == AOR_SUCCESS)
 	{
-		_mScriptFile.open(utf8Path);
+		_mScriptFile.open(_mScriptPath);
 	}
 #endif
 }
@@ -78,6 +80,20 @@ ActOfRose::CScript::~CScript()
 // Processes and executes a script contained in the file
 int ActOfRose::CScript::Execute()
 {
+	{
+	#if defined (WIN32) || defined (_WIN32)
+		std::wstring msg = L"Executing a script from a file at ";
+		msg += std::filesystem::absolute(_mScriptPath).wstring();
+		msg += L"\n";
+	#elif defined (__linux__)
+		std::string msg = "Executing a script from a file at ";
+		msg += std::filesystem::absolute(_mScriptPath).string();
+		msg += "\n";
+	#endif
+
+		ActOfRose::WriteLog(msg.c_str(), msg.length(), ActOfRose::ELogLevel::ELL_Info);
+	}
+
 	ActOfRose::CLexer lexer(&_mScriptFile);				// Local lexer
 	int result;											// Result value
 

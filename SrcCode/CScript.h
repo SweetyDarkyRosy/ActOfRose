@@ -13,6 +13,7 @@
 #define __ACT_OF_ROSE_SCRIPT_CLASS_H__
 
 #include <fstream>
+#include <filesystem>
 
 
 namespace ActOfRose
@@ -37,6 +38,7 @@ namespace ActOfRose
 
 	private:
 		std::ifstream _mScriptFile;						// File with a script
+		std::filesystem::path _mScriptPath;				// Path to a file with a script
 
 	};
 
