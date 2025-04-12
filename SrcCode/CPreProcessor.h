@@ -21,6 +21,10 @@ namespace ActOfRose
 		// Constructor
 		CPreProcessor() {}
 
+	public:
+		// Processes a command line stream
+		int ProcessCommandLine(int argCount, char** args);
+
 	};
 
 } // !namespace ActOfRose

@@ -35,6 +35,16 @@ std::map<std::string, ActOfRose::SElement>		gIdentifierMap;		// Map of associati
 // High-level entry point
 int main(int argc, char* argv[])
 {
+	// ----- Reading of predefined values from arguments -----
+
+	if (argc != 1)
+	{
+		
+	}
+
+
+	// ----- Loading of a script -----
+
 	ActOfRose::CScript rootScript(BUILD_ROOT_SCRIPT_DEFAULT_NAME_PREF);
 	if (rootScript.IsLoaded() == false)
 	{
@@ -44,6 +54,9 @@ int main(int argc, char* argv[])
 		
 		return AOR_ERROR_SCRIPT_FILE_NOT_LOADED;
 	}
+
+
+	// ----- Execution -----
 
 	return rootScript.Execute();
 }
