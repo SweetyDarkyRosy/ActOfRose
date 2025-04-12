@@ -29,4 +29,7 @@ namespace ActOfRose
 
 } // !namespace ActOfRose
 
+
+extern ActOfRose::CPreProcessor			gPreprocessor;				// Global instance of executor
+
 #endif // !__ACT_OF_ROSE_PREPROCESSOR_CLASS_H__

@@ -14,9 +14,10 @@
 
 #include "ReturnCodes.h"
 #include "Log.h"
-#include "CScript.h"
-#include "CExecutor.h"
 #include "Element.h"
+#include "CScript.h"
+#include "CPreProcessor.h"
+#include "CExecutor.h"
 #include "Utility/StringMisc.h"
 
 
@@ -29,6 +30,7 @@
  ]*/
 
 ActOfRose::CExecutor							gExecutor;			// Global instance of executor
+ActOfRose::CPreProcessor						gPreprocessor;		// Global instance of preprocessor
 std::map<std::string, ActOfRose::SElement>		gIdentifierMap;		// Map of associations between identifiers and elements
 
 
@@ -39,7 +41,11 @@ int main(int argc, char* argv[])
 
 	if (argc != 1)
 	{
-		
+		int result = gPreprocessor.ProcessCommandLine(argc, argv);
+		if (result != AOR_SUCCESS)
+		{
+			return result;
+		}
 	}
 
 
