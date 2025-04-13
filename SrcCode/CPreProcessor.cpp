@@ -166,6 +166,13 @@ int ActOfRose::CPreProcessor::ProcessCommandLine(int argCount, char** args)
 
 			currArgIndex += 3;
 		}
+		else
+		{
+			ActOfRose::WriteLog(PREF_STRING("Invalid parameter"), (sizeof(PREF_STRING("Invalid parameter")) / sizeof(PChar)),
+				ActOfRose::ELogLevel::ELL_Error);
+
+			return AOR_ERROR_INVALID_PARAMETER;
+		}
 	}
 #elif defined (__linux__)
 	unsigned int currArgIndex = 1;
@@ -207,6 +214,13 @@ int ActOfRose::CPreProcessor::ProcessCommandLine(int argCount, char** args)
 			}
 
 			currArgIndex += 3;
+		}
+		else
+		{
+			ActOfRose::WriteLog(PREF_STRING("Invalid parameter"), (sizeof(PREF_STRING("Invalid parameter")) / sizeof(PChar)),
+				ActOfRose::ELogLevel::ELL_Error);
+
+			return AOR_ERROR_INVALID_PARAMETER;
 		}
 	}
 #endif
