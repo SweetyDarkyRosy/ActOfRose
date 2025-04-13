@@ -262,23 +262,30 @@ int ActOfRose::CExecutor::BuildExpressionAST(ActOfRose::AST::CExprASTNode** tree
 
 			if (*treeRootNodeHolder == lastRoundBracketNode)
 			{
+				/* REMOVED
 				lastRoundBracketNode->GetChild()->SetParent(nullptr);
 				*treeRootNodeHolder = lastRoundBracketNode->GetChild();
 
 				delete lastRoundBracketNode;
 				lastRoundBracketNode = nullptr;
+				*/
 			}
 			else if (lastRoundBracketNode->GetParent()->GetType() == ActOfRose::AST::EExprASTNodeType::EESTNTRoundBracket)
 			{
+				/* REMOVED
 				ActOfRose::AST::CExprASTRoundBracketNode* parentRoundBracket = (ActOfRose::AST::CExprASTRoundBracketNode*)(lastRoundBracketNode->GetParent());
 				parentRoundBracket->SetChild(lastRoundBracketNode->GetChild());
 
 				delete lastRoundBracketNode;
 				lastRoundBracketNode = parentRoundBracket;
+				*/
+
+				lastRoundBracketNode = (ActOfRose::AST::CExprASTRoundBracketNode*)(lastRoundBracketNode->GetParent());
 			}
 			else // if (lastRoundBracketNode->GetParent()->GetType() == ActOfRose::EExprASTNodeType::EESTNTOperator)
 			{
 				ActOfRose::AST::CExprASTOperatorNode* parentOperator = (ActOfRose::AST::CExprASTOperatorNode*)(lastRoundBracketNode->GetParent());
+				/* REMOVED
 				if (parentOperator->GetLeftChild() == lastRoundBracketNode)
 				{
 					parentOperator->SetLeftChild(lastRoundBracketNode->GetChild());
@@ -287,6 +294,7 @@ int ActOfRose::CExecutor::BuildExpressionAST(ActOfRose::AST::CExprASTNode** tree
 				{
 					parentOperator->SetRightChild(lastRoundBracketNode->GetChild());
 				}
+				*/
 
 				{
 					ActOfRose::AST::CExprASTOperatorNode* operatorNodeWalker = parentOperator;
@@ -305,7 +313,7 @@ int ActOfRose::CExecutor::BuildExpressionAST(ActOfRose::AST::CExprASTNode** tree
 
 				if (depthLevel == 1)
 				{
-					delete lastRoundBracketNode;
+					//delete lastRoundBracketNode;
 					lastRoundBracketNode = nullptr;
 				}
 				else
@@ -317,7 +325,7 @@ int ActOfRose::CExecutor::BuildExpressionAST(ActOfRose::AST::CExprASTNode** tree
 						nodeWalker = nodeWalker->GetParent();
 					}
 
-					delete lastRoundBracketNode;
+					//delete lastRoundBracketNode;
 					lastRoundBracketNode = (ActOfRose::AST::CExprASTRoundBracketNode*)nodeWalker;
 				}
 			}

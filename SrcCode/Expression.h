@@ -141,7 +141,13 @@ namespace ActOfRose
 			{}
 
 			// Destructor
-			~CExprASTRoundBracketNode() {}
+			~CExprASTRoundBracketNode()
+			{
+				if (_pChildNode != nullptr)
+				{
+					delete _pChildNode;
+				}
+			}
 
 		public:
 			// Returns a pointer to the child
