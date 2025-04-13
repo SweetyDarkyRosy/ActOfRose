@@ -9,8 +9,8 @@
 	
 	High-level entry point. */
 
-#include <string>
 #include <map>
+#include <filesystem>
 
 #include "ReturnCodes.h"
 #include "Log.h"
@@ -32,6 +32,7 @@
 ActOfRose::CExecutor							gExecutor;			// Global instance of executor
 ActOfRose::CPreProcessor						gPreprocessor;		// Global instance of preprocessor
 std::map<std::string, ActOfRose::SElement>		gIdentifierMap;		// Map of associations between identifiers and elements
+std::filesystem::path							gRootScriptPath;	// Path to a file with a root script
 
 
 // High-level entry point
@@ -51,12 +52,29 @@ int main(int argc, char* argv[])
 
 	// ----- Loading of a script -----
 
-	ActOfRose::CScript rootScript(BUILD_ROOT_SCRIPT_DEFAULT_NAME_PREF);
+	if (gPreprocessor.GetCustomRootScriptPath()->empty() == true)
+	{
+		gRootScriptPath = BUILD_ROOT_SCRIPT_DEFAULT_NAME_PREF;
+	}
+	else
+	{
+		gRootScriptPath = *(gPreprocessor.GetCustomRootScriptPath());
+	}
+	
+	ActOfRose::CScript rootScript(&gRootScriptPath);
 	if (rootScript.IsLoaded() == false)
 	{
-		ActOfRose::WriteLog(PREF_STRING("Could not open the \"") BUILD_ROOT_SCRIPT_DEFAULT_NAME_PREF PREF_STRING("\" script file"),
-			(sizeof(PREF_STRING("Could not open the \"") BUILD_ROOT_SCRIPT_DEFAULT_NAME_PREF PREF_STRING("\" script file")) / sizeof(PChar)),
-			ActOfRose::ELogLevel::ELL_Error);
+	#if defined (WIN32) || defined (_WIN32)
+		std::wstring errMsg = L"Could not open the \"";
+		errMsg += gRootScriptPath.wstring().c_str();
+		errMsg += L"\" script file";
+	#elif defined (__linux__)
+		std::string errMsg = "Could not open the \"";
+		errMsg += gRootScriptPath.string();
+		errMsg += "\" script file";
+	#endif
+
+		ActOfRose::WriteLog(errMsg.c_str(), errMsg.length(), ActOfRose::ELogLevel::ELL_Error);
 		
 		return AOR_ERROR_SCRIPT_FILE_NOT_LOADED;
 	}
