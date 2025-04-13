@@ -20,31 +20,31 @@
 
 
 // Checks if the character is a non-printable character
-inline bool IsWhitespace(char value)
+static inline bool IsWhitespace(char value)
 {
 	return ((value == '\t') || (value == ' ') || (value == 0xA) || (value == 0xD));
 }
 
 // Checks if the character value is an alphabetic character
-inline bool IsAlphabetic(char value)
+static inline bool IsAlphabetic(char value)
 {
 	return ((('A' <= value) && (value <= 'Z')) || (('a' <= value) && (value <= 'z')));
 }
 
 // Checks if the character value is a digit
-inline bool IsDigit(char value)
+static inline bool IsDigit(char value)
 {
 	return (('0' <= value) && (value <= '9'));
 }
 
 // Checks if the character is a delimiter character
-inline bool IsDelimiter(char value)
+static inline bool IsDelimiter(char value)
 {
 	return ((value == ',') || (value == ';') || (value == ':') || (value == '(') || (value == ')') || (value == '{') || (value == '}'));
 }
 
 // Checks if the character is an operator character
-inline bool IsOperator(char value)
+static inline bool IsOperator(char value)
 {
 	return ((value == '+') || (value == '-') || (value == '*') || (value == '/') || (value == '%') || (value == '=') || (value == '<') || (value == '>') || (value == '&') || (value == '|'));
 }

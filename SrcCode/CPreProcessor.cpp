@@ -24,7 +24,11 @@
 
 #include "ReturnCodes.h"
 #include "Log.h"
+#include "Token.h"
+#include "SystemAPI.h"
 #include "Utility/StringMisc.h"
+#include "Utility/StringConverting.h"
+#include "Value/Value.h"
 
 
 #if defined (WIN32) || defined (_WIN32)
@@ -34,6 +38,18 @@ static inline bool IsWhitespaceUTF16BE(wchar_t value)
 	return ((value == '\t') || (value == ' ') || (value == 0xA) || (value == 0xD));
 }
 #endif
+
+// Checks if the character value is an alphabetic character
+static inline bool IsAlphabetic(char value)
+{
+	return ((('A' <= value) && (value <= 'Z')) || (('a' <= value) && (value <= 'z')));
+}
+
+// Checks if the character value is a digit
+static inline bool IsDigit(char value)
+{
+	return (('0' <= value) && (value <= '9'));
+}
 
 
 // ----- ActOfRose::CPreProcessor class -----
@@ -107,6 +123,49 @@ int ActOfRose::CPreProcessor::ProcessCommandLine(int argCount, char** args)
 
 			currArgIndex += 2;
 		}
+		else if (utf16BEArguments[currArgIndex].compare(L"-D") == 0)
+		{
+			// ----- If a parameter with a custom path to a root script found -----
+
+			if (((int)(utf16BEArguments.size()) - (int)currArgIndex) < 3)
+			{
+				ActOfRose::WriteLog(PREF_STRING("Invalid number of arguments"),
+					(sizeof(PREF_STRING("Invalid number of arguments")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_INVALID_ARG_NUMBER;
+			}
+
+			{
+				std::string elName;
+				std::string valueStr;
+
+				if (ConvertStringUTF16BEToUTF8(&elName, &(utf16BEArguments[currArgIndex + 1])) != AOR_SUCCESS)
+				{
+					ActOfRose::WriteLog(PREF_STRING("Internal error. Could not convert an argument from UTF-16BE to UTF-8"),
+						(sizeof(PREF_STRING("Internal error. Could not convert an argument from UTF-16BE to UTF-8")) / sizeof(PChar)),
+						ActOfRose::ELogLevel::ELL_Error);
+
+					return AOR_ERROR_INTERNAL_ERROR;
+				}
+
+				if (ConvertStringUTF16BEToUTF8(&valueStr, &(utf16BEArguments[currArgIndex + 2])) != AOR_SUCCESS)
+				{
+					ActOfRose::WriteLog(PREF_STRING("Internal error. Could not convert an argument from UTF-16BE to UTF-8"),
+						(sizeof(PREF_STRING("Internal error. Could not convert an argument from UTF-16BE to UTF-8")) / sizeof(PChar)),
+						ActOfRose::ELogLevel::ELL_Error);
+
+					return AOR_ERROR_INTERNAL_ERROR;
+				}
+
+				int procResult = ProcessPredefinedValue(elName.c_str(), valueStr.c_str());
+				if (procResult != AOR_SUCCESS)
+				{
+					return procResult;
+				}
+			}
+
+			currArgIndex += 3;
+		}
 	}
 #elif defined (__linux__)
 	unsigned int currArgIndex = 1;
@@ -129,8 +188,157 @@ int ActOfRose::CPreProcessor::ProcessCommandLine(int argCount, char** args)
 
 			currArgIndex += 2;
 		}
+		else if (std::strcmp(args[currArgIndex], "-D") == 0)
+		{
+			// ----- If a parameter with a custom path to a root script found -----
+
+			if (((unsigned int)argCount - currArgIndex) < 3)
+			{
+				ActOfRose::WriteLog(PREF_STRING("Invalid number of arguments"),
+					(sizeof(PREF_STRING("Invalid number of arguments")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_INVALID_ARG_NUMBER;
+			}
+
+			int procResult = ProcessPredefinedValue(args[currArgIndex + 1], args[currArgIndex + 2]);
+			if (procResult != AOR_SUCCESS)
+			{
+				return procResult;
+			}
+
+			currArgIndex += 3;
+		}
 	}
 #endif
 
 	return AOR_SUCCESS;
+}
+
+// Processes a predefined value
+int ActOfRose::CPreProcessor::ProcessPredefinedValue(const char* elName, const char* valueStr)
+{
+	// ----- Checking if the element name contains only latin symbols, numbers and '_' -----
+
+	{
+		const char* elNameWalker = elName;
+		
+		if ((IsAlphabetic(*elNameWalker) == false) && (*elNameWalker != '_'))
+		{
+			ActOfRose::WriteLog(PREF_STRING("Invalid string with identifier associated with a predefined value"),
+				(sizeof(PREF_STRING("Invalid string with identifier associated with a predefined value")) / sizeof(PChar)),
+				ActOfRose::ELogLevel::ELL_Error);
+
+			return AOR_ERROR_INVALID_PARAMETER;
+		}
+
+		elNameWalker++;
+
+		while (*elNameWalker != '\0')
+		{
+			if ((IsAlphabetic(*elNameWalker) == false) && (IsDigit(*elNameWalker) == false) && (*elNameWalker != '_'))
+			{
+				ActOfRose::WriteLog(PREF_STRING("Invalid string with identifier associated with a predefined value"),
+				(sizeof(PREF_STRING("Invalid string with identifier associated with a predefined value")) / sizeof(PChar)),
+				ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_INVALID_PARAMETER;
+			}
+
+			elNameWalker++;
+		}
+	}
+
+
+	// ----- Checking of the value type -----
+
+	ActOfRose::Token::SToken token;
+	token.value = valueStr;
+
+	if (CheckIfPredefinedValueIsNumber(valueStr) == true)
+	{
+		token.type = ActOfRose::Token::ETokenType::ETTNumber;
+	}
+	else
+	{
+		token.type = ActOfRose::Token::ETokenType::ETTString;
+	}
+
+	ActOfRose::Value::CValue* valueHolder;
+
+	int valueCreationResult = CreateValueFromToken(&valueHolder, &token);
+	if (valueCreationResult != AOR_SUCCESS)
+	{
+		return valueCreationResult;
+	}
+
+	std::map<std::string, ActOfRose::Value::CValue*>::iterator predefValueAssocIt = _mPredefValueMap.find(elName);
+	if (predefValueAssocIt == _mPredefValueMap.end())
+	{
+		std::pair<std::map<std::string, ActOfRose::Value::CValue*>::iterator, bool> result = _mPredefValueMap.insert({ elName, valueHolder });
+	
+		if (result.second == false)
+		{
+			ActOfRose::WriteLog(PREF_STRING("Internal error. Could not set a predefined value into an association map"),
+				(sizeof(PREF_STRING("Internal error. Could not set a predefined value into an association map")) / sizeof(PChar)),
+				ActOfRose::ELogLevel::ELL_Error);
+
+			return AOR_ERROR_INTERNAL_ERROR;
+		}
+
+	#ifdef _DEBUG
+		std::string logMsg = "New predefined value " + valueHolder->ConvertValueToByteString() + " (" + std::string(valueHolder->GetTypeByteString()) +
+			") for " + std::string(elName) + "has been set";
+		ActOfRose::WriteLog(logMsg.c_str(), logMsg.size(), ActOfRose::ELogLevel::ELL_Debug);
+	#endif
+	}
+	else
+	{
+		std::string logMsg = "Predefined value for " + std::string(elName) + "had been already set. Updating with " + valueHolder->ConvertValueToByteString() +
+			" (" + std::string(valueHolder->GetTypeByteString()) + ")";
+		ActOfRose::WriteLog(logMsg.c_str(), logMsg.size(), ActOfRose::ELogLevel::ELL_Warning);
+
+		delete _mPredefValueMap[elName];
+		_mPredefValueMap[elName] = valueHolder;
+	}
+
+	return AOR_SUCCESS;
+}
+
+// Checks if the string with a value contains a number
+bool ActOfRose::CPreProcessor::CheckIfPredefinedValueIsNumber(const char* valueStr)
+{
+	bool isDotFound = false;
+	const char* valueWalker = valueStr;
+
+	if ((IsDigit(*valueWalker) == false) && (*valueWalker != '-') && (*valueWalker != '+') &&
+		(*valueWalker != '.'))
+	{
+		return false;
+	}
+
+	valueWalker++;
+
+	while (*valueWalker != '\0')
+	{
+		if ((IsDigit(*valueWalker) == false) && (*valueWalker != '.'))
+		{
+			return false;
+		}
+
+		if (*valueWalker == '.')
+		{
+			if (isDotFound == false)
+			{
+				isDotFound = true;
+			}
+			else
+			{
+				return false;
+			}
+		}
+
+		valueWalker++;
+	}
+
+	return true;
 }
