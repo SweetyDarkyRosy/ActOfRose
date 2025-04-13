@@ -373,7 +373,9 @@ int ActOfRose::CExecutor::BuildExpressionAST(ActOfRose::AST::CExprASTNode** tree
 			{
 				lastRoundBracketNode->SetChild(newOperatorNode);
 			}
-			else if ((lastRoundBracketNode != nullptr) && (lastRoundBracketNode->GetChild()->GetType() == ActOfRose::AST::EExprASTNodeType::EESTNTOperand))
+			else if ((lastRoundBracketNode != nullptr) &&
+				((lastRoundBracketNode->GetChild()->GetType() == ActOfRose::AST::EExprASTNodeType::EESTNTOperand) ||
+					(lastRoundBracketNode->GetChild()->GetType() == ActOfRose::AST::EExprASTNodeType::EESTNTRoundBracket)))
 			{
 				newOperatorNode->SetLeftChild(lastRoundBracketNode->GetChild());
 				lastRoundBracketNode->SetChild(newOperatorNode);
