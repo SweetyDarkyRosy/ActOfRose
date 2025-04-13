@@ -54,6 +54,21 @@ static inline bool IsDigit(char value)
 
 // ----- ActOfRose::CPreProcessor class -----
 
+// Returns a pointer to a predefined value associated with a specified name pointed to by elName if possible
+bool ActOfRose::CPreProcessor::GetPredefinedValue(ActOfRose::Value::CValue** valueHolder, const char* elName)
+{
+	std::map<const std::string, ActOfRose::Value::CValue*>::iterator predefValueAssocIt = _mPredefValueMap.find(elName);
+	if (predefValueAssocIt == _mPredefValueMap.end())
+	{
+		return false;
+	}
+
+	std::pair<const std::string, ActOfRose::Value::CValue*>* predefValuePair = &(*predefValueAssocIt);
+	*valueHolder = predefValuePair->second;
+	
+	return true;
+}
+
 // Processes a command line stream
 int ActOfRose::CPreProcessor::ProcessCommandLine(int argCount, char** args)
 {
@@ -285,10 +300,10 @@ int ActOfRose::CPreProcessor::ProcessPredefinedValue(const char* elName, const c
 		return valueCreationResult;
 	}
 
-	std::map<std::string, ActOfRose::Value::CValue*>::iterator predefValueAssocIt = _mPredefValueMap.find(elName);
+	std::map<const std::string, ActOfRose::Value::CValue*>::iterator predefValueAssocIt = _mPredefValueMap.find(elName);
 	if (predefValueAssocIt == _mPredefValueMap.end())
 	{
-		std::pair<std::map<std::string, ActOfRose::Value::CValue*>::iterator, bool> result = _mPredefValueMap.insert({ elName, valueHolder });
+		std::pair<std::map<const std::string, ActOfRose::Value::CValue*>::iterator, bool> result = _mPredefValueMap.insert({ elName, valueHolder });
 	
 		if (result.second == false)
 		{

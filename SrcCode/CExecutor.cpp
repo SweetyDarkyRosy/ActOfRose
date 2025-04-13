@@ -18,6 +18,7 @@
 #include "CVariable.h"
 #include "Expression.h"
 #include "Operation.h"
+#include "CPreProcessor.h"
 #include "Utility/StringMisc.h"
 
 #include "Value/Value.h"
@@ -702,10 +703,7 @@ int ActOfRose::CExecutor::DeclareAndInitialiseVariable(std::vector<ActOfRose::To
 
 		if (keyword == ActOfRose::Keyword::EKeywords::EK_Override)
 		{
-			/*!
-				TODO: Implement reading of predefined values associated with predefined identifiers from a cache file and from
-				a command line
-			 */
+			gPreprocessor.GetPredefinedValue(&newValue, (*tokenGroup)[_mCurrTokenIndex + 2].value.c_str());
 
 			_mCurrTokenIndex += 2;
 		}
@@ -775,9 +773,11 @@ int ActOfRose::CExecutor::DeclareAndInitialiseVariable(std::vector<ActOfRose::To
 
 #ifdef _DEBUG
 	{
-		std::string msg = "Variable ";
-		msg += variableName;
-		msg += " has been created";
+		std::string msg = "Variable " + std::string(variableName) + " has been created";
+		if (newValue != nullptr)
+		{
+			msg += " with value of " + newValue->ConvertValueToByteString() + " (" + newValue->GetTypeByteString() + ")";
+		}
 
 		ActOfRose::WriteLog(msg.c_str(), msg.length(), ActOfRose::ELogLevel::ELL_Debug);
 	}

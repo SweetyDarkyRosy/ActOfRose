@@ -38,6 +38,8 @@ namespace ActOfRose
 
 		// Returns a pointer to the string with custom path to a root script
 		std::filesystem::path* GetCustomRootScriptPath() { return &_mRootScriptCustomPath; }
+		// Returns a pointer to a predefined value associated with a specified name pointed to by elName if possible
+		bool GetPredefinedValue(ActOfRose::Value::CValue** valueHolder, const char* elName);
 
 	private:
 		// Processes a predefined value
@@ -50,7 +52,7 @@ namespace ActOfRose
 		// String with custom path to a file with a script
 		std::filesystem::path _mRootScriptCustomPath;
 		// Map of associations between identifiers of potentially declared variables/constants and predefined values
-		std::map<std::string, ActOfRose::Value::CValue*> _mPredefValueMap;
+		std::map<const std::string, ActOfRose::Value::CValue*> _mPredefValueMap;
 
 	};
 
