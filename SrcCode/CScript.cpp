@@ -70,6 +70,11 @@ ActOfRose::CScript::CScript(const wchar_t* scriptFilePath)
 #endif
 }
 
+// Constructor that takes an STL's path
+ActOfRose::CScript::CScript(std::filesystem::path* scriptFilePath) :
+	_mScriptFile(*scriptFilePath), _mScriptPath(*scriptFilePath)
+{}
+
 // Destructor
 ActOfRose::CScript::~CScript()
 {

@@ -26,6 +26,8 @@ namespace ActOfRose
 		CScript(const char* scriptFilePath);
 		// Constructor that takes a path contained in the null-terminated UTF-16BE-encoded wide string
 		CScript(const wchar_t* scriptFilePath);
+		// Constructor that takes an STL's path
+		CScript(std::filesystem::path* scriptFilePath);
 
 		// Destructor
 		~CScript();
