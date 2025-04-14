@@ -243,6 +243,14 @@ int ActOfRose::CPreProcessor::ProcessCommandLine(int argCount, char** args)
 	return AOR_SUCCESS;
 }
 
+// Processes data from a cache file associated with a 
+int ActOfRose::CPreProcessor::ProcessCache(std::ifstream* cacheStream)
+{
+	cacheStream->seekg(0, std::ios_base::beg);
+
+	return AOR_SUCCESS;
+}
+
 // Processes a predefined value
 int ActOfRose::CPreProcessor::ProcessPredefinedValue(const char* elName, const char* valueStr)
 {

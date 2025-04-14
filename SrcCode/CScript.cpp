@@ -48,6 +48,8 @@ ActOfRose::CScript::CScript(const char* scriptFilePath)
 	_mScriptFile.open(scriptFilePath);
 	_mScriptPath = scriptFilePath;
 #endif
+
+	_mScriptFile.seekg(0, std::ios_base::beg);
 }
 
 // Constructor that takes a path contained in the null-terminated UTF-16BE-encoded wide string
@@ -68,12 +70,16 @@ ActOfRose::CScript::CScript(const wchar_t* scriptFilePath)
 		_mScriptFile.open(_mScriptPath);
 	}
 #endif
+
+	_mScriptFile.seekg(0, std::ios_base::beg);
 }
 
 // Constructor that takes an STL's path
 ActOfRose::CScript::CScript(std::filesystem::path* scriptFilePath) :
 	_mScriptFile(*scriptFilePath), _mScriptPath(*scriptFilePath)
-{}
+{
+	_mScriptFile.seekg(0, std::ios_base::beg);
+}
 
 // Destructor
 ActOfRose::CScript::~CScript()

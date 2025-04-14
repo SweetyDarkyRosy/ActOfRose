@@ -80,6 +80,30 @@ int main(int argc, char* argv[])
 	}
 
 
+	// ----- Loading of a cache file associated with -----
+
+	{
+		std::filesystem::path cacheFilePath = gRootScriptPath.parent_path();
+		cacheFilePath += gRootScriptPath.stem();
+		cacheFilePath += ".racache";
+
+		std::ifstream cacheFile(cacheFilePath);
+		if (cacheFile.is_open() == true)
+		{
+			ActOfRose::WriteLog(PREF_STRING("Cache file has been found"), (sizeof(PREF_STRING("Cache file has been found")) / sizeof(PChar)),
+				ActOfRose::ELogLevel::ELL_Info);
+
+			int result = gPreprocessor.ProcessCache(&cacheFile);
+			cacheFile.close();
+
+			if (result != AOR_SUCCESS)
+			{
+				return result;
+			}
+		}
+	}
+
+
 	// ----- Execution -----
 
 	return rootScript.Execute();

@@ -14,6 +14,7 @@
 
 #include <string>
 #include <map>
+#include <fstream>
 #include <filesystem>
 
 
@@ -34,6 +35,9 @@ namespace ActOfRose
 	public:
 		// Processes a command line stream
 		int ProcessCommandLine(int argCount, char** args);
+
+		// Processes data from a cache file associated with a 
+		int ProcessCache(std::ifstream* cacheStream);
 
 
 		// Returns a pointer to the string with custom path to a root script
