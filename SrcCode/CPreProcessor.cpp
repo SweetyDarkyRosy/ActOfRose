@@ -613,37 +613,43 @@ int ActOfRose::CPreProcessor::ParseCacheFileData(std::map<const std::string, Act
 			}
 
 
-			// ----- Setting of a predefined value -----
+			// ----- Checking if the identifier is already in association map -----
 
-			ActOfRose::Token::SToken token;
-			token.value = value;
-
-			if (CheckIfPredefinedValueIsNumber(value.c_str()) == true)
+			std::map<const std::string, ActOfRose::Value::CValue*>::iterator predefValueAssocIt = _mPredefValueMap.find(identifier);
+			if (predefValueAssocIt == _mPredefValueMap.end())
 			{
-				token.type = ActOfRose::Token::ETokenType::ETTNumber;
-			}
-			else
-			{
-				token.type = ActOfRose::Token::ETokenType::ETTString;
-			}
+				// ----- Setting of a predefined value -----
 
-			ActOfRose::Value::CValue* valueHolder;
+				ActOfRose::Token::SToken token;
+				token.value = value;
 
-			int valueCreationResult = CreateValueFromToken(&valueHolder, &token);
-			if (valueCreationResult != AOR_SUCCESS)
-			{
-				return valueCreationResult;
+				if (CheckIfPredefinedValueIsNumber(value.c_str()) == true)
+				{
+					token.type = ActOfRose::Token::ETokenType::ETTNumber;
+				}
+				else
+				{
+					token.type = ActOfRose::Token::ETokenType::ETTString;
+				}
+
+				ActOfRose::Value::CValue* valueHolder;
+
+				int valueCreationResult = CreateValueFromToken(&valueHolder, &token);
+				if (valueCreationResult != AOR_SUCCESS)
+				{
+					return valueCreationResult;
+				}
+
+				(*map)[identifier] = valueHolder;
+
+			#ifdef _DEBUG
+				{
+					std::string logMsg = "Predefined value detected (in cache data). " + identifier + ": " + valueHolder->ConvertValueToByteString() +
+						" (" + valueHolder->GetTypeByteString() + ")";
+					ActOfRose::WriteLog(logMsg.c_str(), logMsg.size(), ActOfRose::ELogLevel::ELL_Debug);
+				}
+			#endif
 			}
-
-			(*map)[identifier] = valueHolder;
-
-		#ifdef _DEBUG
-			{
-				std::string logMsg = "Predefined value detected (in cache data). " + identifier + ": " + valueHolder->ConvertValueToByteString() +
-					" (" + valueHolder->GetTypeByteString() + ")";
-				ActOfRose::WriteLog(logMsg.c_str(), logMsg.size(), ActOfRose::ELogLevel::ELL_Debug);
-			}
-		#endif
 		}
 	}
 
