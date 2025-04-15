@@ -140,7 +140,23 @@ int ActOfRose::CPreProcessor::ProcessCommandLine(int argCount, char** args)
 				return AOR_ERROR_INVALID_ARG_NUMBER;
 			}
 
-			_mRootScriptCustomPath = utf16BEArguments[currArgIndex + 1];
+			std::filesystem::path pathDetected = utf16BEArguments[currArgIndex + 1];
+			if (std::filesystem::exists(pathDetected) == false)
+			{
+				ActOfRose::WriteLog(PREF_STRING("Custom path to a script file is invalid"),
+					(sizeof(PREF_STRING("Custom path to a script file is invalid")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_INVALID_PARAMETER;
+			}
+			else if (std::filesystem::is_regular_file(pathDetected) == false)
+			{
+				ActOfRose::WriteLog(PREF_STRING("Specified path does not refer to a file"),
+					(sizeof(PREF_STRING("Specified path does not refer to a file")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_INVALID_PARAMETER;
+			}
+
+			_mRootScriptCustomPath = pathDetected;
 
 			currArgIndex += 2;
 		}
@@ -212,7 +228,23 @@ int ActOfRose::CPreProcessor::ProcessCommandLine(int argCount, char** args)
 				return AOR_ERROR_INVALID_ARG_NUMBER;
 			}
 
-			_mRootScriptCustomPath = args[currArgIndex + 1];
+			std::filesystem::path pathDetected = args[currArgIndex + 1];
+			if (std::filesystem::exists(pathDetected) == false)
+			{
+				ActOfRose::WriteLog(PREF_STRING("Custom path to a script file is invalid"),
+					(sizeof(PREF_STRING("Custom path to a script file is invalid")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_INVALID_PARAMETER;
+			}
+			else if (std::filesystem::is_regular_file(pathDetected) == false)
+			{
+				ActOfRose::WriteLog(PREF_STRING("Specified path does not refer to a file"),
+					(sizeof(PREF_STRING("Specified path does not refer to a file")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_INVALID_PARAMETER;
+			}
+
+			_mRootScriptCustomPath = pathDetected;
 
 			currArgIndex += 2;
 		}
