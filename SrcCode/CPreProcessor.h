@@ -52,6 +52,9 @@ namespace ActOfRose
 		// Checks if the string with a value contains a number
 		bool CheckIfPredefinedValueIsNumber(const char* valueStr);
 
+		// Parses cache file data and creates a map of associations between identifiers of potentially declared variables/constants and predefined values
+		int ParseCacheFileData(std::map<const std::string, ActOfRose::Value::CValue*>* map, std::ifstream* cacheStream);
+
 	private:
 		// String with custom path to a file with a script
 		std::filesystem::path _mRootScriptCustomPath;

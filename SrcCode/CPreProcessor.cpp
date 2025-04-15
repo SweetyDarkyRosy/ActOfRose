@@ -39,6 +39,12 @@ static inline bool IsWhitespaceUTF16BE(wchar_t value)
 }
 #endif
 
+// Checks if the character is a non-printable character
+static inline bool IsWhitespace(char value)
+{
+	return ((value == '\t') || (value == ' ') || (value == 0xA) || (value == 0xD));
+}
+
 // Checks if the character value is an alphabetic character
 static inline bool IsAlphabetic(char value)
 {
@@ -248,6 +254,15 @@ int ActOfRose::CPreProcessor::ProcessCache(std::ifstream* cacheStream)
 {
 	cacheStream->seekg(0, std::ios_base::beg);
 
+	//std::map<const std::string, ActOfRose::Value::CValue*> assocMap;
+
+	//int result = ParseCacheFileData(&assocMap, cacheStream);
+	int result = ParseCacheFileData(&_mPredefValueMap, cacheStream);
+	if (result != AOR_SUCCESS)
+	{
+		return result;
+	}
+
 	return AOR_SUCCESS;
 }
 
@@ -378,4 +393,247 @@ bool ActOfRose::CPreProcessor::CheckIfPredefinedValueIsNumber(const char* valueS
 	}
 
 	return true;
+}
+
+// Parses cache file data and creates a map of associations between identifiers of potentially declared variables/constants and predefined values
+int ActOfRose::CPreProcessor::ParseCacheFileData(std::map<const std::string, ActOfRose::Value::CValue*>* map, std::ifstream* cacheStream)
+{
+	while (cacheStream->peek() != EOF)
+	{
+		char retrievedChar = cacheStream->peek();
+
+		if (IsWhitespace(retrievedChar) == true)
+		{
+			cacheStream->get();
+		}
+		else
+		{
+			std::string identifier;
+			std::string value;
+
+
+			// ----- Retrieving of identifier -----
+
+			if ((IsAlphabetic(retrievedChar) == false) && (retrievedChar != '_'))
+			{
+				ActOfRose::WriteLog(PREF_STRING("Invalid string with identifier associated with a predefined value"),
+					(sizeof(PREF_STRING("Invalid string with identifier associated with a predefined value")) / sizeof(PChar)),
+					ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_INVALID_PARAMETER;
+			}
+			else
+			{
+				while ((retrievedChar = cacheStream->peek()) != EOF)
+				{
+					if ((IsAlphabetic(retrievedChar) == true) || (IsDigit(retrievedChar) == true) || (retrievedChar == '_'))
+					{
+						identifier += cacheStream->get();
+					}
+					else if ((IsWhitespace(retrievedChar) == true) || (retrievedChar == ':'))
+					{
+						break;
+					}
+					else
+					{
+						ActOfRose::WriteLog(PREF_STRING("Invalid string with identifier associated with a predefined value"),
+							(sizeof(PREF_STRING("Invalid string with identifier associated with a predefined value")) / sizeof(PChar)),
+							ActOfRose::ELogLevel::ELL_Error);
+
+						return AOR_ERROR_INVALID_PARAMETER;
+					}
+				}
+
+				if (cacheStream->peek() == EOF)
+				{
+					ActOfRose::WriteLog(PREF_STRING("Premature end of cache data"),
+						(sizeof(PREF_STRING("Premature end of cache data")) / sizeof(PChar)),
+						ActOfRose::ELogLevel::ELL_Error);
+
+					return AOR_ERROR_INVALID_PARAMETER;
+				}
+			}
+
+
+			// ----- Skipping of whitespaces -----
+
+			while ((retrievedChar = cacheStream->peek()) != EOF)
+			{
+				if (IsWhitespace(retrievedChar) == true)
+				{
+					cacheStream->get();
+				}
+				else
+				{
+					break;
+				}
+			}
+
+			if (cacheStream->peek() == EOF)
+			{
+				ActOfRose::WriteLog(PREF_STRING("Premature end of cache data"),
+					(sizeof(PREF_STRING("Premature end of cache data")) / sizeof(PChar)),
+					ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_INVALID_PARAMETER;
+			}
+
+
+			// ----- Checking for the colon character -----
+
+			if (cacheStream->get() != ':')
+			{
+				ActOfRose::WriteLog(PREF_STRING("Expected ':' while retrieving of a predefined value from cache file"),
+					(sizeof(PREF_STRING("Expected ':' while retrieving of a predefined value from cache file")) / sizeof(PChar)),
+					ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_INVALID_PARAMETER;
+			}
+
+			if (cacheStream->peek() == EOF)
+			{
+				ActOfRose::WriteLog(PREF_STRING("Premature end of cache data"),
+					(sizeof(PREF_STRING("Premature end of cache data")) / sizeof(PChar)),
+					ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_INVALID_PARAMETER;
+			}
+
+
+			// ----- Skipping of whitespaces -----
+
+			while ((retrievedChar = cacheStream->peek()) != EOF)
+			{
+				if (IsWhitespace(retrievedChar) == true)
+				{
+					cacheStream->get();
+				}
+				else
+				{
+					break;
+				}
+			}
+
+			if (cacheStream->peek() == EOF)
+			{
+				ActOfRose::WriteLog(PREF_STRING("Premature end of cache data"),
+					(sizeof(PREF_STRING("Premature end of cache data")) / sizeof(PChar)),
+					ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_INVALID_PARAMETER;
+			}
+
+
+			// ----- Retrieving of value -----
+
+			if (retrievedChar == '\"')
+			{
+				cacheStream->get();
+				
+				if (cacheStream->peek() == EOF)
+				{
+					ActOfRose::WriteLog(PREF_STRING("Premature end of cache data"),
+						(sizeof(PREF_STRING("Premature end of cache data")) / sizeof(PChar)),
+						ActOfRose::ELogLevel::ELL_Error);
+
+					return AOR_ERROR_INVALID_PARAMETER;
+				}
+
+				while ((retrievedChar = cacheStream->peek()) != EOF)
+				{
+					retrievedChar = cacheStream->get();
+
+					if (retrievedChar == '\"')
+					{
+						break;
+					}
+
+					value += retrievedChar;
+				}
+			}
+			else
+			{
+				while ((retrievedChar = cacheStream->peek()) != EOF)
+				{
+					if ((IsWhitespace(retrievedChar) == true) || (retrievedChar == ';'))
+					{
+						break;
+					}
+
+					value += cacheStream->get();
+				}
+			}
+
+
+			// ----- Skipping of whitespaces -----
+
+			while ((retrievedChar = cacheStream->peek()) != EOF)
+			{
+				if (IsWhitespace(retrievedChar) == true)
+				{
+					cacheStream->get();
+				}
+				else
+				{
+					break;
+				}
+			}
+
+			if (cacheStream->peek() == EOF)
+			{
+				ActOfRose::WriteLog(PREF_STRING("Premature end of cache data"),
+					(sizeof(PREF_STRING("Premature end of cache data")) / sizeof(PChar)),
+					ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_INVALID_PARAMETER;
+			}
+
+
+			// ----- Checking for the semicolon character -----
+
+			if (cacheStream->get() != ';')
+			{
+				ActOfRose::WriteLog(PREF_STRING("Expected ';' while retrieving of a predefined value from cache file"),
+					(sizeof(PREF_STRING("Expected ';' while retrieving of a predefined value from cache file")) / sizeof(PChar)),
+					ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_INVALID_PARAMETER;
+			}
+
+
+			// ----- Setting of a predefined value -----
+
+			ActOfRose::Token::SToken token;
+			token.value = value;
+
+			if (CheckIfPredefinedValueIsNumber(value.c_str()) == true)
+			{
+				token.type = ActOfRose::Token::ETokenType::ETTNumber;
+			}
+			else
+			{
+				token.type = ActOfRose::Token::ETokenType::ETTString;
+			}
+
+			ActOfRose::Value::CValue* valueHolder;
+
+			int valueCreationResult = CreateValueFromToken(&valueHolder, &token);
+			if (valueCreationResult != AOR_SUCCESS)
+			{
+				return valueCreationResult;
+			}
+
+			(*map)[identifier] = valueHolder;
+
+		#ifdef _DEBUG
+			{
+				std::string logMsg = "Predefined value detected (in cache data). " + identifier + ": " + valueHolder->ConvertValueToByteString() +
+					" (" + valueHolder->GetTypeByteString() + ")";
+				ActOfRose::WriteLog(logMsg.c_str(), logMsg.size(), ActOfRose::ELogLevel::ELL_Debug);
+			}
+		#endif
+		}
+	}
+
+	return AOR_SUCCESS;
 }

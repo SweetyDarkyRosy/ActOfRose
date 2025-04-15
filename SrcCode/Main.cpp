@@ -38,18 +38,6 @@ std::filesystem::path							gRootScriptPath;	// Path to a file with a root scrip
 // High-level entry point
 int main(int argc, char* argv[])
 {
-	// ----- Reading of predefined values from arguments -----
-
-	if (argc != 1)
-	{
-		int result = gPreprocessor.ProcessCommandLine(argc, argv);
-		if (result != AOR_SUCCESS)
-		{
-			return result;
-		}
-	}
-
-
 	// ----- Loading of a script -----
 
 	if (gPreprocessor.GetCustomRootScriptPath()->empty() == true)
@@ -100,6 +88,18 @@ int main(int argc, char* argv[])
 			{
 				return result;
 			}
+		}
+	}
+
+
+	// ----- Reading of predefined values from arguments -----
+
+	if (argc != 1)
+	{
+		int result = gPreprocessor.ProcessCommandLine(argc, argv);
+		if (result != AOR_SUCCESS)
+		{
+			return result;
 		}
 	}
 
