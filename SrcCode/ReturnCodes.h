@@ -15,9 +15,10 @@
 #define AOR_SUCCESS											0			// Code of successfull execution
 
 #define AOR_TOKEN_END_OF_SCRIPT								1			// Code returned if the end of a script is reached
-#define AOR_CONTEXT_COMPLETE								2			// Code returned to indicate that current context is complete
-#define AOR_CONTEXT_EXECUTE									3			// Code returned to indicate that current context is ready for execution
-#define AOR_CONTEXT_CREATE									4			// Code returned to indicate that a new context should be created
+#define AOR_PREPROCESSOR_EXIT								2			// Code returned to indicate that preprocessor called a normal exit
+#define AOR_CONTEXT_COMPLETE								3			// Code returned to indicate that current context is complete
+#define AOR_CONTEXT_EXECUTE									4			// Code returned to indicate that current context is ready for execution
+#define AOR_CONTEXT_CREATE									5			// Code returned to indicate that a new context should be created
 
 #define AOR_ERROR_INTERNAL_ERROR							(-1)		// Error due to some internal error
 #define AOR_ERROR_INVALID_ARG_NUMBER						(-2)		// Error due to some internal error
