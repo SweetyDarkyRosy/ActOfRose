@@ -36,16 +36,25 @@ namespace ActOfRose
 		// Processes a command line stream
 		int ProcessCommandLine(int argCount, char** args);
 
-		// Processes data from a cache file associated with a 
+		// Processes data from a cache file associated with a script file
 		int ProcessCache(std::ifstream* cacheStream);
 
 
 		// Returns a pointer to the string with custom path to a root script
 		std::filesystem::path* GetCustomRootScriptPath() { return &_mRootScriptCustomPath; }
+
 		// Returns a pointer to a predefined value associated with a specified name pointed to by elName if possible
 		bool GetPredefinedValue(ActOfRose::Value::CValue** valueHolder, const char* elName);
 
 	private:
+	#if defined (WIN32) || defined (_WIN32)
+		// Processes parameters/arguments in the default execution mode for later execution of scripts
+		int ProcessParametersInExecMode(int argCount, std::wstring* args);
+		// Processes parameters/arguments in the cache editing mode
+		int ProcessParametersInCacheEditMode(int argCount, std::wstring* args);
+	#elif defined (__linux__)
+	#endif
+	
 		// Processes a predefined value
 		int ProcessPredefinedValue(const char* elName, const char* valueStr);
 

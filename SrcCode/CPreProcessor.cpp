@@ -124,92 +124,13 @@ int ActOfRose::CPreProcessor::ProcessCommandLine(int argCount, char** args)
 		}
 	}
 
-	unsigned int currArgIndex = 1;
-
-	while (currArgIndex < (unsigned int)(utf16BEArguments.size()))
+	if (utf16BEArguments[1].compare(L"cache") == 0)
 	{
-		if (utf16BEArguments[currArgIndex].compare(L"-P") == 0)
-		{
-			// ----- If a parameter with a custom path to a root script found -----
-
-			if (((int)(utf16BEArguments.size()) - (int)currArgIndex) < 2)
-			{
-				ActOfRose::WriteLog(PREF_STRING("Invalid number of arguments"),
-					(sizeof(PREF_STRING("Invalid number of arguments")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
-
-				return AOR_ERROR_INVALID_ARG_NUMBER;
-			}
-
-			std::filesystem::path pathDetected = utf16BEArguments[currArgIndex + 1];
-			if (std::filesystem::exists(pathDetected) == false)
-			{
-				ActOfRose::WriteLog(PREF_STRING("Custom path to a script file is invalid"),
-					(sizeof(PREF_STRING("Custom path to a script file is invalid")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
-
-				return AOR_ERROR_INVALID_PARAMETER;
-			}
-			else if (std::filesystem::is_regular_file(pathDetected) == false)
-			{
-				ActOfRose::WriteLog(PREF_STRING("Specified path does not refer to a file"),
-					(sizeof(PREF_STRING("Specified path does not refer to a file")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
-
-				return AOR_ERROR_INVALID_PARAMETER;
-			}
-
-			_mRootScriptCustomPath = pathDetected;
-
-			currArgIndex += 2;
-		}
-		else if (utf16BEArguments[currArgIndex].compare(L"-D") == 0)
-		{
-			// ----- If a parameter with a custom path to a root script found -----
-
-			if (((int)(utf16BEArguments.size()) - (int)currArgIndex) < 3)
-			{
-				ActOfRose::WriteLog(PREF_STRING("Invalid number of arguments"),
-					(sizeof(PREF_STRING("Invalid number of arguments")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
-
-				return AOR_ERROR_INVALID_ARG_NUMBER;
-			}
-
-			{
-				std::string elName;
-				std::string valueStr;
-
-				if (ConvertStringUTF16BEToUTF8(&elName, &(utf16BEArguments[currArgIndex + 1])) != AOR_SUCCESS)
-				{
-					ActOfRose::WriteLog(PREF_STRING("Internal error. Could not convert an argument from UTF-16BE to UTF-8"),
-						(sizeof(PREF_STRING("Internal error. Could not convert an argument from UTF-16BE to UTF-8")) / sizeof(PChar)),
-						ActOfRose::ELogLevel::ELL_Error);
-
-					return AOR_ERROR_INTERNAL_ERROR;
-				}
-
-				if (ConvertStringUTF16BEToUTF8(&valueStr, &(utf16BEArguments[currArgIndex + 2])) != AOR_SUCCESS)
-				{
-					ActOfRose::WriteLog(PREF_STRING("Internal error. Could not convert an argument from UTF-16BE to UTF-8"),
-						(sizeof(PREF_STRING("Internal error. Could not convert an argument from UTF-16BE to UTF-8")) / sizeof(PChar)),
-						ActOfRose::ELogLevel::ELL_Error);
-
-					return AOR_ERROR_INTERNAL_ERROR;
-				}
-
-				int procResult = ProcessPredefinedValue(elName.c_str(), valueStr.c_str());
-				if (procResult != AOR_SUCCESS)
-				{
-					return procResult;
-				}
-			}
-
-			currArgIndex += 3;
-		}
-		else
-		{
-			ActOfRose::WriteLog(PREF_STRING("Invalid parameter"), (sizeof(PREF_STRING("Invalid parameter")) / sizeof(PChar)),
-				ActOfRose::ELogLevel::ELL_Error);
-
-			return AOR_ERROR_INVALID_PARAMETER;
-		}
+		return ProcessParametersInCacheEditMode(argCount, utf16BEArguments.data());
+	}
+	else
+	{
+		return ProcessParametersInExecMode(argCount, utf16BEArguments.data());
 	}
 #elif defined (__linux__)
 	unsigned int currArgIndex = 1;
@@ -281,7 +202,7 @@ int ActOfRose::CPreProcessor::ProcessCommandLine(int argCount, char** args)
 	return AOR_SUCCESS;
 }
 
-// Processes data from a cache file associated with a 
+// Processes data from a cache file associated with a script file
 int ActOfRose::CPreProcessor::ProcessCache(std::ifstream* cacheStream)
 {
 	cacheStream->seekg(0, std::ios_base::beg);
@@ -354,38 +275,6 @@ int ActOfRose::CPreProcessor::ProcessPredefinedValue(const char* elName, const c
 	{
 		return valueCreationResult;
 	}
-
-	/* REMOVED
-	std::map<const std::string, ActOfRose::Value::CValue*>::iterator predefValueAssocIt = _mPredefValueMap.find(elName);
-	if (predefValueAssocIt == _mPredefValueMap.end())
-	{
-		std::pair<std::map<const std::string, ActOfRose::Value::CValue*>::iterator, bool> result = _mPredefValueMap.insert({ elName, valueHolder });
-	
-		if (result.second == false)
-		{
-			ActOfRose::WriteLog(PREF_STRING("Internal error. Could not set a predefined value into an association map"),
-				(sizeof(PREF_STRING("Internal error. Could not set a predefined value into an association map")) / sizeof(PChar)),
-				ActOfRose::ELogLevel::ELL_Error);
-
-			return AOR_ERROR_INTERNAL_ERROR;
-		}
-
-	#ifdef _DEBUG
-		std::string logMsg = "New predefined value " + valueHolder->ConvertValueToByteString() + " (" + std::string(valueHolder->GetTypeByteString()) +
-			") for " + std::string(elName) + "has been set";
-		ActOfRose::WriteLog(logMsg.c_str(), logMsg.size(), ActOfRose::ELogLevel::ELL_Debug);
-	#endif
-	}
-	else
-	{
-		std::string logMsg = "Predefined value for " + std::string(elName) + "had been already set. Updating with " + valueHolder->ConvertValueToByteString() +
-			" (" + std::string(valueHolder->GetTypeByteString()) + ")";
-		ActOfRose::WriteLog(logMsg.c_str(), logMsg.size(), ActOfRose::ELogLevel::ELL_Warning);
-
-		delete _mPredefValueMap[elName];
-		_mPredefValueMap[elName] = valueHolder;
-	}
-	*/
 
 	_mPredefValueMap[elName] = valueHolder;
 

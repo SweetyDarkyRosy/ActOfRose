@@ -29,10 +29,10 @@
 	Global variables
  ]*/
 
-ActOfRose::CExecutor							gExecutor;			// Global instance of executor
-ActOfRose::CPreProcessor						gPreprocessor;		// Global instance of preprocessor
-std::map<std::string, ActOfRose::SElement>		gIdentifierMap;		// Map of associations between identifiers and elements
-std::filesystem::path							gRootScriptPath;	// Path to a file with a root script
+ActOfRose::CExecutor										gExecutor;												// Global instance of executor
+ActOfRose::CPreProcessor									gPreprocessor;											// Global instance of preprocessor
+std::map<std::string, ActOfRose::SElement>					gIdentifierMap;											// Map of associations between identifiers and elements
+std::filesystem::path										gRootScriptPath(BUILD_ROOT_SCRIPT_DEFAULT_NAME_PREF);	// Path to a file with a root script
 
 
 // High-level entry point
@@ -65,11 +65,7 @@ int main(int argc, char* argv[])
 
 	// ----- Loading of a script -----
 
-	if (gPreprocessor.GetCustomRootScriptPath()->empty() == true)
-	{
-		gRootScriptPath = BUILD_ROOT_SCRIPT_DEFAULT_NAME_PREF;
-	}
-	else
+	if (gPreprocessor.GetCustomRootScriptPath()->empty() == false)
 	{
 		gRootScriptPath = *(gPreprocessor.GetCustomRootScriptPath());
 	}
