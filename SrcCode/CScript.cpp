@@ -93,11 +93,11 @@ int ActOfRose::CScript::Execute()
 {
 	{
 	#if defined (WIN32) || defined (_WIN32)
-		std::wstring msg = L"Executing a script from a file at ";
+		std::wstring msg = L"\nExecuting a script from a file at ";
 		msg += std::filesystem::absolute(_mScriptPath).wstring();
 		msg += L"\n";
 	#elif defined (__linux__)
-		std::string msg = "Executing a script from a file at ";
+		std::string msg = "\nExecuting a script from a file at ";
 		msg += std::filesystem::absolute(_mScriptPath).string();
 		msg += "\n";
 	#endif

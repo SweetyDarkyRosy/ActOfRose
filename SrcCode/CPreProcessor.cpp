@@ -323,6 +323,7 @@ int ActOfRose::CPreProcessor::ProcessPredefinedValue(const char* elName, const c
 		return valueCreationResult;
 	}
 
+	/* REMOVED
 	std::map<const std::string, ActOfRose::Value::CValue*>::iterator predefValueAssocIt = _mPredefValueMap.find(elName);
 	if (predefValueAssocIt == _mPredefValueMap.end())
 	{
@@ -352,6 +353,17 @@ int ActOfRose::CPreProcessor::ProcessPredefinedValue(const char* elName, const c
 		delete _mPredefValueMap[elName];
 		_mPredefValueMap[elName] = valueHolder;
 	}
+	*/
+
+	_mPredefValueMap[elName] = valueHolder;
+
+#ifdef _DEBUG
+	{
+		std::string logMsg = "Predefined value detected (in command line). " + std::string(elName) + ": " + valueHolder->ConvertValueToByteString() +
+			" (" + valueHolder->GetTypeByteString() + ")";
+		ActOfRose::WriteLog(logMsg.c_str(), logMsg.size(), ActOfRose::ELogLevel::ELL_Debug);
+	}
+#endif
 
 	return AOR_SUCCESS;
 }
