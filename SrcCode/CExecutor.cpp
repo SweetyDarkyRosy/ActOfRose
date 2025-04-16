@@ -703,7 +703,7 @@ int ActOfRose::CExecutor::DeclareAndInitialiseVariable(std::vector<ActOfRose::To
 
 		if (keyword == ActOfRose::Keyword::EKeywords::EK_Override)
 		{
-			gPreprocessor.GetPredefinedValue(&newValue, (*tokenGroup)[_mCurrTokenIndex + 2].value.c_str());
+			gPreprocessor.ExtractPredefinedValue(&newValue, (*tokenGroup)[_mCurrTokenIndex + 2].value.c_str());
 
 			_mCurrTokenIndex += 2;
 		}
