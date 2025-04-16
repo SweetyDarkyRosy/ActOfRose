@@ -336,6 +336,15 @@ int ActOfRose::CPreProcessor::ExecuteOperations(std::vector<ActOfRose::SPreProce
 				return result;
 			}
 		}
+		else if ((*opDeclArr)[opIt]->type == ActOfRose::EPreProcessorOperationTypes::EPPOT_RemoveValue)
+		{
+			ActOfRose::SPreProcessorRemoveValueOperation* removeValueOp = (ActOfRose::SPreProcessorRemoveValueOperation*)((*opDeclArr)[opIt]);
+			int result = RemovePredefinedValue(removeValueOp->identifier.c_str());
+			if (result != AOR_SUCCESS)
+			{
+				return result;
+			}
+		}
 	}
 
 	return AOR_SUCCESS;
@@ -414,6 +423,21 @@ int ActOfRose::CPreProcessor::SetPredefinedValue(const char* elName, const char*
 		ActOfRose::WriteLog(logMsg.c_str(), logMsg.size(), ActOfRose::ELogLevel::ELL_Debug);
 	}
 #endif
+
+	return AOR_SUCCESS;
+}
+
+// Removes a predefined value associated with the specified identifier
+int ActOfRose::CPreProcessor::RemovePredefinedValue(const char* elName)
+{
+	std::map<const std::string, ActOfRose::Value::CValue*>::iterator predefValueAssocIt = _mPredefValueMap.find(elName);
+	if (predefValueAssocIt != _mPredefValueMap.end())
+	{
+		std::pair<const std::string, ActOfRose::Value::CValue*>* predefValuePair = &(*predefValueAssocIt);
+		delete predefValuePair->second;
+
+		_mPredefValueMap.erase(predefValueAssocIt);
+	}
 
 	return AOR_SUCCESS;
 }

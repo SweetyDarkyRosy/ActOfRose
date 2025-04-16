@@ -58,7 +58,8 @@ namespace ActOfRose
 	{
 		// Constructor
 		SPreProcessorSetValueOperation() :
-			SPreProcessorOperation(ActOfRose::EPreProcessorOperationTypes::EPPOT_SetValue)
+			SPreProcessorOperation(ActOfRose::EPreProcessorOperationTypes::EPPOT_SetValue),
+			identifier(), value()
 		{}
 
 		// Destructor
@@ -74,7 +75,8 @@ namespace ActOfRose
 	{
 		// Constructor
 		SPreProcessorRemoveValueOperation() :
-			SPreProcessorOperation(ActOfRose::EPreProcessorOperationTypes::EPPOT_RemoveValue)
+			SPreProcessorOperation(ActOfRose::EPreProcessorOperationTypes::EPPOT_RemoveValue),
+			identifier()
 		{}
 
 		// Destructor
@@ -119,6 +121,8 @@ namespace ActOfRose
 	
 		// Sets a predefined value
 		int SetPredefinedValue(const char* elName, const char* valueStr);
+		// Removes a predefined value associated with the specified identifier
+		int RemovePredefinedValue(const char* elName);
 
 		// Checks if the string with a value contains a number
 		bool CheckIfPredefinedValueIsNumber(const char* valueStr);

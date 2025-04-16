@@ -63,7 +63,7 @@ int ActOfRose::CPreProcessor::ProcessParametersInExecMode(int argCount, std::wst
 		}
 		else if (args[currArgIndex].compare(L"-D") == 0)
 		{
-			// ----- If a parameter with a custom path to a root script found -----
+			// ----- If parameter for setting a predefined value found -----
 
 			if ((argCount - (int)currArgIndex) < 3)
 			{
@@ -155,7 +155,7 @@ int ActOfRose::CPreProcessor::ProcessParametersInCacheEditMode(int argCount, std
 		}
 		else if (args[currArgIndex].compare(L"-D") == 0)
 		{
-			// ----- If a parameter with a custom path to a root script found -----
+			// ----- If parameter for setting a predefined value found -----
 
 			if ((argCount - (int)currArgIndex) < 3)
 			{
@@ -165,31 +165,56 @@ int ActOfRose::CPreProcessor::ProcessParametersInCacheEditMode(int argCount, std
 				return AOR_ERROR_INVALID_ARG_NUMBER;
 			}
 
+			ActOfRose::SPreProcessorSetValueOperation* setValueOp = new ActOfRose::SPreProcessorSetValueOperation();
+
+			if (ConvertStringUTF16BEToUTF8(&(setValueOp->identifier), &(args[currArgIndex + 1])) != AOR_SUCCESS)
 			{
-				ActOfRose::SPreProcessorSetValueOperation* setValueOp = new ActOfRose::SPreProcessorSetValueOperation();
+				ActOfRose::WriteLog(PREF_STRING("Internal error. Could not convert an argument from UTF-16BE to UTF-8"),
+					(sizeof(PREF_STRING("Internal error. Could not convert an argument from UTF-16BE to UTF-8")) / sizeof(PChar)),
+					ActOfRose::ELogLevel::ELL_Error);
 
-				if (ConvertStringUTF16BEToUTF8(&(setValueOp->identifier), &(args[currArgIndex + 1])) != AOR_SUCCESS)
-				{
-					ActOfRose::WriteLog(PREF_STRING("Internal error. Could not convert an argument from UTF-16BE to UTF-8"),
-						(sizeof(PREF_STRING("Internal error. Could not convert an argument from UTF-16BE to UTF-8")) / sizeof(PChar)),
-						ActOfRose::ELogLevel::ELL_Error);
-
-					return AOR_ERROR_INTERNAL_ERROR;
-				}
-
-				if (ConvertStringUTF16BEToUTF8(&(setValueOp->value), &(args[currArgIndex + 2])) != AOR_SUCCESS)
-				{
-					ActOfRose::WriteLog(PREF_STRING("Internal error. Could not convert an argument from UTF-16BE to UTF-8"),
-						(sizeof(PREF_STRING("Internal error. Could not convert an argument from UTF-16BE to UTF-8")) / sizeof(PChar)),
-						ActOfRose::ELogLevel::ELL_Error);
-
-					return AOR_ERROR_INTERNAL_ERROR;
-				}
-
-				opDeclArr->push_back(setValueOp);
+				return AOR_ERROR_INTERNAL_ERROR;
 			}
 
+			if (ConvertStringUTF16BEToUTF8(&(setValueOp->value), &(args[currArgIndex + 2])) != AOR_SUCCESS)
+			{
+				ActOfRose::WriteLog(PREF_STRING("Internal error. Could not convert an argument from UTF-16BE to UTF-8"),
+					(sizeof(PREF_STRING("Internal error. Could not convert an argument from UTF-16BE to UTF-8")) / sizeof(PChar)),
+					ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_INTERNAL_ERROR;
+			}
+
+			opDeclArr->push_back(setValueOp);
+
 			currArgIndex += 3;
+		}
+		else if (args[currArgIndex].compare(L"-R") == 0)
+		{
+			// ----- If parameter for removing a predefined value found -----
+
+			if ((argCount - (int)currArgIndex) < 2)
+			{
+				ActOfRose::WriteLog(PREF_STRING("Invalid number of arguments"),
+					(sizeof(PREF_STRING("Invalid number of arguments")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_INVALID_ARG_NUMBER;
+			}
+
+			ActOfRose::SPreProcessorRemoveValueOperation* removeValueOp = new ActOfRose::SPreProcessorRemoveValueOperation();
+
+			if (ConvertStringUTF16BEToUTF8(&(removeValueOp->identifier), &(args[currArgIndex + 1])) != AOR_SUCCESS)
+			{
+				ActOfRose::WriteLog(PREF_STRING("Internal error. Could not convert an argument from UTF-16BE to UTF-8"),
+					(sizeof(PREF_STRING("Internal error. Could not convert an argument from UTF-16BE to UTF-8")) / sizeof(PChar)),
+					ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_INTERNAL_ERROR;
+			}
+
+			opDeclArr->push_back(removeValueOp);
+
+			currArgIndex += 2;
 		}
 		else
 		{
