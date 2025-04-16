@@ -114,9 +114,10 @@ namespace ActOfRose
 		int ProcessParametersInCacheEditMode(int argCount, std::wstring* args, std::vector<ActOfRose::SPreProcessorOperation*>* opDeclArr);
 	#elif defined (__linux__)
 	#endif
+
 	
-		// Processes a predefined value
-		int ProcessPredefinedValue(const char* elName, const char* valueStr);
+		// Sets a predefined value
+		int SetPredefinedValue(const char* elName, const char* valueStr);
 
 		// Checks if the string with a value contains a number
 		bool CheckIfPredefinedValueIsNumber(const char* valueStr);

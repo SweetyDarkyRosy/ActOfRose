@@ -148,7 +148,7 @@ int ActOfRose::CPreProcessor::ProcessCommandLine(int argCount, char** args)
 				if (opDeclArr[opIt]->type == ActOfRose::EPreProcessorOperationTypes::EPPOT_SetValue)
 				{
 					ActOfRose::SPreProcessorSetValueOperation* setValueOp = (ActOfRose::SPreProcessorSetValueOperation*)(opDeclArr[opIt]);
-					result = ProcessPredefinedValue(setValueOp->identifier.c_str(), setValueOp->value.c_str());
+					result = SetPredefinedValue(setValueOp->identifier.c_str(), setValueOp->value.c_str());
 					if (result != AOR_SUCCESS)
 					{
 						break;
@@ -171,7 +171,7 @@ int ActOfRose::CPreProcessor::ProcessCommandLine(int argCount, char** args)
 				if (opDeclArr[opIt]->type == ActOfRose::EPreProcessorOperationTypes::EPPOT_SetValue)
 				{
 					ActOfRose::SPreProcessorSetValueOperation* setValueOp = (ActOfRose::SPreProcessorSetValueOperation*)(opDeclArr[opIt]);
-					result = ProcessPredefinedValue(setValueOp->identifier.c_str(), setValueOp->value.c_str());
+					result = SetPredefinedValue(setValueOp->identifier.c_str(), setValueOp->value.c_str());
 					if (result != AOR_SUCCESS)
 					{
 						break;
@@ -238,7 +238,7 @@ int ActOfRose::CPreProcessor::ProcessCommandLine(int argCount, char** args)
 				return AOR_ERROR_INVALID_ARG_NUMBER;
 			}
 
-			int procResult = ProcessPredefinedValue(args[currArgIndex + 1], args[currArgIndex + 2]);
+			int procResult = SetPredefinedValue(args[currArgIndex + 1], args[currArgIndex + 2]);
 			if (procResult != AOR_SUCCESS)
 			{
 				return procResult;
@@ -279,7 +279,7 @@ int ActOfRose::CPreProcessor::ProcessCache(std::ifstream* cacheStream)
 }
 
 // Processes a predefined value
-int ActOfRose::CPreProcessor::ProcessPredefinedValue(const char* elName, const char* valueStr)
+int ActOfRose::CPreProcessor::SetPredefinedValue(const char* elName, const char* valueStr)
 {
 	// ----- Checking if the element name contains only latin symbols, numbers and '_' -----
 
@@ -333,6 +333,13 @@ int ActOfRose::CPreProcessor::ProcessPredefinedValue(const char* elName, const c
 	if (valueCreationResult != AOR_SUCCESS)
 	{
 		return valueCreationResult;
+	}
+
+	std::map<const std::string, ActOfRose::Value::CValue*>::iterator predefValueAssocIt = _mPredefValueMap.find(elName);
+	if (predefValueAssocIt != _mPredefValueMap.end())
+	{
+		std::pair<const std::string, ActOfRose::Value::CValue*>* predefValuePair = &(*predefValueAssocIt);
+		delete predefValuePair->second;
 	}
 
 	_mPredefValueMap[elName] = valueHolder;
