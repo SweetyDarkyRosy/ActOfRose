@@ -15,7 +15,10 @@ if exist "Bin" (
 mkdir "Bin\Intermediates\Win_x86-64\Debug"
 
 for /R "SrcCode" %%f in ("*.cpp") do (
-    cl.exe /c /I"SrcCode" "%%f" /Fo"Bin\Intermediates\Win_x86-64\Debug\%%~nf.obj" /Fd"Bin\Intermediates\Win_x86-64\Debug\%%~nf.pdb" /W3 /Od /std:c++17 /Zi /MTd /DDEBUG /D_DEBUG
+    echo %%~nxf | findstr /i "_Linux" >nul
+    if errorlevel 1 (
+       cl.exe /c /I"SrcCode" "%%f" /Fo"Bin\Intermediates\Win_x86-64\Debug\%%~nf.obj" /Fd"Bin\Intermediates\Win_x86-64\Debug\%%~nf.pdb" /W3 /Od /std:c++17 /Zi /MTd /DDEBUG /D_DEBUG
+    )
 )
 
 link.exe /DEBUG:FULL /MACHINE:X64 "Bin\Intermediates\Win_x86-64\Debug\*.obj" /OUT:"Bin\ActOfRose.exe"
