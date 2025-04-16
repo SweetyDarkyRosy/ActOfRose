@@ -114,7 +114,8 @@ namespace ActOfRose
 		int ProcessParametersInCacheEditMode(int argCount, std::wstring* args, std::vector<ActOfRose::SPreProcessorOperation*>* opDeclArr);
 	#elif defined (__linux__)
 	#endif
-
+		// Executes operations from the array of such
+		int ExecuteOperations(std::vector<ActOfRose::SPreProcessorOperation*>* opDeclArr);
 	
 		// Sets a predefined value
 		int SetPredefinedValue(const char* elName, const char* valueStr);

@@ -31,6 +31,10 @@
 #include "Value/Value.h"
 
 
+#define CACHE_FILE_DEFAULT_NAME						"ActionScript.racache"
+#define CACHE_FILE_DEFAULT_NAME_PREF				PREF_STRING("ActionScript.racache")
+
+
 #if defined (WIN32) || defined (_WIN32)
 // Checks if the character is a non-printable character
 static inline bool IsWhitespaceUTF16BE(wchar_t value)
@@ -139,23 +143,6 @@ int ActOfRose::CPreProcessor::ProcessCommandLine(int argCount, char** args)
 		// ----- Cache editing mode -----
 
 		result = ProcessParametersInCacheEditMode(argCount, utf16BEArguments.data(), &opDeclArr);
-		if (result == AOR_SUCCESS)
-		{
-			// ----- Execution of operations -----
-
-			for (unsigned int opIt = 0; opIt < (unsigned int)(opDeclArr.size()); opIt++)
-			{
-				if (opDeclArr[opIt]->type == ActOfRose::EPreProcessorOperationTypes::EPPOT_SetValue)
-				{
-					ActOfRose::SPreProcessorSetValueOperation* setValueOp = (ActOfRose::SPreProcessorSetValueOperation*)(opDeclArr[opIt]);
-					result = SetPredefinedValue(setValueOp->identifier.c_str(), setValueOp->value.c_str());
-					if (result != AOR_SUCCESS)
-					{
-						break;
-					}
-				}
-			}
-		}
 	}
 	else
 	{
@@ -166,18 +153,7 @@ int ActOfRose::CPreProcessor::ProcessCommandLine(int argCount, char** args)
 		{
 			// ----- Execution of operations -----
 
-			for (unsigned int opIt = 0; opIt < (unsigned int)(opDeclArr.size()); opIt++)
-			{
-				if (opDeclArr[opIt]->type == ActOfRose::EPreProcessorOperationTypes::EPPOT_SetValue)
-				{
-					ActOfRose::SPreProcessorSetValueOperation* setValueOp = (ActOfRose::SPreProcessorSetValueOperation*)(opDeclArr[opIt]);
-					result = SetPredefinedValue(setValueOp->identifier.c_str(), setValueOp->value.c_str());
-					if (result != AOR_SUCCESS)
-					{
-						break;
-					}
-				}
-			}
+			result = ExecuteOperations(&opDeclArr);
 		}
 	}
 
@@ -273,6 +249,25 @@ int ActOfRose::CPreProcessor::ProcessCache(std::ifstream* cacheStream)
 	if (result != AOR_SUCCESS)
 	{
 		return result;
+	}
+
+	return AOR_SUCCESS;
+}
+
+// Executes operations from the array of such
+int ActOfRose::CPreProcessor::ExecuteOperations(std::vector<ActOfRose::SPreProcessorOperation*>* opDeclArr)
+{
+	for (unsigned int opIt = 0; opIt < (unsigned int)(opDeclArr->size()); opIt++)
+	{
+		if ((*opDeclArr)[opIt]->type == ActOfRose::EPreProcessorOperationTypes::EPPOT_SetValue)
+		{
+			ActOfRose::SPreProcessorSetValueOperation* setValueOp = (ActOfRose::SPreProcessorSetValueOperation*)((*opDeclArr)[opIt]);
+			int result = SetPredefinedValue(setValueOp->identifier.c_str(), setValueOp->value.c_str());
+			if (result != AOR_SUCCESS)
+			{
+				return result;
+			}
+		}
 	}
 
 	return AOR_SUCCESS;
