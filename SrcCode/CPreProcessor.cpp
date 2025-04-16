@@ -21,6 +21,7 @@
 #endif
 
 #include <string>
+#include <fstream>
 
 #include "ReturnCodes.h"
 #include "Log.h"
@@ -143,6 +144,73 @@ int ActOfRose::CPreProcessor::ProcessCommandLine(int argCount, char** args)
 		// ----- Cache editing mode -----
 
 		result = ProcessParametersInCacheEditMode(argCount, utf16BEArguments.data(), &opDeclArr);
+		if (result == AOR_SUCCESS)
+		{
+			// ----- Loading of cache file -----
+
+			if (_mRootScriptCustomPath.empty() == false)
+			{
+				std::filesystem::path processedPath = _mRootScriptCustomPath.parent_path();
+				processedPath += "/";
+				processedPath += _mRootScriptCustomPath.stem();
+				processedPath += ".racache";
+
+				_mRootScriptCustomPath = processedPath;
+			}
+			else
+			{
+				_mRootScriptCustomPath = CACHE_FILE_DEFAULT_NAME_PREF;
+			}
+
+			std::fstream cacheFile;
+			
+			if (std::filesystem::exists(_mRootScriptCustomPath) == true)
+			{
+				cacheFile.open(_mRootScriptCustomPath, std::ios::in);
+				if (cacheFile.is_open() == true)
+				{
+					result = ParseCacheFileData(&_mPredefValueMap, &cacheFile);
+				}
+				else
+				{
+					ActOfRose::WriteLog(PREF_STRING("Could not open/create a cache file"),
+						(sizeof(PREF_STRING("Could not open/create a cache file")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+					result = AOR_ERROR_INTERNAL_ERROR;
+				}
+			}
+
+			if (result == AOR_SUCCESS)
+			{
+				// ----- Execution of operations -----
+
+				result = ExecuteOperations(&opDeclArr);
+				if (result == AOR_SUCCESS)
+				{
+					// ----- Truncating and saving changes -----
+					
+					cacheFile.close();
+					cacheFile.open(_mRootScriptCustomPath, std::ios::out | std::ios::trunc);
+					if (cacheFile.is_open() == true)
+					{
+						SaveCacheData(&cacheFile);
+					}
+					else
+					{
+						ActOfRose::WriteLog(PREF_STRING("Could not open/create a cache file for saving changes"),
+							(sizeof(PREF_STRING("Could not open/create a cache file for saving changes")) / sizeof(PChar)),
+							ActOfRose::ELogLevel::ELL_Error);
+
+						result = AOR_ERROR_INTERNAL_ERROR;
+					}
+				}
+			}
+		}
+
+		if (result == AOR_SUCCESS)
+		{
+			result = AOR_PREPROCESSOR_EXIT;
+		}
 	}
 	else
 	{
@@ -238,7 +306,7 @@ int ActOfRose::CPreProcessor::ProcessCommandLine(int argCount, char** args)
 }
 
 // Processes data from a cache file associated with a script file
-int ActOfRose::CPreProcessor::ProcessCache(std::ifstream* cacheStream)
+int ActOfRose::CPreProcessor::ProcessCache(std::fstream* cacheStream)
 {
 	cacheStream->seekg(0, std::ios_base::beg);
 
@@ -390,7 +458,7 @@ bool ActOfRose::CPreProcessor::CheckIfPredefinedValueIsNumber(const char* valueS
 }
 
 // Parses cache file data and creates a map of associations between identifiers of potentially declared variables/constants and predefined values
-int ActOfRose::CPreProcessor::ParseCacheFileData(std::map<const std::string, ActOfRose::Value::CValue*>* map, std::ifstream* cacheStream)
+int ActOfRose::CPreProcessor::ParseCacheFileData(std::map<const std::string, ActOfRose::Value::CValue*>* map, std::fstream* cacheStream)
 {
 	while (cacheStream->peek() != EOF)
 	{
@@ -633,6 +701,32 @@ int ActOfRose::CPreProcessor::ParseCacheFileData(std::map<const std::string, Act
 			#endif
 			}
 		}
+	}
+
+	return AOR_SUCCESS;
+}
+
+// Saves the data with predefined values to a specified file
+int ActOfRose::CPreProcessor::SaveCacheData(std::fstream* cacheStream)
+{
+	std::map<const std::string, ActOfRose::Value::CValue*>::iterator predefValueIt = _mPredefValueMap.begin();
+
+	for (; predefValueIt != _mPredefValueMap.end(); predefValueIt++)
+	{
+		std::pair<const std::string, ActOfRose::Value::CValue*>* predefValuePair = &(*predefValueIt);
+
+		(*cacheStream) << predefValuePair->first << ":";
+		
+		if (predefValuePair->second->GetValueType() == ActOfRose::Value::EValueType::EVT_String)
+		{
+			(*cacheStream) << "\"" << predefValuePair->second->ConvertValueToByteString() << "\"";
+		}
+		else
+		{
+			(*cacheStream) << predefValuePair->second->ConvertValueToByteString();
+		}
+		
+		(*cacheStream)<< ";\n";
 	}
 
 	return AOR_SUCCESS;

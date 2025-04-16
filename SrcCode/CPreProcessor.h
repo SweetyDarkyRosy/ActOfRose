@@ -97,7 +97,7 @@ namespace ActOfRose
 		int ProcessCommandLine(int argCount, char** args);
 
 		// Processes data from a cache file associated with a script file
-		int ProcessCache(std::ifstream* cacheStream);
+		int ProcessCache(std::fstream* cacheStream);
 
 
 		// Returns a pointer to the string with custom path to a root script
@@ -124,7 +124,9 @@ namespace ActOfRose
 		bool CheckIfPredefinedValueIsNumber(const char* valueStr);
 
 		// Parses cache file data and creates a map of associations between identifiers of potentially declared variables/constants and predefined values
-		int ParseCacheFileData(std::map<const std::string, ActOfRose::Value::CValue*>* map, std::ifstream* cacheStream);
+		int ParseCacheFileData(std::map<const std::string, ActOfRose::Value::CValue*>* map, std::fstream* cacheStream);
+		// Saves the data with predefined values to a specified file
+		int SaveCacheData(std::fstream* cacheStream);
 
 	private:
 		// String with custom path to a file with a script

@@ -93,10 +93,11 @@ int main(int argc, char* argv[])
 
 	{
 		std::filesystem::path cacheFilePath = gRootScriptPath.parent_path();
+		cacheFilePath += "/";
 		cacheFilePath += gRootScriptPath.stem();
 		cacheFilePath += ".racache";
 
-		std::ifstream cacheFile(cacheFilePath);
+		std::fstream cacheFile(cacheFilePath, std::ios::in);
 		if (cacheFile.is_open() == true)
 		{
 			ActOfRose::WriteLog(PREF_STRING("Cache file has been found"), (sizeof(PREF_STRING("Cache file has been found")) / sizeof(PChar)),
