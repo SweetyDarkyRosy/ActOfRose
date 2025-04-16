@@ -18,6 +18,8 @@
 	#include <stdlib.h>
 
 	#include <vector>
+#elif defined (__linux__)
+	#include <cstring>
 #endif
 
 #include <string>
@@ -130,14 +132,13 @@ int ActOfRose::CPreProcessor::ProcessCommandLine(int argCount, char** args)
 			}
 		}
 	}
-
+#endif
 
 	int result;
-
-
-	// ----- Processing of arguments/parameters -----
-
 	std::vector<ActOfRose::SPreProcessorOperation*> opDeclArr;			// Array of declarations of operations for deferred execution
+
+#if defined (WIN32) || defined (_WIN32)
+	// ----- Processing of arguments/parameters -----
 
 	if (utf16BEArguments[1].compare(L"cache") == 0)
 	{
@@ -224,7 +225,95 @@ int ActOfRose::CPreProcessor::ProcessCommandLine(int argCount, char** args)
 			result = ExecuteOperations(&opDeclArr);
 		}
 	}
+#elif defined (__linux__)
+	// ----- Processing of arguments/parameters -----
 
+	if (std::strcmp(args[1], "cache") == 0)
+	{
+		// ----- Cache editing mode -----
+
+		result = ProcessParametersInCacheEditMode(argCount, args, &opDeclArr);
+		if (result == AOR_SUCCESS)
+		{
+			// ----- Loading of cache file -----
+
+			if (_mRootScriptCustomPath.empty() == false)
+			{
+				std::filesystem::path processedPath = _mRootScriptCustomPath.parent_path();
+				processedPath += "/";
+				processedPath += _mRootScriptCustomPath.stem();
+				processedPath += ".racache";
+
+				_mRootScriptCustomPath = processedPath;
+			}
+			else
+			{
+				_mRootScriptCustomPath = CACHE_FILE_DEFAULT_NAME_PREF;
+			}
+
+			std::fstream cacheFile;
+			
+			if (std::filesystem::exists(_mRootScriptCustomPath) == true)
+			{
+				cacheFile.open(_mRootScriptCustomPath, std::ios::in);
+				if (cacheFile.is_open() == true)
+				{
+					result = ParseCacheFileData(&_mPredefValueMap, &cacheFile);
+				}
+				else
+				{
+					ActOfRose::WriteLog(PREF_STRING("Could not open/create a cache file"),
+						(sizeof(PREF_STRING("Could not open/create a cache file")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+					result = AOR_ERROR_INTERNAL_ERROR;
+				}
+			}
+
+			if (result == AOR_SUCCESS)
+			{
+				// ----- Execution of operations -----
+
+				result = ExecuteOperations(&opDeclArr);
+				if (result == AOR_SUCCESS)
+				{
+					// ----- Truncating and saving changes -----
+					
+					cacheFile.close();
+					cacheFile.open(_mRootScriptCustomPath, std::ios::out | std::ios::trunc);
+					if (cacheFile.is_open() == true)
+					{
+						SaveCacheData(&cacheFile);
+					}
+					else
+					{
+						ActOfRose::WriteLog(PREF_STRING("Could not open/create a cache file for saving changes"),
+							(sizeof(PREF_STRING("Could not open/create a cache file for saving changes")) / sizeof(PChar)),
+							ActOfRose::ELogLevel::ELL_Error);
+
+						result = AOR_ERROR_INTERNAL_ERROR;
+					}
+				}
+			}
+		}
+
+		if (result == AOR_SUCCESS)
+		{
+			result = AOR_PREPROCESSOR_EXIT;
+		}
+	}
+	else
+	{
+		// ----- Default (script execution) mode -----
+		
+		result = ProcessParametersInExecMode(argCount, args, &opDeclArr);
+		if (result == AOR_SUCCESS)
+		{
+			// ----- Execution of operations -----
+
+			result = ExecuteOperations(&opDeclArr);
+		}
+	}
+#endif
 
 	// ----- Cleanup -----
 
@@ -232,75 +321,6 @@ int ActOfRose::CPreProcessor::ProcessCommandLine(int argCount, char** args)
 	{
 		delete opDeclArr[opIt];
 	}
-
-#elif defined (__linux__)
-	unsigned int currArgIndex = 1;
-
-	while (currArgIndex < (unsigned int)argCount)
-	{
-		if (std::strcmp(args[currArgIndex], "-P") == 0)
-		{
-			// ----- If a parameter with a custom path to a root script found -----
-
-			if (((unsigned int)argCount - currArgIndex) < 2)
-			{
-				ActOfRose::WriteLog(PREF_STRING("Invalid number of arguments"),
-					(sizeof(PREF_STRING("Invalid number of arguments")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
-
-				return AOR_ERROR_INVALID_ARG_NUMBER;
-			}
-
-			std::filesystem::path pathDetected = args[currArgIndex + 1];
-			if (std::filesystem::exists(pathDetected) == false)
-			{
-				ActOfRose::WriteLog(PREF_STRING("Custom path to a script file is invalid"),
-					(sizeof(PREF_STRING("Custom path to a script file is invalid")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
-
-				return AOR_ERROR_INVALID_PARAMETER;
-			}
-			else if (std::filesystem::is_regular_file(pathDetected) == false)
-			{
-				ActOfRose::WriteLog(PREF_STRING("Specified path does not refer to a file"),
-					(sizeof(PREF_STRING("Specified path does not refer to a file")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
-
-				return AOR_ERROR_INVALID_PARAMETER;
-			}
-
-			_mRootScriptCustomPath = pathDetected;
-
-			currArgIndex += 2;
-		}
-		else if (std::strcmp(args[currArgIndex], "-D") == 0)
-		{
-			// ----- If a parameter with a custom path to a root script found -----
-
-			if (((unsigned int)argCount - currArgIndex) < 3)
-			{
-				ActOfRose::WriteLog(PREF_STRING("Invalid number of arguments"),
-					(sizeof(PREF_STRING("Invalid number of arguments")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
-
-				return AOR_ERROR_INVALID_ARG_NUMBER;
-			}
-
-			int procResult = SetPredefinedValue(args[currArgIndex + 1], args[currArgIndex + 2]);
-			if (procResult != AOR_SUCCESS)
-			{
-				return procResult;
-			}
-
-			currArgIndex += 3;
-		}
-		else
-		{
-			ActOfRose::WriteLog(PREF_STRING("Invalid parameter"), (sizeof(PREF_STRING("Invalid parameter")) / sizeof(PChar)),
-				ActOfRose::ELogLevel::ELL_Error);
-
-			return AOR_ERROR_INVALID_PARAMETER;
-		}
-	}
-
-	int result = AOR_SUCCESS;
-#endif
 
 	return result;
 }

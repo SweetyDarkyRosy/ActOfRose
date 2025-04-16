@@ -3,13 +3,16 @@
 	
 	This file is part of system source code.
 	
-	@Name:			CPreProcessor_Win.cpp
-	@Created:		15.04.2025
+	@Name:			CPreProcessor_Linux.cpp
+	@Created:		16.04.2025
 	@Programmer:	Viktoriia Pashchenko (SweetyDarkyRosy)
 	
-	Windows OS-specific implementations. */
+	Linux OS-specific implementations. */
 
 #include "CPreProcessor.h"
+
+#include <cstring>
+#include <string>
 
 #include "ReturnCodes.h"
 #include "Log.h"
@@ -21,7 +24,7 @@
 
 
 // Processes parameters/arguments in the default execution mode for later execution of scripts
-int ActOfRose::CPreProcessor::ProcessParametersInExecMode(int argCount, std::wstring* args, std::vector<ActOfRose::SPreProcessorOperation*>* opDeclArr)
+int ActOfRose::CPreProcessor::ProcessParametersInExecMode(int argCount, char** args, std::vector<ActOfRose::SPreProcessorOperation*>* opDeclArr)
 {
 	// ----- Argument/parameter processing -----
 
@@ -29,7 +32,7 @@ int ActOfRose::CPreProcessor::ProcessParametersInExecMode(int argCount, std::wst
 
 	while (currArgIndex < (unsigned int)(argCount))
 	{
-		if (args[currArgIndex].compare(L"-P") == 0)
+		if (std::strcmp(args[currArgIndex], "-P") == 0)
 		{
 			// ----- If a parameter with a custom path to a root script found -----
 
@@ -61,7 +64,7 @@ int ActOfRose::CPreProcessor::ProcessParametersInExecMode(int argCount, std::wst
 
 			currArgIndex += 2;
 		}
-		else if (args[currArgIndex].compare(L"-D") == 0)
+		else if (std::strcmp(args[currArgIndex], "-D") == 0)
 		{
 			// ----- If parameter for setting a predefined value found -----
 
@@ -74,24 +77,8 @@ int ActOfRose::CPreProcessor::ProcessParametersInExecMode(int argCount, std::wst
 			}
 
 			ActOfRose::SPreProcessorSetValueOperation* setValueOp = new ActOfRose::SPreProcessorSetValueOperation();
-
-			if (ConvertStringUTF16BEToUTF8(&(setValueOp->identifier), &(args[currArgIndex + 1])) != AOR_SUCCESS)
-			{
-				ActOfRose::WriteLog(PREF_STRING("Internal error. Could not convert an argument from UTF-16BE to UTF-8"),
-					(sizeof(PREF_STRING("Internal error. Could not convert an argument from UTF-16BE to UTF-8")) / sizeof(PChar)),
-					ActOfRose::ELogLevel::ELL_Error);
-
-				return AOR_ERROR_INTERNAL_ERROR;
-			}
-
-			if (ConvertStringUTF16BEToUTF8(&(setValueOp->value), &(args[currArgIndex + 2])) != AOR_SUCCESS)
-			{
-				ActOfRose::WriteLog(PREF_STRING("Internal error. Could not convert an argument from UTF-16BE to UTF-8"),
-					(sizeof(PREF_STRING("Internal error. Could not convert an argument from UTF-16BE to UTF-8")) / sizeof(PChar)),
-					ActOfRose::ELogLevel::ELL_Error);
-
-				return AOR_ERROR_INTERNAL_ERROR;
-			}
+			setValueOp->identifier = args[currArgIndex + 1];
+			setValueOp->value = args[currArgIndex + 2];
 
 			opDeclArr->push_back(setValueOp);
 
@@ -111,7 +98,7 @@ int ActOfRose::CPreProcessor::ProcessParametersInExecMode(int argCount, std::wst
 }
 
 // Processes parameters/arguments in the cache editing mode
-int ActOfRose::CPreProcessor::ProcessParametersInCacheEditMode(int argCount, std::wstring* args, std::vector<ActOfRose::SPreProcessorOperation*>* opDeclArr)
+int ActOfRose::CPreProcessor::ProcessParametersInCacheEditMode(int argCount, char** args, std::vector<ActOfRose::SPreProcessorOperation*>* opDeclArr)
 {
 	// ----- Argument/parameter processing -----
 
@@ -119,7 +106,7 @@ int ActOfRose::CPreProcessor::ProcessParametersInCacheEditMode(int argCount, std
 
 	while (currArgIndex < (unsigned int)(argCount))
 	{
-		if (args[currArgIndex].compare(L"-P") == 0)
+		if (std::strcmp(args[currArgIndex], "-P") == 0)
 		{
 			// ----- If a parameter with a custom path to a root script found -----
 
@@ -151,7 +138,7 @@ int ActOfRose::CPreProcessor::ProcessParametersInCacheEditMode(int argCount, std
 
 			currArgIndex += 2;
 		}
-		else if (args[currArgIndex].compare(L"-D") == 0)
+		else if (std::strcmp(args[currArgIndex], "-D") == 0)
 		{
 			// ----- If parameter for setting a predefined value found -----
 
@@ -164,30 +151,14 @@ int ActOfRose::CPreProcessor::ProcessParametersInCacheEditMode(int argCount, std
 			}
 
 			ActOfRose::SPreProcessorSetValueOperation* setValueOp = new ActOfRose::SPreProcessorSetValueOperation();
-
-			if (ConvertStringUTF16BEToUTF8(&(setValueOp->identifier), &(args[currArgIndex + 1])) != AOR_SUCCESS)
-			{
-				ActOfRose::WriteLog(PREF_STRING("Internal error. Could not convert an argument from UTF-16BE to UTF-8"),
-					(sizeof(PREF_STRING("Internal error. Could not convert an argument from UTF-16BE to UTF-8")) / sizeof(PChar)),
-					ActOfRose::ELogLevel::ELL_Error);
-
-				return AOR_ERROR_INTERNAL_ERROR;
-			}
-
-			if (ConvertStringUTF16BEToUTF8(&(setValueOp->value), &(args[currArgIndex + 2])) != AOR_SUCCESS)
-			{
-				ActOfRose::WriteLog(PREF_STRING("Internal error. Could not convert an argument from UTF-16BE to UTF-8"),
-					(sizeof(PREF_STRING("Internal error. Could not convert an argument from UTF-16BE to UTF-8")) / sizeof(PChar)),
-					ActOfRose::ELogLevel::ELL_Error);
-
-				return AOR_ERROR_INTERNAL_ERROR;
-			}
+			setValueOp->identifier = args[currArgIndex + 1];
+			setValueOp->value = args[currArgIndex + 2];
 
 			opDeclArr->push_back(setValueOp);
 
 			currArgIndex += 3;
 		}
-		else if (args[currArgIndex].compare(L"-R") == 0)
+		else if (std::strcmp(args[currArgIndex], "-R") == 0)
 		{
 			// ----- If parameter for removing a predefined value found -----
 
@@ -200,15 +171,7 @@ int ActOfRose::CPreProcessor::ProcessParametersInCacheEditMode(int argCount, std
 			}
 
 			ActOfRose::SPreProcessorRemoveValueOperation* removeValueOp = new ActOfRose::SPreProcessorRemoveValueOperation();
-
-			if (ConvertStringUTF16BEToUTF8(&(removeValueOp->identifier), &(args[currArgIndex + 1])) != AOR_SUCCESS)
-			{
-				ActOfRose::WriteLog(PREF_STRING("Internal error. Could not convert an argument from UTF-16BE to UTF-8"),
-					(sizeof(PREF_STRING("Internal error. Could not convert an argument from UTF-16BE to UTF-8")) / sizeof(PChar)),
-					ActOfRose::ELogLevel::ELL_Error);
-
-				return AOR_ERROR_INTERNAL_ERROR;
-			}
+			removeValueOp->identifier = args[currArgIndex + 1];
 
 			opDeclArr->push_back(removeValueOp);
 

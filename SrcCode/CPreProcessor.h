@@ -115,7 +115,12 @@ namespace ActOfRose
 		// Processes parameters/arguments in the cache editing mode
 		int ProcessParametersInCacheEditMode(int argCount, std::wstring* args, std::vector<ActOfRose::SPreProcessorOperation*>* opDeclArr);
 	#elif defined (__linux__)
+		// Processes parameters/arguments in the default execution mode for later execution of scripts
+		int ProcessParametersInExecMode(int argCount, char** args, std::vector<ActOfRose::SPreProcessorOperation*>* opDeclArr);
+		// Processes parameters/arguments in the cache editing mode
+		int ProcessParametersInCacheEditMode(int argCount, char** args, std::vector<ActOfRose::SPreProcessorOperation*>* opDeclArr);
 	#endif
+
 		// Executes operations from the array of such
 		int ExecuteOperations(std::vector<ActOfRose::SPreProcessorOperation*>* opDeclArr);
 	
