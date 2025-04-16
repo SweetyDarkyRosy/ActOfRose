@@ -45,8 +45,8 @@ ActOfRose::CScript::CScript(const char* scriptFilePath)
 		free(ansiPath);
 	}
 #elif defined (__linux__)
-	_mScriptFile.open(scriptFilePath);
 	_mScriptPath = scriptFilePath;
+	_mScriptFile.open(_mScriptPath);
 #endif
 
 	_mScriptFile.seekg(0, std::ios_base::beg);
@@ -56,17 +56,13 @@ ActOfRose::CScript::CScript(const char* scriptFilePath)
 ActOfRose::CScript::CScript(const wchar_t* scriptFilePath)
 {
 #if defined (WIN32) || defined (_WIN32)
-	int ansiStrLength = WideCharToMultiByte(CP_ACP, 0, scriptFilePath, (-1), NULL, 0, 0, 0);
-	char* ansiPath = (char*)malloc(ansiStrLength);
-	WideCharToMultiByte(CP_ACP, 0, scriptFilePath, (-1), ansiPath, ansiStrLength, 0, 0);
-
-	_mScriptFile.open(ansiPath);
-	_mScriptPath = ansiPath;
-
-	free(ansiPath);
+	_mScriptPath = scriptFilePath;
+	_mScriptFile.open(_mScriptPath);
 #elif defined (__linux__)
-	if (ConvertStringUTF16BEToUTF8(&_mScriptPath, scriptFilePath, std::wcslen(scriptFilePath)) == AOR_SUCCESS)
+	std::string utf8ScriptPath;
+	if (ConvertStringUTF16BEToUTF8(&utf8ScriptPath, scriptFilePath, std::wcslen(scriptFilePath)) == AOR_SUCCESS)
 	{
+		_mScriptPath = utf8ScriptPath;
 		_mScriptFile.open(_mScriptPath);
 	}
 #endif
