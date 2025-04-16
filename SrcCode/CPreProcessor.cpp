@@ -124,14 +124,69 @@ int ActOfRose::CPreProcessor::ProcessCommandLine(int argCount, char** args)
 		}
 	}
 
+
+	int result;
+
+
+	// ----- Processing of arguments/parameters -----
+
+	std::vector<ActOfRose::SPreProcessorOperation*> opDeclArr;			// Array of declarations of operations for deferred execution
+
 	if (utf16BEArguments[1].compare(L"cache") == 0)
 	{
-		return ProcessParametersInCacheEditMode(argCount, utf16BEArguments.data());
+		// ----- Cache editing mode -----
+
+		result = ProcessParametersInCacheEditMode(argCount, utf16BEArguments.data(), &opDeclArr);
+		if (result == AOR_SUCCESS)
+		{
+			// ----- Execution of operations -----
+
+			for (unsigned int opIt = 0; opIt < (unsigned int)(opDeclArr.size()); opIt++)
+			{
+				if (opDeclArr[opIt]->type == ActOfRose::EPreProcessorOperationTypes::EPPOT_SetValue)
+				{
+					ActOfRose::SPreProcessorSetValueOperation* setValueOp = (ActOfRose::SPreProcessorSetValueOperation*)(opDeclArr[opIt]);
+					result = ProcessPredefinedValue(setValueOp->identifier.c_str(), setValueOp->value.c_str());
+					if (result != AOR_SUCCESS)
+					{
+						break;
+					}
+				}
+			}
+		}
 	}
 	else
 	{
-		return ProcessParametersInExecMode(argCount, utf16BEArguments.data());
+		// ----- Default (script execution) mode -----
+		
+		result = ProcessParametersInExecMode(argCount, utf16BEArguments.data(), &opDeclArr);
+		if (result == AOR_SUCCESS)
+		{
+			// ----- Execution of operations -----
+
+			for (unsigned int opIt = 0; opIt < (unsigned int)(opDeclArr.size()); opIt++)
+			{
+				if (opDeclArr[opIt]->type == ActOfRose::EPreProcessorOperationTypes::EPPOT_SetValue)
+				{
+					ActOfRose::SPreProcessorSetValueOperation* setValueOp = (ActOfRose::SPreProcessorSetValueOperation*)(opDeclArr[opIt]);
+					result = ProcessPredefinedValue(setValueOp->identifier.c_str(), setValueOp->value.c_str());
+					if (result != AOR_SUCCESS)
+					{
+						break;
+					}
+				}
+			}
+		}
 	}
+
+
+	// ----- Cleanup -----
+
+	for (unsigned int opIt = 0; opIt < (unsigned int)(opDeclArr.size()); opIt++)
+	{
+		delete opDeclArr[opIt];
+	}
+
 #elif defined (__linux__)
 	unsigned int currArgIndex = 1;
 
@@ -197,9 +252,11 @@ int ActOfRose::CPreProcessor::ProcessCommandLine(int argCount, char** args)
 			return AOR_ERROR_INVALID_PARAMETER;
 		}
 	}
+
+	int result = AOR_SUCCESS;
 #endif
 
-	return AOR_SUCCESS;
+	return result;
 }
 
 // Processes data from a cache file associated with a script file

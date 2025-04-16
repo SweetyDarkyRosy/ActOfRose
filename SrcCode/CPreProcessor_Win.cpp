@@ -21,7 +21,7 @@
 
 
 // Processes parameters/arguments in the default execution mode for later execution of scripts
-int ActOfRose::CPreProcessor::ProcessParametersInExecMode(int argCount, std::wstring* args)
+int ActOfRose::CPreProcessor::ProcessParametersInExecMode(int argCount, std::wstring* args, std::vector<ActOfRose::SPreProcessorOperation*>* opDeclArr)
 {
 	// ----- Argument/parameter processing -----
 
@@ -74,10 +74,9 @@ int ActOfRose::CPreProcessor::ProcessParametersInExecMode(int argCount, std::wst
 			}
 
 			{
-				std::string elName;
-				std::string valueStr;
+				ActOfRose::SPreProcessorSetValueOperation* setValueOp = new ActOfRose::SPreProcessorSetValueOperation();
 
-				if (ConvertStringUTF16BEToUTF8(&elName, &(args[currArgIndex + 1])) != AOR_SUCCESS)
+				if (ConvertStringUTF16BEToUTF8(&(setValueOp->identifier), &(args[currArgIndex + 1])) != AOR_SUCCESS)
 				{
 					ActOfRose::WriteLog(PREF_STRING("Internal error. Could not convert an argument from UTF-16BE to UTF-8"),
 						(sizeof(PREF_STRING("Internal error. Could not convert an argument from UTF-16BE to UTF-8")) / sizeof(PChar)),
@@ -86,7 +85,7 @@ int ActOfRose::CPreProcessor::ProcessParametersInExecMode(int argCount, std::wst
 					return AOR_ERROR_INTERNAL_ERROR;
 				}
 
-				if (ConvertStringUTF16BEToUTF8(&valueStr, &(args[currArgIndex + 2])) != AOR_SUCCESS)
+				if (ConvertStringUTF16BEToUTF8(&(setValueOp->value), &(args[currArgIndex + 2])) != AOR_SUCCESS)
 				{
 					ActOfRose::WriteLog(PREF_STRING("Internal error. Could not convert an argument from UTF-16BE to UTF-8"),
 						(sizeof(PREF_STRING("Internal error. Could not convert an argument from UTF-16BE to UTF-8")) / sizeof(PChar)),
@@ -95,11 +94,7 @@ int ActOfRose::CPreProcessor::ProcessParametersInExecMode(int argCount, std::wst
 					return AOR_ERROR_INTERNAL_ERROR;
 				}
 
-				int procResult = ProcessPredefinedValue(elName.c_str(), valueStr.c_str());
-				if (procResult != AOR_SUCCESS)
-				{
-					return procResult;
-				}
+				opDeclArr->push_back(setValueOp);
 			}
 
 			currArgIndex += 3;
@@ -113,17 +108,11 @@ int ActOfRose::CPreProcessor::ProcessParametersInExecMode(int argCount, std::wst
 		}
 	}
 
-
-	// ----- Execution -----
-
-	
-
-
 	return AOR_SUCCESS;
 }
 
 // Processes parameters/arguments in the cache editing mode
-int ActOfRose::CPreProcessor::ProcessParametersInCacheEditMode(int argCount, std::wstring* args)
+int ActOfRose::CPreProcessor::ProcessParametersInCacheEditMode(int argCount, std::wstring* args, std::vector<ActOfRose::SPreProcessorOperation*>* opDeclArr)
 {
 	return AOR_PREPROCESSOR_EXIT;
 }

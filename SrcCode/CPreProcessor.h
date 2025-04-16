@@ -15,6 +15,7 @@
 #include <string>
 #include <map>
 #include <fstream>
+#include <vector>
 #include <filesystem>
 
 
@@ -40,8 +41,14 @@ namespace ActOfRose
 	// Base structure of preprocessor's operation declaration
 	struct SPreProcessorOperation
 	{
+		// Constructor
+		SPreProcessorOperation(ActOfRose::EPreProcessorOperationTypes _type) :
+			type(_type)
+		{}
+
 		// Destructor
 		virtual ~SPreProcessorOperation() {}
+
 
 		ActOfRose::EPreProcessorOperationTypes type;			// Operation type
 	};
@@ -51,11 +58,12 @@ namespace ActOfRose
 	{
 		// Constructor
 		SPreProcessorSetValueOperation() :
-			type(ActOfRose::EPreProcessorOperationTypes::EPPOT_SetValue)
+			SPreProcessorOperation(ActOfRose::EPreProcessorOperationTypes::EPPOT_SetValue)
 		{}
 
 		// Destructor
 		~SPreProcessorSetValueOperation() {}
+
 
 		std::string identifier;						// Identifier associated with a value
 		std::string value;							// String containing a predefined value
@@ -66,11 +74,12 @@ namespace ActOfRose
 	{
 		// Constructor
 		SPreProcessorRemoveValueOperation() :
-			type(ActOfRose::EPreProcessorOperationTypes::EPPOT_RemoveValue)
+			SPreProcessorOperation(ActOfRose::EPreProcessorOperationTypes::EPPOT_RemoveValue)
 		{}
 
 		// Destructor
 		~SPreProcessorRemoveValueOperation() {}
+
 
 		std::string identifier;						// Identifier associated with a value
 	};
@@ -100,9 +109,9 @@ namespace ActOfRose
 	private:
 	#if defined (WIN32) || defined (_WIN32)
 		// Processes parameters/arguments in the default execution mode for later execution of scripts
-		int ProcessParametersInExecMode(int argCount, std::wstring* args, );
+		int ProcessParametersInExecMode(int argCount, std::wstring* args, std::vector<ActOfRose::SPreProcessorOperation*>* opDeclArr);
 		// Processes parameters/arguments in the cache editing mode
-		int ProcessParametersInCacheEditMode(int argCount, std::wstring* args);
+		int ProcessParametersInCacheEditMode(int argCount, std::wstring* args, std::vector<ActOfRose::SPreProcessorOperation*>* opDeclArr);
 	#elif defined (__linux__)
 	#endif
 	
