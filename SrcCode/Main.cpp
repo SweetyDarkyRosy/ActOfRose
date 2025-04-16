@@ -93,7 +93,6 @@ int main(int argc, char* argv[])
 
 	{
 		std::filesystem::path cacheFilePath = gRootScriptPath.parent_path();
-		cacheFilePath += "/";
 		cacheFilePath += gRootScriptPath.stem();
 		cacheFilePath += ".racache";
 

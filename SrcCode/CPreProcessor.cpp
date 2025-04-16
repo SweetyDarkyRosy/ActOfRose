@@ -67,6 +67,19 @@ static inline bool IsDigit(char value)
 
 // ----- ActOfRose::CPreProcessor class -----
 
+// Destructor
+ActOfRose::CPreProcessor::~CPreProcessor()
+{
+	std::map<const std::string, ActOfRose::Value::CValue*>::iterator predefValueIt = _mPredefValueMap.begin();
+
+	for (; predefValueIt != _mPredefValueMap.end(); predefValueIt++)
+	{
+		std::pair<const std::string, ActOfRose::Value::CValue*>* predefValuePair = &(*predefValueIt);
+		
+		delete predefValuePair->second;
+	}
+}
+
 // Returns a pointer to a predefined value associated with a specified name pointed to by elName and extracts it from map of associations if possible
 bool ActOfRose::CPreProcessor::ExtractPredefinedValue(ActOfRose::Value::CValue** valueHolder, const char* elName)
 {

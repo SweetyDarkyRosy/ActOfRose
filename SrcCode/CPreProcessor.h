@@ -93,6 +93,8 @@ namespace ActOfRose
 	public:
 		// Constructor
 		CPreProcessor() {}
+		// Destructor
+		~CPreProcessor();
 
 	public:
 		// Processes a command line stream
