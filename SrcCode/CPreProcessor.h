@@ -46,6 +46,35 @@ namespace ActOfRose
 		ActOfRose::EPreProcessorOperationTypes type;			// Operation type
 	};
 
+	// Structure of declaration of preprocessor's operation for setting/adding a predefined value
+	struct SPreProcessorSetValueOperation : public SPreProcessorOperation
+	{
+		// Constructor
+		SPreProcessorSetValueOperation() :
+			type(ActOfRose::EPreProcessorOperationTypes::EPPOT_SetValue)
+		{}
+
+		// Destructor
+		~SPreProcessorSetValueOperation() {}
+
+		std::string identifier;						// Identifier associated with a value
+		std::string value;							// String containing a predefined value
+	};
+
+	// Structure of declaration of preprocessor's operation for removing a predefined value
+	struct SPreProcessorRemoveValueOperation : public SPreProcessorOperation
+	{
+		// Constructor
+		SPreProcessorRemoveValueOperation() :
+			type(ActOfRose::EPreProcessorOperationTypes::EPPOT_RemoveValue)
+		{}
+
+		// Destructor
+		~SPreProcessorRemoveValueOperation() {}
+
+		std::string identifier;						// Identifier associated with a value
+	};
+
 
 	// Class of preprocessor for extracting predefined values from a cache file and from a command line
 	class CPreProcessor
@@ -71,7 +100,7 @@ namespace ActOfRose
 	private:
 	#if defined (WIN32) || defined (_WIN32)
 		// Processes parameters/arguments in the default execution mode for later execution of scripts
-		int ProcessParametersInExecMode(int argCount, std::wstring* args);
+		int ProcessParametersInExecMode(int argCount, std::wstring* args, );
 		// Processes parameters/arguments in the cache editing mode
 		int ProcessParametersInCacheEditMode(int argCount, std::wstring* args);
 	#elif defined (__linux__)
