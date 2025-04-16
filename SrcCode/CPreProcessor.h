@@ -25,12 +25,27 @@ namespace ActOfRose
 		class CValue;						// Abstract class of value / data type
 	} // !namespace Value
 
+	
+	/*[
+		Operation-related elements
+	 ]*/
+
 	// Types of preprocessor's operations
 	enum EPreProcessorOperationTypes
 	{
 		EPPOT_SetValue,						// Operation of setting a predefined value associated with a specified identifier
 		EPPOT_RemoveValue					// Operation of removing a predefined value associated with a specified identifier
 	};
+
+	// Base structure of preprocessor's operation declaration
+	struct SPreProcessorOperation
+	{
+		// Destructor
+		virtual ~SPreProcessorOperation() {}
+
+		ActOfRose::EPreProcessorOperationTypes type;			// Operation type
+	};
+
 
 	// Class of preprocessor for extracting predefined values from a cache file and from a command line
 	class CPreProcessor

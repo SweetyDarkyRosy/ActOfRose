@@ -23,6 +23,8 @@
 // Processes parameters/arguments in the default execution mode for later execution of scripts
 int ActOfRose::CPreProcessor::ProcessParametersInExecMode(int argCount, std::wstring* args)
 {
+	// ----- Argument/parameter processing -----
+
 	unsigned int currArgIndex = 1;
 
 	while (currArgIndex < (unsigned int)(argCount))
@@ -110,6 +112,12 @@ int ActOfRose::CPreProcessor::ProcessParametersInExecMode(int argCount, std::wst
 			return AOR_ERROR_INVALID_PARAMETER;
 		}
 	}
+
+
+	// ----- Execution -----
+
+	
+
 
 	return AOR_SUCCESS;
 }
