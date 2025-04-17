@@ -113,6 +113,7 @@ int ActOfRose::Context::CSequencer::DetermineAndCreateContext(ActOfRose::Token::
 			{
 				case ActOfRose::Keyword::EKeywords::EK_Var:
 				case ActOfRose::Keyword::EKeywords::EK_Override:
+				case ActOfRose::Keyword::EKeywords::EK_Strict:
 				{
 					_mContexts.push(new ActOfRose::Context::CVarDeclarationContext(keyword));
 

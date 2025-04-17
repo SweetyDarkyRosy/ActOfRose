@@ -59,6 +59,7 @@ int ActOfRose::CExecutor::Execute(std::vector<ActOfRose::Token::SToken>* tokenGr
 			{
 				case ActOfRose::Keyword::EKeywords::EK_Override:
 				case ActOfRose::Keyword::EKeywords::EK_Var:
+				case ActOfRose::Keyword::EKeywords::EK_Strict:
 				{
 					return DeclareAndInitialiseVariable(tokenGroup);
 				}
@@ -690,6 +691,8 @@ int ActOfRose::CExecutor::DeclareAndInitialiseVariable(std::vector<ActOfRose::To
 {
 	// New value
 	ActOfRose::Value::CValue* newValue = nullptr;
+	// Flag indicating whether initial value is strictly necessary
+	bool isStrict = false;
 
 	{
 		ActOfRose::Keyword::EKeywords keyword;
@@ -701,15 +704,27 @@ int ActOfRose::CExecutor::DeclareAndInitialiseVariable(std::vector<ActOfRose::To
 			return AOR_ERROR_INTERNAL_ERROR;
 		}
 
-		if (keyword == ActOfRose::Keyword::EKeywords::EK_Override)
+		switch (keyword)
 		{
-			gPreprocessor.ExtractPredefinedValue(&newValue, (*tokenGroup)[_mCurrTokenIndex + 2].value.c_str());
+			case ActOfRose::Keyword::EKeywords::EK_Strict:
+			{
+				isStrict = true;
+			}
 
-			_mCurrTokenIndex += 2;
-		}
-		else
-		{
-			_mCurrTokenIndex++;
+			case ActOfRose::Keyword::EKeywords::EK_Override:
+			{
+				gPreprocessor.ExtractPredefinedValue(&newValue, (*tokenGroup)[_mCurrTokenIndex + 2].value.c_str());
+				
+				_mCurrTokenIndex += 2;
+
+				break;
+			}
+
+			default:
+			{
+				_mCurrTokenIndex++;
+				break;
+			}
 		}
 	}
 
@@ -735,6 +750,14 @@ int ActOfRose::CExecutor::DeclareAndInitialiseVariable(std::vector<ActOfRose::To
 	{
 		if ((*tokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTSemicolon)
 		{
+			if (isStrict == true)
+			{
+				ActOfRose::WriteLog(PREF_STRING("Variable is strict. Initial value is expected"),
+					(sizeof(PREF_STRING("Variable is strict. Initial value is expected")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_EXEC_INITIAL_VALUE_REQUIRED;
+			}
+
 			newVariable = new ActOfRose::CVariable();
 		}
 		else if (((*tokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTOperator) &&

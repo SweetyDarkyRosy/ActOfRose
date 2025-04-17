@@ -31,6 +31,7 @@ ActOfRose::Context::CVarDeclarationContext::CVarDeclarationContext(ActOfRose::Ke
 	switch (keyword)
 	{
 		case ActOfRose::Keyword::EKeywords::EK_Override:
+		case ActOfRose::Keyword::EKeywords::EK_Strict:
 		{
 			_mState = ActOfRose::Context::CVarDeclarationContext::EVarDeclarationCtxStates::EVDCS_VarKeyword;
 			break;
