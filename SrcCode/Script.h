@@ -3,7 +3,7 @@
 	
 	This file is part of system source code.
 	
-	@Name:			CScript.h
+	@Name:			Script.h
 	@Created:		12.03.2025
 	@Programmer:	Viktoriia Pashchenko (SweetyDarkyRosy)
 	

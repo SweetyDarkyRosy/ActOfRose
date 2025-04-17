@@ -3,13 +3,13 @@
 	
 	This file is part of system source code.
 	
-	@Name:			CScript.cpp
+	@Name:			Script.cpp
 	@Created:		12.03.2025
 	@Programmer:	Viktoriia Pashchenko (SweetyDarkyRosy)
 	
 	Implementations. */
 
-#include "CScript.h"
+#include "Script.h"
 
 #if defined (WIN32) || defined (_WIN32)
 	#define WIN32_LEAN_AND_MEAN

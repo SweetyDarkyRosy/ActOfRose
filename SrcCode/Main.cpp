@@ -15,7 +15,7 @@
 #include "ReturnCodes.h"
 #include "Log.h"
 #include "Element.h"
-#include "CScript.h"
+#include "Script.h"
 #include "CPreProcessor.h"
 #include "CExecutor.h"
 #include "Utility/StringMisc.h"

@@ -31,7 +31,7 @@ compile:
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c SrcCode/Value/CStringValue.cpp -o $(OBJ_DIR)/CStringValue.o
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c SrcCode/Value/CArrayValue.cpp -o $(OBJ_DIR)/CArrayValue.o
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c SrcCode/Log.cpp -o $(OBJ_DIR)/Log.o
-	$(CXX) $(CXXFLAGS) $(INCLUDE) -c SrcCode/CScript.cpp -o $(OBJ_DIR)/CScript.o
+	$(CXX) $(CXXFLAGS) $(INCLUDE) -c SrcCode/Script.cpp -o $(OBJ_DIR)/Script.o
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c SrcCode/Keywords.cpp -o $(OBJ_DIR)/Keywords.o
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c SrcCode/SystemAPI.cpp -o $(OBJ_DIR)/SystemAPI.o
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c SrcCode/CPreProcessor.cpp -o $(OBJ_DIR)/CPreProcessor.o
