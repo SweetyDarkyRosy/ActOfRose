@@ -41,5 +41,6 @@
 #define AOR_ERROR_EXEC_UNDECLARED_IDENTIFIER				(-19)		// Error due to undeclared identifier
 #define AOR_ERROR_EXEC_INVALID_EXPRESSION					(-20)		// Error due to an invalid expression
 #define AOR_ERROR_EXEC_LVALUE_REQUIRED						(-21)		// Error due to invalid expression because of that lvalue was required
+#define AOR_ERROR_EXEC_INITIAL_VALUE_REQUIRED				(-22)		// Error due to initial value is required for "strict" variable/constant
 
 #endif // !__ACT_OF_ROSE_ERROR_CODES_H__
