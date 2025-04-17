@@ -34,7 +34,7 @@ ActOfRose::CExecutor										gExecutor;												// Global instance of execut
 ActOfRose::CPreProcessor									gPreprocessor;											// Global instance of preprocessor
 
 std::filesystem::path										gRootScriptPath(BUILD_ROOT_SCRIPT_DEFAULT_NAME_PREF);	// Path to a file with a root script
-std::map<const std::string, ActOfRose::SElement>			gIdentifierMap;											// Map of associations between identifiers and elements
+std::map<const std::string, ActOfRose::SElement>			gGlobalIdentifierMap;									// Map of associations between identifiers and elements
 std::stack<ActOfRose::Script::CScriptContext>				gScriptContexts;										// Stack of script contexts
 
 

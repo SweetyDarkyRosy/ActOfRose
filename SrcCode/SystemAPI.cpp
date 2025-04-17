@@ -34,8 +34,9 @@
 	Global variables
  ]*/
 
-extern std::map<const std::string, ActOfRose::SElement>			gIdentifierMap;		// Map of associations between identifiers and elements
-extern std::stack<ActOfRose::Script::CScriptContext>			gScriptContexts;	// Stack of script contexts
+extern std::map<const std::string, ActOfRose::SElement>			gGlobalIdentifierMap;		// Map of associations between identifiers and elements
+extern std::stack<ActOfRose::Script::CScriptContext>			gScriptContexts;			// Stack of script contexts
+
 
 /*[
 	Functions for working with script contexts
@@ -61,7 +62,7 @@ void ActOfRose::AORSystemPopScriptContext()
 // Registers an identifier and builds an association with an element (variable, constant, function, or class)
 ActOfRose::SElement* ActOfRose::AORSystemRegisterIdentifierAndElement(const char* identifier, ActOfRose::EElementType type, void* addr)
 {
-	std::pair<std::map<const std::string, ActOfRose::SElement>::iterator, bool> result = gIdentifierMap.insert({ identifier, { type, addr } });
+	std::pair<std::map<const std::string, ActOfRose::SElement>::iterator, bool> result = gGlobalIdentifierMap.insert({ identifier, { type, addr } });
 	
 	if (result.second == true)
 	{
@@ -76,8 +77,8 @@ ActOfRose::SElement* ActOfRose::AORSystemRegisterIdentifierAndElement(const char
 // Checks if the identifier is already in use
 bool ActOfRose::AORSystemIsIdentifierUsed(const char* identifier)
 {
-	std::map<const std::string, ActOfRose::SElement>::iterator identifierIt = gIdentifierMap.find(identifier);
-	if (identifierIt == gIdentifierMap.end())
+	std::map<const std::string, ActOfRose::SElement>::iterator identifierIt = gGlobalIdentifierMap.find(identifier);
+	if (identifierIt == gGlobalIdentifierMap.end())
 	{
 		return false;
 	}
@@ -88,8 +89,8 @@ bool ActOfRose::AORSystemIsIdentifierUsed(const char* identifier)
 // Returns a pointer to a block of information about registered element by the given identifier if it exists
 ActOfRose::SElement* ActOfRose::AORSystemGetElementByIdentifier(const char* identifier)
 {
-	std::map<const std::string, ActOfRose::SElement>::iterator identifierIt = gIdentifierMap.find(identifier);
-	if (identifierIt == gIdentifierMap.end())
+	std::map<const std::string, ActOfRose::SElement>::iterator identifierIt = gGlobalIdentifierMap.find(identifier);
+	if (identifierIt == gGlobalIdentifierMap.end())
 	{
 		return nullptr;
 	}

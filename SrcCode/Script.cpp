@@ -23,6 +23,7 @@
 #include "CLexer.h"
 #include "Log.h"
 #include "CExecutor.h"
+#include "SystemAPI.h"
 #include "Utility/StringConverting.h"
 
 
@@ -101,6 +102,9 @@ int ActOfRose::Script::CScript::Execute()
 		ActOfRose::WriteLog(msg.c_str(), msg.length(), ActOfRose::ELogLevel::ELL_Info);
 	}
 
+	// Creating of a related script context
+	ActOfRose::AORSystemPushScriptContext(this);
+
 	ActOfRose::CLexer lexer(&_mScriptFile);				// Local lexer
 	int result;											// Result value
 
@@ -109,7 +113,8 @@ int ActOfRose::Script::CScript::Execute()
 		result = lexer.Tokenise();
 		if (result == AOR_TOKEN_END_OF_SCRIPT)
 		{
-			return AOR_SUCCESS;
+			result = AOR_SUCCESS;
+			break;
 		}
 		else if (result == AOR_CONTEXT_EXECUTE)
 		{
@@ -125,6 +130,9 @@ int ActOfRose::Script::CScript::Execute()
 			break;
 		}
 	}
+
+	// Removing of a related script context
+	ActOfRose::AORSystemPopScriptContext();
 
 	return result;
 }
