@@ -128,3 +128,13 @@ int ActOfRose::Script::CScript::Execute()
 
 	return result;
 }
+
+
+// ----- ActOfRose::Script::CScriptContext class -----
+
+// Constructor
+ActOfRose::Script::CScriptContext::CScriptContext(ActOfRose::Script::CScript* relatedScript) :
+	_pRelatedScript(relatedScript)
+{
+	_mLocalScopes.push(ActOfRose::CScope());
+}

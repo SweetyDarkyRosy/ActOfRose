@@ -14,6 +14,9 @@
 
 #include <fstream>
 #include <filesystem>
+#include <stack>
+
+#include "CScope.h"
 
 
 namespace ActOfRose
@@ -43,6 +46,19 @@ namespace ActOfRose
 		private:
 			std::ifstream _mScriptFile;						// File with a script
 			std::filesystem::path _mScriptPath;				// Path to a file with a script
+
+		};
+
+		// Class of script context
+		class CScriptContext
+		{
+		public:
+			// Constructor
+			CScriptContext(ActOfRose::Script::CScript* relatedScript);
+
+		private:
+			ActOfRose::Script::CScript* _pRelatedScript;			// Pointer to a related script
+			std::stack<ActOfRose::CScope> _mLocalScopes;			// Local scopes in a context of related script
 
 		};
 	
