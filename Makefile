@@ -32,6 +32,7 @@ compile:
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c SrcCode/Value/CArrayValue.cpp -o $(OBJ_DIR)/CArrayValue.o
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c SrcCode/Log.cpp -o $(OBJ_DIR)/Log.o
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c SrcCode/Script.cpp -o $(OBJ_DIR)/Script.o
+	$(CXX) $(CXXFLAGS) $(INCLUDE) -c SrcCode/CScope.cpp -o $(OBJ_DIR)/CScope.o
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c SrcCode/Keywords.cpp -o $(OBJ_DIR)/Keywords.o
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c SrcCode/SystemAPI.cpp -o $(OBJ_DIR)/SystemAPI.o
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c SrcCode/CPreProcessor.cpp -o $(OBJ_DIR)/CPreProcessor.o

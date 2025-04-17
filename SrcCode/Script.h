@@ -18,32 +18,35 @@
 
 namespace ActOfRose
 {
-	// Class of script contained in a file
-	class CScript
+	namespace Script
 	{
-	public:
-		// Constructor that takes a path contained in the null-terminated UTF-8-encoded byte string
-		CScript(const char* scriptFilePath);
-		// Constructor that takes a path contained in the null-terminated UTF-16BE-encoded wide string
-		CScript(const wchar_t* scriptFilePath);
-		// Constructor that takes an STL's path
-		CScript(std::filesystem::path* scriptFilePath);
+		// Class of script contained in a file
+		class CScript
+		{
+		public:
+			// Constructor that takes a path contained in the null-terminated UTF-8-encoded byte string
+			CScript(const char* scriptFilePath);
+			// Constructor that takes a path contained in the null-terminated UTF-16BE-encoded wide string
+			CScript(const wchar_t* scriptFilePath);
+			// Constructor that takes an STL's path
+			CScript(std::filesystem::path* scriptFilePath);
 
-		// Destructor
-		~CScript();
-	public:
-		// Processes and executes a script contained in the file
-		int Execute();
+			// Destructor
+			~CScript();
+		public:
+			// Processes and executes a script contained in the file
+			int Execute();
 
-		// Returns the state of readiness of the file containing a script
-		inline bool IsLoaded() const { return _mScriptFile.is_open(); }
+			// Returns the state of readiness of the file containing a script
+			inline bool IsLoaded() const { return _mScriptFile.is_open(); }
 
-	private:
-		std::ifstream _mScriptFile;						// File with a script
-		std::filesystem::path _mScriptPath;				// Path to a file with a script
+		private:
+			std::ifstream _mScriptFile;						// File with a script
+			std::filesystem::path _mScriptPath;				// Path to a file with a script
 
-	};
-
+		};
+	
+	} // !namespace Script
 } // !namespace ActOfRose
 
 #endif // !__ACT_OF_ROSE_SCRIPT_CLASS_H__

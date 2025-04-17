@@ -31,7 +31,7 @@
 
 ActOfRose::CExecutor										gExecutor;												// Global instance of executor
 ActOfRose::CPreProcessor									gPreprocessor;											// Global instance of preprocessor
-std::map<std::string, ActOfRose::SElement>					gIdentifierMap;											// Map of associations between identifiers and elements
+std::map<const std::string, ActOfRose::SElement>			gIdentifierMap;											// Map of associations between identifiers and elements
 std::filesystem::path										gRootScriptPath(BUILD_ROOT_SCRIPT_DEFAULT_NAME_PREF);	// Path to a file with a root script
 
 
@@ -70,7 +70,7 @@ int main(int argc, char* argv[])
 		gRootScriptPath = *(gPreprocessor.GetCustomRootScriptPath());
 	}
 	
-	ActOfRose::CScript rootScript(&gRootScriptPath);
+	ActOfRose::Script::CScript rootScript(&gRootScriptPath);
 	if (rootScript.IsLoaded() == false)
 	{
 	#if defined (WIN32) || defined (_WIN32)

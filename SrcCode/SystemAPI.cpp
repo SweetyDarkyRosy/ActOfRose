@@ -32,7 +32,7 @@
 	Global variables
  ]*/
 
-extern std::map<std::string, ActOfRose::SElement>		gIdentifierMap;		// Map of associations between identifiers and elements
+extern std::map<const std::string, ActOfRose::SElement>			gIdentifierMap;		// Map of associations between identifiers and elements
 
 
 /*[
@@ -42,7 +42,7 @@ extern std::map<std::string, ActOfRose::SElement>		gIdentifierMap;		// Map of as
 // Registers an identifier and builds an association with an element (variable, constant, function, or class)
 ActOfRose::SElement* ActOfRose::AORSystemRegisterIdentifierAndElement(const char* identifier, ActOfRose::EElementType type, void* addr)
 {
-	std::pair<std::map<std::string, ActOfRose::SElement>::iterator, bool> result = gIdentifierMap.insert({ identifier, { type, addr } });
+	std::pair<std::map<const std::string, ActOfRose::SElement>::iterator, bool> result = gIdentifierMap.insert({ identifier, { type, addr } });
 	
 	if (result.second == true)
 	{
@@ -57,7 +57,7 @@ ActOfRose::SElement* ActOfRose::AORSystemRegisterIdentifierAndElement(const char
 // Checks if the identifier is already in use
 bool ActOfRose::AORSystemIsIdentifierUsed(const char* identifier)
 {
-	std::map<std::string, ActOfRose::SElement>::iterator identifierIt = gIdentifierMap.find(identifier);
+	std::map<const std::string, ActOfRose::SElement>::iterator identifierIt = gIdentifierMap.find(identifier);
 	if (identifierIt == gIdentifierMap.end())
 	{
 		return false;
@@ -69,7 +69,7 @@ bool ActOfRose::AORSystemIsIdentifierUsed(const char* identifier)
 // Returns a pointer to a block of information about registered element by the given identifier if it exists
 ActOfRose::SElement* ActOfRose::AORSystemGetElementByIdentifier(const char* identifier)
 {
-	std::map<std::string, ActOfRose::SElement>::iterator identifierIt = gIdentifierMap.find(identifier);
+	std::map<const std::string, ActOfRose::SElement>::iterator identifierIt = gIdentifierMap.find(identifier);
 	if (identifierIt == gIdentifierMap.end())
 	{
 		return nullptr;

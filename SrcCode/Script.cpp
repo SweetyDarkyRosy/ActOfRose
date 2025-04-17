@@ -26,10 +26,10 @@
 #include "Utility/StringConverting.h"
 
 
-// ----- ActOfRose::CScript class -----
+// ----- ActOfRose::Script::CScript class -----
 
 // Constructor that takes a path contained in the null-terminated UTF-8-encoded byte string
-ActOfRose::CScript::CScript(const char* scriptFilePath)
+ActOfRose::Script::CScript::CScript(const char* scriptFilePath)
 {
 #if defined (WIN32) || defined (_WIN32)
 	std::wstring utf16BEPath;
@@ -53,7 +53,7 @@ ActOfRose::CScript::CScript(const char* scriptFilePath)
 }
 
 // Constructor that takes a path contained in the null-terminated UTF-16BE-encoded wide string
-ActOfRose::CScript::CScript(const wchar_t* scriptFilePath)
+ActOfRose::Script::CScript::CScript(const wchar_t* scriptFilePath)
 {
 #if defined (WIN32) || defined (_WIN32)
 	_mScriptPath = scriptFilePath;
@@ -71,21 +71,21 @@ ActOfRose::CScript::CScript(const wchar_t* scriptFilePath)
 }
 
 // Constructor that takes an STL's path
-ActOfRose::CScript::CScript(std::filesystem::path* scriptFilePath) :
+ActOfRose::Script::CScript::CScript(std::filesystem::path* scriptFilePath) :
 	_mScriptFile(*scriptFilePath), _mScriptPath(*scriptFilePath)
 {
 	_mScriptFile.seekg(0, std::ios_base::beg);
 }
 
 // Destructor
-ActOfRose::CScript::~CScript()
+ActOfRose::Script::CScript::~CScript()
 {
 	_mScriptFile.close();
 }
 
 
 // Processes and executes a script contained in the file
-int ActOfRose::CScript::Execute()
+int ActOfRose::Script::CScript::Execute()
 {
 	{
 	#if defined (WIN32) || defined (_WIN32)
