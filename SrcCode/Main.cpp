@@ -10,6 +10,7 @@
 	High-level entry point. */
 
 #include <map>
+#include <stack>
 #include <filesystem>
 
 #include "ReturnCodes.h"
@@ -31,8 +32,10 @@
 
 ActOfRose::CExecutor										gExecutor;												// Global instance of executor
 ActOfRose::CPreProcessor									gPreprocessor;											// Global instance of preprocessor
-std::map<const std::string, ActOfRose::SElement>			gIdentifierMap;											// Map of associations between identifiers and elements
+
 std::filesystem::path										gRootScriptPath(BUILD_ROOT_SCRIPT_DEFAULT_NAME_PREF);	// Path to a file with a root script
+std::map<const std::string, ActOfRose::SElement>			gIdentifierMap;											// Map of associations between identifiers and elements
+std::stack<ActOfRose::Script::CScriptContext>				gScriptContexts;										// Stack of script contexts
 
 
 // High-level entry point

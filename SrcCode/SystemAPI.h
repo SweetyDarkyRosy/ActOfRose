@@ -17,6 +17,11 @@
 
 namespace ActOfRose
 {
+	namespace Script
+	{
+		class CScript;			// Class of script contained in a file
+	} // !namespace Script
+
 	namespace Token
 	{
 		struct SToken;			// Token structure
@@ -26,6 +31,16 @@ namespace ActOfRose
 	{
 		class CValue;			// Abstract class of value / data type
 	} // !namespace Value
+
+
+	/*[
+		Functions for working with script contexts
+	 ]*/
+
+	// Adds a new script context related to the script
+	void AORSystemPushScriptContext(ActOfRose::Script::CScript* script);
+	// Removes current script context
+	void AORSystemPopScriptContext();
 
 
 	/*[
@@ -47,10 +62,10 @@ namespace ActOfRose
 	 ]*/
 	
 	// Creates a value from token and saves it to a value holder pointed to by valueHolder
-	int CreateValueFromToken(ActOfRose::Value::CValue** valueHolder, ActOfRose::Token::SToken* token);
+	int AORSystemCreateValueFromToken(ActOfRose::Value::CValue** valueHolder, ActOfRose::Token::SToken* token);
 
 	// Creates a copy of a value pointed to by originalValue and returns a pointer to the copy
-	ActOfRose::Value::CValue* CopyValue(ActOfRose::Value::CValue* originalValue);
+	ActOfRose::Value::CValue* AORSystemCopyValue(ActOfRose::Value::CValue* originalValue);
 
 } // !namespace ActOfRose
 

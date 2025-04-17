@@ -434,7 +434,7 @@ int ActOfRose::CPreProcessor::SetPredefinedValue(const char* elName, const char*
 
 	ActOfRose::Value::CValue* valueHolder;
 
-	int valueCreationResult = CreateValueFromToken(&valueHolder, &token);
+	int valueCreationResult = AORSystemCreateValueFromToken(&valueHolder, &token);
 	if (valueCreationResult != AOR_SUCCESS)
 	{
 		return valueCreationResult;
@@ -741,7 +741,7 @@ int ActOfRose::CPreProcessor::ParseCacheFileData(std::map<const std::string, Act
 
 				ActOfRose::Value::CValue* valueHolder;
 
-				int valueCreationResult = CreateValueFromToken(&valueHolder, &token);
+				int valueCreationResult = AORSystemCreateValueFromToken(&valueHolder, &token);
 				if (valueCreationResult != AOR_SUCCESS)
 				{
 					return valueCreationResult;

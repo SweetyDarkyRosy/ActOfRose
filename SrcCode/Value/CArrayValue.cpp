@@ -25,7 +25,7 @@ ActOfRose::Value::CArrayValue::CArrayValue(const ActOfRose::Value::CArrayValue* 
 {
 	for (unsigned int valueIt = 0; valueIt < (unsigned int)(array->_mValueArray.size()); valueIt++)
 	{
-		ActOfRose::Value::CValue* newValue = CopyValue(array->_mValueArray[valueIt]);
+		ActOfRose::Value::CValue* newValue = AORSystemCopyValue(array->_mValueArray[valueIt]);
 		_mValueArray.push_back(newValue);
 	}
 }

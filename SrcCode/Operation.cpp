@@ -87,7 +87,7 @@ static int ExecuteUnaryOperation(ActOfRose::Value::SValueReference* retValueRefH
 		{
 			if (operandRef->category == ActOfRose::Value::EValueCategories::EVC_PRValue)
 			{
-				retValueRefHolder->value.value = ActOfRose::CopyValue(operandRef->value.value);
+				retValueRefHolder->value.value = ActOfRose::AORSystemCopyValue(operandRef->value.value);
 			}
 			else if (operandRef->category == ActOfRose::Value::EValueCategories::EVC_LValue)
 			{

@@ -13,11 +13,13 @@
 
 #include <string>
 #include <map>
+#include <stack>
 #include <cmath>
 
 #include "ReturnCodes.h"
 #include "Log.h"
 #include "Token.h"
+#include "Script.h"
 #include "Utility/StringMisc.h"
 
 #include "Value/CIntegerValue.h"
@@ -33,6 +35,23 @@
  ]*/
 
 extern std::map<const std::string, ActOfRose::SElement>			gIdentifierMap;		// Map of associations between identifiers and elements
+extern std::stack<ActOfRose::Script::CScriptContext>			gScriptContexts;	// Stack of script contexts
+
+/*[
+	Functions for working with script contexts
+ ]*/
+
+// Adds a new script context related to the script
+void ActOfRose::AORSystemPushScriptContext(ActOfRose::Script::CScript* script)
+{
+	gScriptContexts.push(script);
+}
+
+// Removes current script context
+void ActOfRose::AORSystemPopScriptContext()
+{
+	gScriptContexts.pop();
+}
 
 
 /*[
@@ -86,7 +105,7 @@ ActOfRose::SElement* ActOfRose::AORSystemGetElementByIdentifier(const char* iden
  ]*/
 	
 // Creates a value from token and saves it to a value holder pointed to by valueHolder
-int ActOfRose::CreateValueFromToken(ActOfRose::Value::CValue** valueHolder, ActOfRose::Token::SToken* token)
+int ActOfRose::AORSystemCreateValueFromToken(ActOfRose::Value::CValue** valueHolder, ActOfRose::Token::SToken* token)
 {
 	ActOfRose::Value::CValue* newValue;
 
@@ -144,7 +163,7 @@ int ActOfRose::CreateValueFromToken(ActOfRose::Value::CValue** valueHolder, ActO
 }
 
 // Creates a copy of a value pointed to by originalValue and returns a pointer to the copy
-ActOfRose::Value::CValue* ActOfRose::CopyValue(ActOfRose::Value::CValue* originalValue)
+ActOfRose::Value::CValue* ActOfRose::AORSystemCopyValue(ActOfRose::Value::CValue* originalValue)
 {
 	ActOfRose::Value::CValue* newValue = nullptr;
 

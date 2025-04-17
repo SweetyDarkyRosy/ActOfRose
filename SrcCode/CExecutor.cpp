@@ -96,7 +96,7 @@ int ActOfRose::CExecutor::RetrieveValue(ActOfRose::Value::SValueReference* value
 		case ActOfRose::Token::ETokenType::ETTString:
 		{
 			ActOfRose::Value::CValue* newValue;
-			int createValueResult = CreateValueFromToken(&newValue, &((*_pCurrTokenGroup)[_mCurrTokenIndex]));
+			int createValueResult = AORSystemCreateValueFromToken(&newValue, &((*_pCurrTokenGroup)[_mCurrTokenIndex]));
 			if (createValueResult != AOR_SUCCESS)
 			{
 				return AOR_ERROR_INTERNAL_ERROR;
@@ -657,11 +657,11 @@ int ActOfRose::CExecutor::EvaluateExpression(ActOfRose::Value::CValue** valueHol
 	ActOfRose::Value::CValue* newValue;
 	if (newValueRef.category == ActOfRose::Value::EValueCategories::EVC_LValue)
 	{
-		newValue = CopyValue(*(newValueRef.value.valueHolder));
+		newValue = AORSystemCopyValue(*(newValueRef.value.valueHolder));
 	}
 	else if (newValueRef.category == ActOfRose::Value::EValueCategories::EVC_RValue)
 	{
-		newValue = CopyValue(newValueRef.value.value);
+		newValue = AORSystemCopyValue(newValueRef.value.value);
 	}
 	else if (newValueRef.category == ActOfRose::Value::EValueCategories::EVC_PRValue)
 	{
