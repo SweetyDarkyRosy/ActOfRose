@@ -34,7 +34,7 @@ namespace ActOfRose
 		inline void AddToken(ActOfRose::Token::SToken token) { _mTokens.push_back(token); }
 
 	private:
-		std::vector<const std::string> _mParamNames;				// Array of names of function parameters
+		std::vector<std::string> _mParamNames;				// Array of names of function parameters
 		std::vector<ActOfRose::Token::SToken> _mTokens;				// Array of tokens inside function body
 
 	};

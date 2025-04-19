@@ -59,6 +59,9 @@ namespace ActOfRose
 		// Executes a variable declaration and initialisation
 		int DeclareAndInitialiseVariable(std::vector<ActOfRose::Token::SToken>* tokenGroup);
 
+		// Executes a function declaration and definition
+		int DeclareAndDefineFunction(std::vector<ActOfRose::Token::SToken>* tokenGroup);
+
 		// Processes an encountered identifier and returns a value or a reference to value if possible
 		int ProcessIdentifier(ActOfRose::Value::SValueReference* valueRefHolder);
 

@@ -16,6 +16,7 @@
 #include "SystemAPI.h"
 #include "Keywords.h"
 #include "CVariable.h"
+#include "CFunction.h"
 #include "Expression.h"
 #include "Operation.h"
 #include "CPreProcessor.h"
@@ -66,7 +67,7 @@ int ActOfRose::CExecutor::Execute(std::vector<ActOfRose::Token::SToken>* tokenGr
 
 				case ActOfRose::Keyword::EKeywords::EK_Func:
 				{
-					return AOR_SUCCESS;
+					return DeclareAndDefineFunction(tokenGroup);
 				}
 
 				default:
@@ -807,6 +808,47 @@ int ActOfRose::CExecutor::DeclareAndInitialiseVariable(std::vector<ActOfRose::To
 			msg += " with value of " + newValue->ConvertValueToByteString() + " (" + newValue->GetTypeByteString() + ")";
 		}
 
+		ActOfRose::WriteLog(msg.c_str(), msg.length(), ActOfRose::ELogLevel::ELL_Debug);
+	}
+#endif
+
+	return AOR_SUCCESS;
+}
+
+// Executes a function declaration and definition
+int ActOfRose::CExecutor::DeclareAndDefineFunction(std::vector<ActOfRose::Token::SToken>* tokenGroup)
+{
+	_mCurrTokenIndex++;
+
+	// Variable name
+	const char* functionName = (*tokenGroup)[_mCurrTokenIndex].value.c_str();
+
+	if (AORSystemIsIdentifierUsed(functionName) == true)
+	{
+		LogAlreadyUsedIdentifier(functionName);
+
+		return AOR_ERROR_EXEC_IDENTIFIER_ALREADY_IN_USE;
+	}
+
+	// New function
+	ActOfRose::CFunction* newFunction = new ActOfRose::CFunction();
+
+	if (AORSystemRegisterIdentifierAndElement(functionName, ActOfRose::EElementType::EET_Function, (void*)newFunction) == nullptr)
+	{
+		delete newFunction;
+
+		std::string errorMsg = "Runtime error. Failed to declare the ";
+		errorMsg += functionName;
+		errorMsg += " function";
+
+		ActOfRose::WriteLog(errorMsg.c_str(), errorMsg.length(), ActOfRose::ELogLevel::ELL_Error);
+
+		return AOR_ERROR_INTERNAL_ERROR;
+	}
+
+#ifdef _DEBUG
+	{
+		std::string msg = "Function " + std::string(functionName) + " has been declated";
 		ActOfRose::WriteLog(msg.c_str(), msg.length(), ActOfRose::ELogLevel::ELL_Debug);
 	}
 #endif
