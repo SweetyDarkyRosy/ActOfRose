@@ -38,55 +38,35 @@ int ActOfRose::Context::CSequencer::ProcessToken(ActOfRose::Token::SToken* token
 
 	if (_mContexts.size() == 0)
 	{
-		result = DetermineAndCreateContext(token);
+		if ((result = DetermineAndCreateContext(token)) != AOR_SUCCESS)
+		{
+			return result;
+		}
 	}
-	else
+
+	while (_mContexts.size() != 0)
 	{
 		result = _mContexts.top()->ProcessToken(token);
-
-		switch (result)
+		if (result == AOR_CONTEXT_CREATE)
 		{
-			case AOR_CONTEXT_CREATE:
-			{
-				if ((result = DetermineAndCreateContext(token)) != AOR_SUCCESS)
-				{
-					break;
-				}
-
-				result = _mContexts.top()->ProcessToken(token);
-				
-				break;
-			}
-
-			case AOR_CONTEXT_COMPLETE:
-			{
-				delete _mContexts.top();
-				_mContexts.pop();
-
-				if (_mContexts.size() != 0)
-				{
-					result = _mContexts.top()->ProcessToken(token);
-
-					/**
-						Parent context cannot create a new context anyway without further token
-					*/
-				}
-
-				break;
-			}
-
-			case AOR_CONTEXT_EXECUTE:
-			{
-				delete _mContexts.top();
-				_mContexts.pop();
-
-				break;
-			}
-
-			default:
+			if ((result = DetermineAndCreateContext(token)) != AOR_SUCCESS)
 			{
 				break;
 			}
+		}
+		else if (result == AOR_CONTEXT_COMPLETE)
+		{
+			delete _mContexts.top();
+			_mContexts.pop();
+
+			if (_mContexts.size() == 0)
+			{
+				result = AOR_CONTEXT_EXECUTE;
+			}
+		}
+		else
+		{
+			break;
 		}
 	}
 
@@ -115,7 +95,7 @@ int ActOfRose::Context::CSequencer::DetermineAndCreateContext(ActOfRose::Token::
 				case ActOfRose::Keyword::EKeywords::EK_Override:
 				case ActOfRose::Keyword::EKeywords::EK_Strict:
 				{
-					_mContexts.push(new ActOfRose::Context::CVarDeclarationContext(keyword));
+					_mContexts.push(new ActOfRose::Context::CVarDeclarationContext());
 
 					break;
 				}

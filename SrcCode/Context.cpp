@@ -17,177 +17,6 @@
 #include "Utility/StringMisc.h"
 
 
-// ----- ActOfRose::Context::CVarDeclarationContext class -----
-
-// Constructor
-ActOfRose::Context::CVarDeclarationContext::CVarDeclarationContext(ActOfRose::Keyword::EKeywords keyword)
-{
-#ifdef _DEBUG
-	ActOfRose::WriteLog(PREF_STRING("New variable declaration context has been created"),
-		(sizeof(PREF_STRING("New variable declaration context has been created")) / sizeof(PChar)),
-		ActOfRose::ELogLevel::ELL_Debug);
-#endif
-
-	switch (keyword)
-	{
-		case ActOfRose::Keyword::EKeywords::EK_Override:
-		case ActOfRose::Keyword::EKeywords::EK_Strict:
-		{
-			_mState = ActOfRose::Context::CVarDeclarationContext::EVarDeclarationCtxStates::EVDCS_VarKeyword;
-			break;
-		}
-
-		default:
-		{
-			_mState = ActOfRose::Context::CVarDeclarationContext::EVarDeclarationCtxStates::EVDCS_VariableName;
-			break;
-		}
-	}
-}
-
-// Analyses the given token, checks current sequence for logical errors and updates a context
-int ActOfRose::Context::CVarDeclarationContext::ProcessToken(ActOfRose::Token::SToken* token)
-{
-	switch (_mState)
-	{
-		case ActOfRose::Context::CVarDeclarationContext::EVarDeclarationCtxStates::EVDCS_VarKeyword:
-		{
-			if (token->type != ActOfRose::Token::ETokenType::ETTKeyword)
-			{
-				ActOfRose::WriteLog(PREF_STRING("Expected 'var' keyword"),
-					(sizeof(PREF_STRING("Expected 'var' keyword")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
-	
-				return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
-			}
-
-			ActOfRose::Keyword::EKeywords keyword;
-			if (GetKeyword(&keyword, &(token->value)) == false)
-			{
-				ActOfRose::WriteLog(PREF_STRING("Keyword not found. Internal error"),
-					(sizeof(PREF_STRING("Keyword not found. Internal error")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
-
-				return AOR_ERROR_INTERNAL_ERROR;
-			}
-
-			if (keyword != ActOfRose::Keyword::EKeywords::EK_Var)
-			{
-				ActOfRose::WriteLog(PREF_STRING("Expected 'var' keyword"),
-					(sizeof(PREF_STRING("Expected 'var' keyword")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
-	
-				return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
-			}
-
-			_mState = ActOfRose::Context::CVarDeclarationContext::EVarDeclarationCtxStates::EVDCS_VariableName;
-
-			break;
-		}
-
-		case ActOfRose::Context::CVarDeclarationContext::EVarDeclarationCtxStates::EVDCS_VariableName:
-		{
-			if (token->type == ActOfRose::Token::ETokenType::ETTIdentifier)
-			{
-				_mState = ActOfRose::Context::CVarDeclarationContext::EVarDeclarationCtxStates::EVDCS_InitDisjunction;
-			}
-			else
-			{
-				ActOfRose::WriteLog(PREF_STRING("Identifier was expected"), (sizeof(PREF_STRING("Identifier was expected")) / sizeof(PChar)),
-					ActOfRose::ELogLevel::ELL_Error);
-
-				return AOR_ERROR_TOKEN_IDENTIFIER_EXPECTED;
-			}
-
-			break;
-		}
-
-		case ActOfRose::Context::CVarDeclarationContext::EVarDeclarationCtxStates::EVDCS_InitDisjunction:
-		{
-			if (token->type == ActOfRose::Token::ETokenType::ETTSemicolon)
-			{
-				return AOR_CONTEXT_EXECUTE;
-			}
-			else if ((token->type == ActOfRose::Token::ETokenType::ETTOperator) &&
-				(token->value.compare("=") == 0))
-			{
-				_mState = ActOfRose::Context::CVarDeclarationContext::EVarDeclarationCtxStates::EVDCS_ExpressionBegin;
-
-				break;
-			}
-			else
-			{
-				/*
-				ActOfRose::WriteLog(PREF_STRING("Expected ';' after variable declaration"),
-					(sizeof(PREF_STRING("Expected ';' after variable declaration")) / sizeof(PChar)),
-					ActOfRose::ELogLevel::ELL_Error);
-				*/
-
-				ActOfRose::WriteLog(PREF_STRING("Expected initialiser"), (sizeof(PREF_STRING("Expected initialiser")) / sizeof(PChar)),
-					ActOfRose::ELogLevel::ELL_Error);
-
-				return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
-			}
-
-			break;
-		}
-
-		case ActOfRose::Context::CVarDeclarationContext::EVarDeclarationCtxStates::EVDCS_ExpressionBegin:
-		{
-			switch (token->type)
-			{
-				case ActOfRose::Token::ETokenType::ETTNumber:
-				case ActOfRose::Token::ETokenType::ETTString:
-				case ActOfRose::Token::ETokenType::ETTIdentifier:
-				case ActOfRose::Token::ETokenType::ETTOperator:
-				case ActOfRose::Token::ETokenType::ETTRoundBracketLeft:
-				case ActOfRose::Token::ETokenType::ETTCurlyBracketLeft:
-				{
-					_mState = ActOfRose::Context::CVarDeclarationContext::EVarDeclarationCtxStates::EVDCS_ExpressionEnd;
-
-					return AOR_CONTEXT_CREATE;
-				}
-
-				default:
-				{
-					ActOfRose::WriteLog(PREF_STRING("Expected expression"), (sizeof(PREF_STRING("Expected expression")) / sizeof(PChar)),
-						ActOfRose::ELogLevel::ELL_Error);
-
-					return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
-				}
-			}
-
-			break;
-		}
-
-		case ActOfRose::Context::CVarDeclarationContext::EVarDeclarationCtxStates::EVDCS_ExpressionEnd:
-		{
-			switch (token->type)
-			{
-				case ActOfRose::Token::ETokenType::ETTSemicolon:
-				{
-					return AOR_CONTEXT_EXECUTE;
-				}
-
-				default:
-				{
-					ActOfRose::WriteLog(PREF_STRING("Expected ';'"), (sizeof(PREF_STRING("Expected ';'")) / sizeof(PChar)),
-						ActOfRose::ELogLevel::ELL_Error);
-
-					return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
-				}
-			}
-
-			break;
-		}
-
-		default:
-		{
-			return AOR_ERROR_INTERNAL_ERROR;
-		}
-	}
-
-	return AOR_SUCCESS;
-}
-
-
 // ----- ActOfRose::Context::CExpressionEvaluationContext class -----
 
 // Constructor
@@ -269,6 +98,192 @@ int ActOfRose::Context::CExpressionEvaluationContext::ProcessToken(ActOfRose::To
 			ActOfRose::WriteLog(PREF_STRING("Unexpected token"), (sizeof(PREF_STRING("Unexpected token")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
 
 			return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
+		}
+	}
+
+	return AOR_SUCCESS;
+}
+
+
+// ----- ActOfRose::Context::CVarDeclarationContext class -----
+
+// Constructor
+ActOfRose::Context::CVarDeclarationContext::CVarDeclarationContext() :
+	_mState(ActOfRose::Context::CVarDeclarationContext::EVarDeclarationCtxStates::EVDCS_Initial)
+{
+#ifdef _DEBUG
+	ActOfRose::WriteLog(PREF_STRING("New variable declaration context has been created"),
+		(sizeof(PREF_STRING("New variable declaration context has been created")) / sizeof(PChar)),
+		ActOfRose::ELogLevel::ELL_Debug);
+#endif
+}
+
+// Analyses the given token, checks current sequence for logical errors and updates a context
+int ActOfRose::Context::CVarDeclarationContext::ProcessToken(ActOfRose::Token::SToken* token)
+{
+	switch (_mState)
+	{
+		case ActOfRose::Context::CVarDeclarationContext::EVarDeclarationCtxStates::EVDCS_Initial:
+		{
+			ActOfRose::Keyword::EKeywords keyword;
+			if (GetKeyword(&keyword, &(token->value)) == false)
+			{
+				ActOfRose::WriteLog(PREF_STRING("Keyword not found. Internal error"),
+					(sizeof(PREF_STRING("Keyword not found. Internal error")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_INTERNAL_ERROR;
+			}
+
+			switch (keyword)
+			{
+				case ActOfRose::Keyword::EKeywords::EK_Override:
+				case ActOfRose::Keyword::EKeywords::EK_Strict:
+				{
+					_mState = ActOfRose::Context::CVarDeclarationContext::EVarDeclarationCtxStates::EVDCS_VarKeyword;
+					break;
+				}
+
+				default:
+				{
+					_mState = ActOfRose::Context::CVarDeclarationContext::EVarDeclarationCtxStates::EVDCS_VariableName;
+					break;
+				}
+			}
+
+			break;
+		}
+
+		case ActOfRose::Context::CVarDeclarationContext::EVarDeclarationCtxStates::EVDCS_VarKeyword:
+		{
+			if (token->type != ActOfRose::Token::ETokenType::ETTKeyword)
+			{
+				ActOfRose::WriteLog(PREF_STRING("Expected 'var' keyword"),
+					(sizeof(PREF_STRING("Expected 'var' keyword")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+	
+				return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
+			}
+
+			ActOfRose::Keyword::EKeywords keyword;
+			if (GetKeyword(&keyword, &(token->value)) == false)
+			{
+				ActOfRose::WriteLog(PREF_STRING("Keyword not found. Internal error"),
+					(sizeof(PREF_STRING("Keyword not found. Internal error")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_INTERNAL_ERROR;
+			}
+
+			if (keyword != ActOfRose::Keyword::EKeywords::EK_Var)
+			{
+				ActOfRose::WriteLog(PREF_STRING("Expected 'var' keyword"),
+					(sizeof(PREF_STRING("Expected 'var' keyword")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+	
+				return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
+			}
+
+			_mState = ActOfRose::Context::CVarDeclarationContext::EVarDeclarationCtxStates::EVDCS_VariableName;
+
+			break;
+		}
+
+		case ActOfRose::Context::CVarDeclarationContext::EVarDeclarationCtxStates::EVDCS_VariableName:
+		{
+			if (token->type == ActOfRose::Token::ETokenType::ETTIdentifier)
+			{
+				_mState = ActOfRose::Context::CVarDeclarationContext::EVarDeclarationCtxStates::EVDCS_InitDisjunction;
+			}
+			else
+			{
+				ActOfRose::WriteLog(PREF_STRING("Identifier was expected"), (sizeof(PREF_STRING("Identifier was expected")) / sizeof(PChar)),
+					ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_TOKEN_IDENTIFIER_EXPECTED;
+			}
+
+			break;
+		}
+
+		case ActOfRose::Context::CVarDeclarationContext::EVarDeclarationCtxStates::EVDCS_InitDisjunction:
+		{
+			if (token->type == ActOfRose::Token::ETokenType::ETTSemicolon)
+			{
+				return AOR_CONTEXT_COMPLETE;
+			}
+			else if ((token->type == ActOfRose::Token::ETokenType::ETTOperator) &&
+				(token->value.compare("=") == 0))
+			{
+				_mState = ActOfRose::Context::CVarDeclarationContext::EVarDeclarationCtxStates::EVDCS_ExpressionBegin;
+
+				break;
+			}
+			else
+			{
+				/*
+				ActOfRose::WriteLog(PREF_STRING("Expected ';' after variable declaration"),
+					(sizeof(PREF_STRING("Expected ';' after variable declaration")) / sizeof(PChar)),
+					ActOfRose::ELogLevel::ELL_Error);
+				*/
+
+				ActOfRose::WriteLog(PREF_STRING("Expected initialiser"), (sizeof(PREF_STRING("Expected initialiser")) / sizeof(PChar)),
+					ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
+			}
+
+			break;
+		}
+
+		case ActOfRose::Context::CVarDeclarationContext::EVarDeclarationCtxStates::EVDCS_ExpressionBegin:
+		{
+			switch (token->type)
+			{
+				case ActOfRose::Token::ETokenType::ETTNumber:
+				case ActOfRose::Token::ETokenType::ETTString:
+				case ActOfRose::Token::ETokenType::ETTIdentifier:
+				case ActOfRose::Token::ETokenType::ETTOperator:
+				case ActOfRose::Token::ETokenType::ETTRoundBracketLeft:
+				case ActOfRose::Token::ETokenType::ETTCurlyBracketLeft:
+				{
+					_mState = ActOfRose::Context::CVarDeclarationContext::EVarDeclarationCtxStates::EVDCS_ExpressionEnd;
+
+					return AOR_CONTEXT_CREATE;
+				}
+
+				default:
+				{
+					ActOfRose::WriteLog(PREF_STRING("Expected expression"), (sizeof(PREF_STRING("Expected expression")) / sizeof(PChar)),
+						ActOfRose::ELogLevel::ELL_Error);
+
+					return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
+				}
+			}
+
+			break;
+		}
+
+		case ActOfRose::Context::CVarDeclarationContext::EVarDeclarationCtxStates::EVDCS_ExpressionEnd:
+		{
+			switch (token->type)
+			{
+				case ActOfRose::Token::ETokenType::ETTSemicolon:
+				{
+					return AOR_CONTEXT_COMPLETE;
+				}
+
+				default:
+				{
+					ActOfRose::WriteLog(PREF_STRING("Expected ';'"), (sizeof(PREF_STRING("Expected ';'")) / sizeof(PChar)),
+						ActOfRose::ELogLevel::ELL_Error);
+
+					return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
+				}
+			}
+
+			break;
+		}
+
+		default:
+		{
+			return AOR_ERROR_INTERNAL_ERROR;
 		}
 	}
 

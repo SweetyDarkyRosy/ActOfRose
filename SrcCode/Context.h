@@ -42,32 +42,6 @@ namespace ActOfRose
 			Context classes
 		 ]*/
 
-		// Class of variable declaration context
-		class CVarDeclarationContext : public CContext
-		{
-			// States of variable declaration context
-			enum EVarDeclarationCtxStates
-			{
-				EVDCS_VarKeyword,				// "var" keyword is expected
-				EVDCS_VariableName,				// Identifier with variable name is expected
-				EVDCS_InitDisjunction,			// Initialisation branching between two options
-				EVDCS_ExpressionBegin,			// Expression is expected
-				EVDCS_ExpressionEnd,			// Ending of expression (semicolon) is expected
-			};
-
-		public:
-			// Constructor
-			CVarDeclarationContext(ActOfRose::Keyword::EKeywords keyword);
-
-		public:
-			// Analyses the given token, checks current sequence for logical errors and updates a context
-			virtual int ProcessToken(ActOfRose::Token::SToken* token) override;
-
-		private:
-			ActOfRose::Context::CVarDeclarationContext::EVarDeclarationCtxStates _mState;		// Context state
-
-		};
-
 		// Class of expression evaluation context
 		class CExpressionEvaluationContext : public CContext
 		{
@@ -81,6 +55,33 @@ namespace ActOfRose
 
 		private:
 			unsigned int _mNestingDepth;			// Nesting depth
+
+		};
+
+		// Class of variable declaration context
+		class CVarDeclarationContext : public CContext
+		{
+			// States of variable declaration context
+			enum EVarDeclarationCtxStates
+			{
+				EVDCS_Initial,						// Initial state of context
+				EVDCS_VarKeyword,				// "var" keyword is expected
+				EVDCS_VariableName,				// Identifier with variable name is expected
+				EVDCS_InitDisjunction,			// Initialisation branching between two options
+				EVDCS_ExpressionBegin,			// Expression is expected
+				EVDCS_ExpressionEnd,			// Ending of expression (semicolon) is expected
+			};
+
+		public:
+			// Constructor
+			CVarDeclarationContext();
+
+		public:
+			// Analyses the given token, checks current sequence for logical errors and updates a context
+			virtual int ProcessToken(ActOfRose::Token::SToken* token) override;
+
+		private:
+			ActOfRose::Context::CVarDeclarationContext::EVarDeclarationCtxStates _mState;		// Context state
 
 		};
 
