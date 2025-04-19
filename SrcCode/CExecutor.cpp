@@ -823,6 +823,8 @@ int ActOfRose::CExecutor::DeclareAndDefineFunction(std::vector<ActOfRose::Token:
 	// Variable name
 	const char* functionName = (*tokenGroup)[_mCurrTokenIndex].value.c_str();
 
+	_mCurrTokenIndex++;
+
 	if (AORSystemIsIdentifierUsed(functionName) == true)
 	{
 		LogAlreadyUsedIdentifier(functionName);
@@ -832,6 +834,33 @@ int ActOfRose::CExecutor::DeclareAndDefineFunction(std::vector<ActOfRose::Token:
 
 	// New function
 	ActOfRose::CFunction* newFunction = new ActOfRose::CFunction();
+
+
+	// ----- Collecting of parameter names -----
+
+	while ((*tokenGroup)[_mCurrTokenIndex].type != ActOfRose::Token::ETokenType::ETTRoundBracketRight)
+	{
+		_mCurrTokenIndex++;
+
+		newFunction->AddParameter((*tokenGroup)[_mCurrTokenIndex].value.c_str());
+
+	#ifdef _DEBUG
+		{
+			std::string msg = "Parameter name " + (*tokenGroup)[_mCurrTokenIndex].value + " for function " + functionName + " has been declared";
+			ActOfRose::WriteLog(msg.c_str(), msg.length(), ActOfRose::ELogLevel::ELL_Debug);
+		}
+	#endif
+
+		_mCurrTokenIndex++;
+	}
+
+	_mCurrTokenIndex += 2;
+
+
+	// ----- Copying of function body-related tokens -----
+
+	std::copy(tokenGroup->begin() + _mCurrTokenIndex, tokenGroup->end() - 1, std::back_inserter(*(newFunction->GetBodyTokens())));
+
 
 	if (AORSystemRegisterIdentifierAndElement(functionName, ActOfRose::EElementType::EET_Function, (void*)newFunction) == nullptr)
 	{
@@ -848,7 +877,7 @@ int ActOfRose::CExecutor::DeclareAndDefineFunction(std::vector<ActOfRose::Token:
 
 #ifdef _DEBUG
 	{
-		std::string msg = "Function " + std::string(functionName) + " has been declated";
+		std::string msg = "Function " + std::string(functionName) + " has been declared";
 		ActOfRose::WriteLog(msg.c_str(), msg.length(), ActOfRose::ELogLevel::ELL_Debug);
 	}
 #endif

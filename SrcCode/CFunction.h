@@ -33,6 +33,8 @@ namespace ActOfRose
 		// Adds a token related to the body of a function
 		inline void AddToken(ActOfRose::Token::SToken token) { _mTokens.push_back(token); }
 
+		inline std::vector<ActOfRose::Token::SToken>* GetBodyTokens() { return &_mTokens; }
+
 	private:
 		std::vector<std::string> _mParamNames;				// Array of names of function parameters
 		std::vector<ActOfRose::Token::SToken> _mTokens;				// Array of tokens inside function body
