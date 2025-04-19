@@ -289,3 +289,190 @@ int ActOfRose::Context::CVarDeclarationContext::ProcessToken(ActOfRose::Token::S
 
 	return AOR_SUCCESS;
 }
+
+
+// ----- ActOfRose::Context::CFuncDeclarationContext class -----
+
+// Constructor
+ActOfRose::Context::CFuncDeclarationContext::CFuncDeclarationContext() :
+	_mState(ActOfRose::Context::CFuncDeclarationContext::EFuncDeclarationCtxStates::EFDCS_Initial)
+{
+#ifdef _DEBUG
+	ActOfRose::WriteLog(PREF_STRING("New function declaration context has been created"),
+		(sizeof(PREF_STRING("New function declaration context has been created")) / sizeof(PChar)),
+		ActOfRose::ELogLevel::ELL_Debug);
+#endif
+}
+
+// Analyses the given token, checks current sequence for logical errors and updates a context
+int ActOfRose::Context::CFuncDeclarationContext::ProcessToken(ActOfRose::Token::SToken* token)
+{
+	switch (_mState)
+	{
+		case ActOfRose::Context::CFuncDeclarationContext::EFuncDeclarationCtxStates::EFDCS_Initial:
+		{
+			_mState = ActOfRose::Context::CFuncDeclarationContext::EFuncDeclarationCtxStates::EFDCS_FuncName;
+
+			break;
+		}
+
+		case ActOfRose::Context::CFuncDeclarationContext::EFuncDeclarationCtxStates::EFDCS_FuncName:
+		{
+			if (token->type != ActOfRose::Token::ETokenType::ETTIdentifier)
+			{
+				ActOfRose::WriteLog(PREF_STRING("Identifier was expected"), (sizeof(PREF_STRING("Identifier was expected")) / sizeof(PChar)),
+					ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_TOKEN_IDENTIFIER_EXPECTED;
+			}
+
+			_mState = ActOfRose::Context::CFuncDeclarationContext::EFuncDeclarationCtxStates::EFDCS_ParamStart;
+
+			break;
+		}
+
+		case ActOfRose::Context::CFuncDeclarationContext::EFuncDeclarationCtxStates::EFDCS_ParamStart:
+		{
+			if (token->type != ActOfRose::Token::ETokenType::ETTRoundBracketLeft)
+			{
+				ActOfRose::WriteLog(PREF_STRING("Left round bracket was expected"), (sizeof(PREF_STRING("Left round bracket was expected")) / sizeof(PChar)),
+					ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
+			}
+
+			_mState = ActOfRose::Context::CFuncDeclarationContext::EFuncDeclarationCtxStates::EFDCS_ParamDisjunctionInitial;
+
+			break;
+		}
+
+		case ActOfRose::Context::CFuncDeclarationContext::EFuncDeclarationCtxStates::EFDCS_ParamDisjunctionInitial:
+		{
+			if (token->type == ActOfRose::Token::ETokenType::ETTRoundBracketRight)
+			{
+				_mState = ActOfRose::Context::CFuncDeclarationContext::EFuncDeclarationCtxStates::EFDCS_BodyStart;
+			}
+			else if (token->type == ActOfRose::Token::ETokenType::ETTIdentifier)
+			{
+				_mState = ActOfRose::Context::CFuncDeclarationContext::EFuncDeclarationCtxStates::EFDCS_ParamDisjunctionSubsequent;
+			}
+			else
+			{
+				ActOfRose::WriteLog(PREF_STRING("Identifier as parameter name was expected"),
+					(sizeof(PREF_STRING("Identifier as parameter name was expected")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
+			}
+
+			break;
+		}
+
+		case ActOfRose::Context::CFuncDeclarationContext::EFuncDeclarationCtxStates::EFDCS_ParamDisjunctionSubsequent:
+		{
+			if (token->type == ActOfRose::Token::ETokenType::ETTRoundBracketRight)
+			{
+				_mState = ActOfRose::Context::CFuncDeclarationContext::EFuncDeclarationCtxStates::EFDCS_BodyStart;
+			}
+			else if (token->type == ActOfRose::Token::ETokenType::ETTComma)
+			{
+				_mState = ActOfRose::Context::CFuncDeclarationContext::EFuncDeclarationCtxStates::EFDCS_ParamName;
+			}
+			else
+			{
+				ActOfRose::WriteLog(PREF_STRING("Right round bracket was expected"), (sizeof(PREF_STRING("Right round bracket was expected")) / sizeof(PChar)),
+					ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
+			}
+
+			break;
+		}
+
+		case ActOfRose::Context::CFuncDeclarationContext::EFuncDeclarationCtxStates::EFDCS_ParamName:
+		{
+			if (token->type != ActOfRose::Token::ETokenType::ETTIdentifier)
+			{
+				ActOfRose::WriteLog(PREF_STRING("Identifier as parameter name was expected"),
+					(sizeof(PREF_STRING("Identifier as parameter name was expected")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_TOKEN_IDENTIFIER_EXPECTED;
+			}
+
+			_mState = ActOfRose::Context::CFuncDeclarationContext::EFuncDeclarationCtxStates::EFDCS_ParamDisjunctionSubsequent;
+
+			break;
+		}
+
+		case ActOfRose::Context::CFuncDeclarationContext::EFuncDeclarationCtxStates::EFDCS_BodyStart:
+		{
+			if (token->type != ActOfRose::Token::ETokenType::ETTCurlyBracketLeft)
+			{
+				ActOfRose::WriteLog(PREF_STRING("Left curly bracket was expected"),
+					(sizeof(PREF_STRING("Left curly bracket was expected")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
+			}
+
+			_mState = ActOfRose::Context::CFuncDeclarationContext::EFuncDeclarationCtxStates::EFDCS_BodyRoutine;
+
+			break;
+		}
+
+		case ActOfRose::Context::CFuncDeclarationContext::EFuncDeclarationCtxStates::EFDCS_BodyRoutine:
+		{
+			switch (token->type)
+			{
+				case ActOfRose::Token::ETokenType::ETTCurlyBracketRight:
+				{
+					return AOR_CONTEXT_COMPLETE;
+				}
+
+				case ActOfRose::Token::ETokenType::ETTNumber:
+				case ActOfRose::Token::ETokenType::ETTString:
+				case ActOfRose::Token::ETokenType::ETTIdentifier:
+				case ActOfRose::Token::ETokenType::ETTOperator:
+				case ActOfRose::Token::ETokenType::ETTRoundBracketLeft:
+				case ActOfRose::Token::ETokenType::ETTCurlyBracketLeft:
+				case ActOfRose::Token::ETokenType::ETTKeyword:
+				{
+					_mState = ActOfRose::Context::CFuncDeclarationContext::EFuncDeclarationCtxStates::EFDCS_SyntacticUnitEnd;
+
+					return AOR_CONTEXT_CREATE;
+				}
+
+				default:
+				{
+					ActOfRose::WriteLog(PREF_STRING("Expected expression"), (sizeof(PREF_STRING("Expected expression")) / sizeof(PChar)),
+						ActOfRose::ELogLevel::ELL_Error);
+
+					return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
+				}
+			}
+
+			break;
+		}
+
+		case ActOfRose::Context::CFuncDeclarationContext::EFuncDeclarationCtxStates::EFDCS_SyntacticUnitEnd:
+		{
+			switch (token->type)
+			{
+				case ActOfRose::Token::ETokenType::ETTCurlyBracketRight:
+				case ActOfRose::Token::ETokenType::ETTSemicolon:
+				{
+					break;
+				}
+
+				default:
+				{
+					return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
+				}
+			}
+
+			_mState = ActOfRose::Context::CFuncDeclarationContext::EFuncDeclarationCtxStates::EFDCS_BodyRoutine;
+
+			break;
+		}
+	}
+
+	return AOR_SUCCESS;
+}

@@ -85,6 +85,36 @@ namespace ActOfRose
 
 		};
 
+		// Class of function declaration context
+		class CFuncDeclarationContext : public CContext
+		{
+			// States of function declaration context
+			enum EFuncDeclarationCtxStates
+			{
+				EFDCS_Initial,						// Initial state of context
+				EFDCS_FuncName,						// Identifier with function name is expected
+				EFDCS_ParamStart,					// Left round bracket for opening a sequence of parameter names is expected
+				EFDCS_ParamName,					// Parameter name is expected
+				EFDCS_ParamDisjunctionInitial,		// Branching between end of parameter name sequence and waiting for parameter name
+				EFDCS_ParamDisjunctionSubsequent,	// Branching between end of parameter name sequence and waiting for comma
+				EFDCS_BodyStart,					// Left curly bracket is expected to start a function body
+				EFDCS_BodyRoutine,					// Some expression, simple statement, compound statement or right curly bracket is expected
+				EFDCS_SyntacticUnitEnd,				// Ending of expression, simple statement or compound statement (comma or semicolon) is expected
+			};
+
+		public:
+			// Constructor
+			CFuncDeclarationContext();
+
+		public:
+			// Analyses the given token, checks current sequence for logical errors and updates a context
+			virtual int ProcessToken(ActOfRose::Token::SToken* token) override;
+
+		private:
+			ActOfRose::Context::CFuncDeclarationContext::EFuncDeclarationCtxStates _mState;		// Context state
+
+		};
+
 	} // !namespace Context
 } // !namespace ActOfRose
 

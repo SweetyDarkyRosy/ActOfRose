@@ -64,6 +64,11 @@ int ActOfRose::CExecutor::Execute(std::vector<ActOfRose::Token::SToken>* tokenGr
 					return DeclareAndInitialiseVariable(tokenGroup);
 				}
 
+				case ActOfRose::Keyword::EKeywords::EK_Func:
+				{
+					return AOR_SUCCESS;
+				}
+
 				default:
 				{
 					ActOfRose::WriteLog(PREF_STRING("Unexpected token"), (sizeof(PREF_STRING("Unexpected token")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);

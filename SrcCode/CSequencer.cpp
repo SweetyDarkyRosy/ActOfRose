@@ -100,6 +100,13 @@ int ActOfRose::Context::CSequencer::DetermineAndCreateContext(ActOfRose::Token::
 					break;
 				}
 
+				case ActOfRose::Keyword::EKeywords::EK_Func:
+				{
+					_mContexts.push(new ActOfRose::Context::CFuncDeclarationContext());
+
+					break;
+				}
+
 				default:
 				{
 					goto DetermineAndCreateContextError;
