@@ -11,7 +11,6 @@
 
 #include "CFunction.h"
 
-#include "ReturnCodes.h"
 #include "CExecutor.h"
 
 
@@ -20,5 +19,7 @@
 // Executes a function with a specified set of parameters
 int ActOfRose::CFunction::Execute(ActOfRose::Value::SValueReference* returnValueHolder, std::vector<ActOfRose::Value::SValueReference>* params)
 {
-	return AOR_SUCCESS;
+	ActOfRose::CExecutor executor;				// Local instance of executor
+
+	return executor.Execute(&_mTokens);
 }
