@@ -20,6 +20,11 @@
 
 namespace ActOfRose
 {
+	namespace Value
+	{
+		struct SValueReference;				// Structure of value reference
+	}
+
 	// Class of function
 	class CFunction
 	{
@@ -33,11 +38,16 @@ namespace ActOfRose
 		// Adds a token related to the body of a function
 		inline void AddToken(ActOfRose::Token::SToken token) { _mTokens.push_back(token); }
 
+		// Returns a pointer to the array of tokens inside function body
 		inline std::vector<ActOfRose::Token::SToken>* GetBodyTokens() { return &_mTokens; }
+
+
+		// Executes a function with a specified set of parameters
+		int Execute(ActOfRose::Value::SValueReference* returnValueHolder, std::vector<ActOfRose::Value::SValueReference>* params);
 
 	private:
 		std::vector<std::string> _mParamNames;				// Array of names of function parameters
-		std::vector<ActOfRose::Token::SToken> _mTokens;				// Array of tokens inside function body
+		std::vector<ActOfRose::Token::SToken> _mTokens;		// Array of tokens inside function body
 
 	};
 
