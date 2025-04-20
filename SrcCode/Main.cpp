@@ -30,7 +30,6 @@
 	Global variables
  ]*/
 
-ActOfRose::CExecutor										gExecutor;												// Global instance of executor
 ActOfRose::CPreProcessor									gPreprocessor;											// Global instance of preprocessor
 
 std::filesystem::path										gRootScriptPath(BUILD_ROOT_SCRIPT_DEFAULT_NAME_PREF);	// Path to a file with a root script
