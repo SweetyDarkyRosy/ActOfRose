@@ -43,50 +43,67 @@ int ActOfRose::CExecutor::Execute(std::vector<ActOfRose::Token::SToken>* tokenGr
 	ActOfRose::WriteLog(PREF_STRING("Execution"), (sizeof(PREF_STRING("Execution")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Debug);
 #endif
 
-	switch ((*tokenGroup)[0].type)
+	while (_mCurrTokenIndex < (unsigned int)(_pCurrTokenGroup->size()))
 	{
-		case ActOfRose::Token::ETokenType::ETTKeyword:
+		switch ((*tokenGroup)[0].type)
 		{
-			ActOfRose::Keyword::EKeywords keyword;
-			if (GetKeyword(&keyword, &((*tokenGroup)[0].value)) == false)
+			case ActOfRose::Token::ETokenType::ETTKeyword:
 			{
-				ActOfRose::WriteLog(PREF_STRING("Keyword not found. Internal error"),
-					(sizeof(PREF_STRING("Keyword not found. Internal error")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+				ActOfRose::Keyword::EKeywords keyword;
+				if (GetKeyword(&keyword, &((*tokenGroup)[0].value)) == false)
+				{
+					ActOfRose::WriteLog(PREF_STRING("Keyword not found. Internal error"),
+						(sizeof(PREF_STRING("Keyword not found. Internal error")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
 
-				return AOR_ERROR_INTERNAL_ERROR;
+					return AOR_ERROR_INTERNAL_ERROR;
+				}
+
+				switch (keyword)
+				{
+					case ActOfRose::Keyword::EKeywords::EK_Override:
+					case ActOfRose::Keyword::EKeywords::EK_Var:
+					case ActOfRose::Keyword::EKeywords::EK_Strict:
+					{
+						int execResult = DeclareAndInitialiseVariable(tokenGroup);
+						if (execResult != AOR_SUCCESS)
+						{
+							return execResult;
+						}
+
+						break;
+					}
+
+					case ActOfRose::Keyword::EKeywords::EK_Func:
+					{
+						int execResult = DeclareAndDefineFunction(tokenGroup);
+						if (execResult != AOR_SUCCESS)
+						{
+							return execResult;
+						}
+
+						break;
+					}
+
+					default:
+					{
+						ActOfRose::WriteLog(PREF_STRING("Unexpected token"), (sizeof(PREF_STRING("Unexpected token")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+						return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
+					}
+				}
+
+				break;
 			}
 
-			switch (keyword)
+			default:
 			{
-				case ActOfRose::Keyword::EKeywords::EK_Override:
-				case ActOfRose::Keyword::EKeywords::EK_Var:
-				case ActOfRose::Keyword::EKeywords::EK_Strict:
-				{
-					return DeclareAndInitialiseVariable(tokenGroup);
-				}
+				ActOfRose::WriteLog(PREF_STRING("Unexpected token"), (sizeof(PREF_STRING("Unexpected token")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
 
-				case ActOfRose::Keyword::EKeywords::EK_Func:
-				{
-					return DeclareAndDefineFunction(tokenGroup);
-				}
-
-				default:
-				{
-					ActOfRose::WriteLog(PREF_STRING("Unexpected token"), (sizeof(PREF_STRING("Unexpected token")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
-
-					return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
-				}
+				return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
 			}
-
-			break;
 		}
 
-		default:
-		{
-			ActOfRose::WriteLog(PREF_STRING("Unexpected token"), (sizeof(PREF_STRING("Unexpected token")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
-
-			return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
-		}
+		_mCurrTokenIndex++;
 	}
 
 	return AOR_SUCCESS;
@@ -785,6 +802,8 @@ int ActOfRose::CExecutor::DeclareAndInitialiseVariable(std::vector<ActOfRose::To
 	else
 	{
 		newVariable = new ActOfRose::CVariable(newValue);
+
+		_mCurrTokenIndex = (unsigned int)(tokenGroup->size() - 1);
 	}
 
 	if (AORSystemRegisterIdentifierAndElement(variableName, ActOfRose::EElementType::EET_Variable, (void*)newVariable) == nullptr)
@@ -860,6 +879,9 @@ int ActOfRose::CExecutor::DeclareAndDefineFunction(std::vector<ActOfRose::Token:
 	// ----- Copying of function body-related tokens -----
 
 	std::copy(tokenGroup->begin() + _mCurrTokenIndex, tokenGroup->end() - 1, std::back_inserter(*(newFunction->GetBodyTokens())));
+
+
+	_mCurrTokenIndex = (unsigned int)(tokenGroup->size() - 1);
 
 
 	if (AORSystemRegisterIdentifierAndElement(functionName, ActOfRose::EElementType::EET_Function, (void*)newFunction) == nullptr)
