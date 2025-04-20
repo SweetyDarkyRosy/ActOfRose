@@ -664,10 +664,15 @@ int ActOfRose::CExecutor::EvaluateExpression(ActOfRose::Value::CValue** valueHol
 	{
 		newValue = newValueRef.value.value;
 	}
+	else
+	{
+		newValue = nullptr;
+	}
 
 	delete exprRoot;
 
 #ifdef _DEBUG
+	if (newValue != nullptr)
 	{
 		std::string msg = "Value ";
 		msg += newValue->ConvertValueToByteString();
@@ -979,7 +984,7 @@ int ActOfRose::CExecutor::ProcessIdentifier(ActOfRose::Value::SValueReference* v
 					// ----- Execution -----
 
 					ActOfRose::CFunction* func = (ActOfRose::CFunction*)(element->addr);
-					func->Execute(nullptr, &paramArr);
+					func->Execute(valueRefHolder, &paramArr);
 				}
 
 
