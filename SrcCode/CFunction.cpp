@@ -11,7 +11,11 @@
 
 #include "CFunction.h"
 
+#include "ReturnCodes.h"
+#include "Log.h"
 #include "CExecutor.h"
+#include "Utility/StringMisc.h"
+#include "Value/Value.h"
 
 
 // ----- ActOfRose::CFunction class -----
@@ -19,7 +23,37 @@
 // Executes a function with a specified set of parameters
 int ActOfRose::CFunction::Execute(ActOfRose::Value::SValueReference* returnValueHolder, std::vector<ActOfRose::Value::SValueReference>* params)
 {
+	// ----- Checking -----
+
+	if (_mParamNames.size() < params->size())
+	{
+		ActOfRose::WriteLog(PREF_STRING("Too many arguments have been passed"),
+			(sizeof(PREF_STRING("Too many arguments have been passed")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+		return AOR_ERROR_EXEC_INVALID_ARGUMENT_NUMBER;
+	}
+	else if (_mParamNames.size() > params->size())
+	{
+		ActOfRose::WriteLog(PREF_STRING("Too few arguments have been passed"),
+			(sizeof(PREF_STRING("Too few arguments have been passed")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+		return AOR_ERROR_EXEC_INVALID_ARGUMENT_NUMBER;
+	}
+
+
+	// ----- Execution -----
+
 	ActOfRose::CExecutor executor;				// Local instance of executor
 
-	return executor.Execute(&_mTokens);
+	{
+		int execResult = executor.Execute(&_mTokens);
+		if (execResult != AOR_SUCCESS)
+		{
+			return execResult;
+		}
+	}
+
+	returnValueHolder->category = ActOfRose::Value::EValueCategories::EVC_None;
+
+	return AOR_SUCCESS;
 }
