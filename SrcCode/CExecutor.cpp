@@ -287,40 +287,14 @@ int ActOfRose::CExecutor::BuildExpressionAST(ActOfRose::AST::CExprASTNode** tree
 
 			if (*treeRootNodeHolder == lastRoundBracketNode)
 			{
-				/* REMOVED
-				lastRoundBracketNode->GetChild()->SetParent(nullptr);
-				*treeRootNodeHolder = lastRoundBracketNode->GetChild();
-
-				delete lastRoundBracketNode;
-				lastRoundBracketNode = nullptr;
-				*/
 			}
 			else if (lastRoundBracketNode->GetParent()->GetType() == ActOfRose::AST::EExprASTNodeType::EESTNTRoundBracket)
 			{
-				/* REMOVED
-				ActOfRose::AST::CExprASTRoundBracketNode* parentRoundBracket = (ActOfRose::AST::CExprASTRoundBracketNode*)(lastRoundBracketNode->GetParent());
-				parentRoundBracket->SetChild(lastRoundBracketNode->GetChild());
-
-				delete lastRoundBracketNode;
-				lastRoundBracketNode = parentRoundBracket;
-				*/
-
 				lastRoundBracketNode = (ActOfRose::AST::CExprASTRoundBracketNode*)(lastRoundBracketNode->GetParent());
 			}
 			else // if (lastRoundBracketNode->GetParent()->GetType() == ActOfRose::EExprASTNodeType::EESTNTOperator)
 			{
 				ActOfRose::AST::CExprASTOperatorNode* parentOperator = (ActOfRose::AST::CExprASTOperatorNode*)(lastRoundBracketNode->GetParent());
-				/* REMOVED
-				if (parentOperator->GetLeftChild() == lastRoundBracketNode)
-				{
-					parentOperator->SetLeftChild(lastRoundBracketNode->GetChild());
-				}
-				else if (parentOperator->GetRightChild() == lastRoundBracketNode)
-				{
-					parentOperator->SetRightChild(lastRoundBracketNode->GetChild());
-				}
-				*/
-
 				{
 					ActOfRose::AST::CExprASTOperatorNode* operatorNodeWalker = parentOperator;
 
@@ -568,8 +542,8 @@ int ActOfRose::CExecutor::BuildExpressionAST(ActOfRose::AST::CExprASTNode** tree
 			}
 			else
 			{
-				ActOfRose::WriteLog(PREF_STRING("Invalid expression. Only operands can be after operator"),
-					(sizeof(PREF_STRING("Invalid expression. Only operands can be after operator")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+				ActOfRose::WriteLog(PREF_STRING("Invalid expression. Operand or left round bracket should be set after operator"),
+					(sizeof(PREF_STRING("Invalid expression. Operand or left round bracket should be set after operator")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
 
 				return AOR_ERROR_EXEC_INVALID_EXPRESSION;
 			}
@@ -913,20 +887,145 @@ int ActOfRose::CExecutor::ProcessIdentifier(ActOfRose::Value::SValueReference* v
 	ActOfRose::SElement* element = ActOfRose::AORSystemGetElementByIdentifier((*_pCurrTokenGroup)[_mCurrTokenIndex].value.c_str());
 	if (element == nullptr)
 	{
+		std::string errorMsg = (*_pCurrTokenGroup)[_mCurrTokenIndex].value + " was not declared";
+		ActOfRose::WriteLog(errorMsg.c_str(), errorMsg.length(), ActOfRose::ELogLevel::ELL_Error);
+
 		return AOR_ERROR_EXEC_UNDECLARED_IDENTIFIER;
 	}
 
-	if (element->type == ActOfRose::EElementType::EET_Variable)
+	if (_mCurrTokenIndex == (unsigned int)(_pCurrTokenGroup->size() - 1))
 	{
-		valueRefHolder->value.valueHolder = ((ActOfRose::CVariable*)(element->addr))->GetValueHolder();
-		valueRefHolder->category = ActOfRose::Value::EValueCategories::EVC_LValue;
+		return AOR_ERROR_TOKEN_PREMATURE_END_OF_SCRIPT;
 	}
 	else
 	{
-		ActOfRose::WriteLog(PREF_STRING("Only variables can be processed using identifiers"),
-			(sizeof(PREF_STRING("Only variables can be processed using identifiers")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+		switch ((*_pCurrTokenGroup)[_mCurrTokenIndex + 1].type)
+		{
+			case ActOfRose::Token::ETokenType::ETTRoundBracketLeft:
+			{
+				// ----- If a function call is encountered -----
 
-		return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
+				if (element->type != ActOfRose::EElementType::EET_Function)
+				{
+					std::string errorMsg = "Invalid operand type. ";
+					errorMsg += (*_pCurrTokenGroup)[_mCurrTokenIndex].value;
+					errorMsg += " is not function";
+
+					ActOfRose::WriteLog(errorMsg.c_str(), errorMsg.length(), ActOfRose::ELogLevel::ELL_Error);
+
+					return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
+				}
+
+				_mCurrTokenIndex++;
+				if (((unsigned int)(_pCurrTokenGroup->size()) - _mCurrTokenIndex) < 2)
+				{
+					return AOR_ERROR_TOKEN_PREMATURE_END_OF_SCRIPT;
+				}
+
+				std::vector<ActOfRose::Value::SValueReference> paramArr;		// Array of values as parameters
+				int result;
+
+				if ((*_pCurrTokenGroup)[_mCurrTokenIndex + 1].type != ActOfRose::Token::ETokenType::ETTRoundBracketRight)
+				{
+					while ((*_pCurrTokenGroup)[_mCurrTokenIndex].type != ActOfRose::Token::ETokenType::ETTRoundBracketRight)
+					{
+						_mCurrTokenIndex++;
+						if (_mCurrTokenIndex >= (unsigned int)(_pCurrTokenGroup->size()))
+						{
+							return AOR_ERROR_TOKEN_PREMATURE_END_OF_SCRIPT;
+						}
+
+						ActOfRose::AST::CExprASTNode* exprRoot;
+						{
+							result = BuildExpressionAST(&exprRoot);
+							if (result != AOR_SUCCESS)
+							{
+								delete exprRoot;
+								break;
+							}
+						}
+
+						ActOfRose::Value::SValueReference newValueRef;
+						result = exprRoot->RetrieveValue(&newValueRef);
+						if (result != AOR_SUCCESS)
+						{
+							delete exprRoot;
+							break;
+						}
+
+						paramArr.emplace_back();
+						paramArr.back().category = newValueRef.category;
+
+						if (newValueRef.category == ActOfRose::Value::EValueCategories::EVC_LValue)
+						{
+							paramArr.back().value.valueHolder = newValueRef.value.valueHolder;
+						}
+						else if (newValueRef.category == ActOfRose::Value::EValueCategories::EVC_RValue)
+						{
+							paramArr.back().value.value = AORSystemCopyValue(newValueRef.value.value);
+						}
+						else if (newValueRef.category == ActOfRose::Value::EValueCategories::EVC_PRValue)
+						{
+							paramArr.back().value.value = newValueRef.value.value;
+						}
+
+						delete exprRoot;
+					}
+				}
+
+
+				if (result == AOR_SUCCESS)
+				{
+					// ----- Execution -----
+
+					ActOfRose::CFunction* func = (ActOfRose::CFunction*)(element->addr);
+					func->Execute(nullptr, &paramArr);
+				}
+
+
+				// ----- Cleanup -----
+
+				for (unsigned int paramIt = 0; paramIt < (unsigned int)(paramArr.size()); paramIt++)
+				{
+					if (paramArr[paramIt].category != ActOfRose::Value::EValueCategories::EVC_LValue)
+					{
+						delete paramArr[paramIt].value.value;
+					}
+				}
+
+
+				break;
+			}
+
+			default:
+			{
+				// ----- If a variable or a constant is encountered -----
+
+				if (element->type == ActOfRose::EElementType::EET_Variable)
+				{
+					valueRefHolder->value.valueHolder = ((ActOfRose::CVariable*)(element->addr))->GetValueHolder();
+					valueRefHolder->category = ActOfRose::Value::EValueCategories::EVC_LValue;
+				}
+				else if (element->type != ActOfRose::EElementType::EET_Constant)
+				{
+					/*!
+						TODO: Implement support of constants later
+					 */
+				}
+				else
+				{
+					std::string errorMsg = "Invalid operand type. ";
+					errorMsg += (*_pCurrTokenGroup)[_mCurrTokenIndex].value;
+					errorMsg += " is not variable or constant";
+
+					ActOfRose::WriteLog(errorMsg.c_str(), errorMsg.length(), ActOfRose::ELogLevel::ELL_Error);
+
+					return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
+				}
+
+				break;
+			}
+		}
 	}
 
 	return AOR_SUCCESS;

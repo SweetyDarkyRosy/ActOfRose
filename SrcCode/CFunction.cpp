@@ -53,7 +53,10 @@ int ActOfRose::CFunction::Execute(ActOfRose::Value::SValueReference* returnValue
 		}
 	}
 
-	returnValueHolder->category = ActOfRose::Value::EValueCategories::EVC_None;
+	if (returnValueHolder != nullptr)
+	{
+		returnValueHolder->category = ActOfRose::Value::EValueCategories::EVC_None;
+	}
 
 	return AOR_SUCCESS;
 }
