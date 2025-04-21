@@ -115,6 +115,30 @@ namespace ActOfRose
 
 		};
 
+		// Class of return statement context
+		class CReturnStatementContext : public CContext
+		{
+			// States of return statement context
+			enum EReturnStatementCtxStates
+			{
+				ERSCS_Initial,					// Initial state of context
+				ERSCS_ExpressionBegin,			// Expression is expected
+				ERSCS_ExpressionEnd,			// Ending of expression (semicolon) is expected
+			};
+
+		public:
+			// Constructor
+			CReturnStatementContext();
+
+		public:
+			// Analyses the given token, checks current sequence for logical errors and updates a context
+			virtual int ProcessToken(ActOfRose::Token::SToken* token) override;
+
+		private:
+			ActOfRose::Context::CReturnStatementContext::EReturnStatementCtxStates _mState;		// Context state
+
+		};
+
 	} // !namespace Context
 } // !namespace ActOfRose
 
