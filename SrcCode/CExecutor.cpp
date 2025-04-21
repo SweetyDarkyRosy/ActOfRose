@@ -78,6 +78,17 @@ int ActOfRose::CExecutor::Execute(ActOfRose::Value::SValueReference* returnValue
 
 					case ActOfRose::Keyword::EKeywords::EK_Return:
 					{
+						if (returnValueHolder != nullptr)
+						{
+							int exprEvalResult = EvaluateExpression(&(returnValueHolder->value.value));
+							if (exprEvalResult != AOR_SUCCESS)
+							{
+								return exprEvalResult;
+							}
+
+							returnValueHolder->category = ActOfRose::Value::EValueCategories::EVC_PRValue;
+						}
+
 						execResult = AOR_LEAVE_EXECUTION;
 						break;
 					}
