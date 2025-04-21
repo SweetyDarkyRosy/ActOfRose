@@ -45,6 +45,8 @@ int ActOfRose::CExecutor::Execute(ActOfRose::Value::SValueReference* returnValue
 
 	while (_mCurrTokenIndex < (unsigned int)(_pCurrTokenGroup->size()))
 	{
+		int execResult = AOR_SUCCESS;
+
 		switch ((*tokenGroup)[0].type)
 		{
 			case ActOfRose::Token::ETokenType::ETTKeyword:
@@ -64,23 +66,19 @@ int ActOfRose::CExecutor::Execute(ActOfRose::Value::SValueReference* returnValue
 					case ActOfRose::Keyword::EKeywords::EK_Var:
 					case ActOfRose::Keyword::EKeywords::EK_Strict:
 					{
-						int execResult = DeclareAndInitialiseVariable(tokenGroup);
-						if (execResult != AOR_SUCCESS)
-						{
-							return execResult;
-						}
-
+						execResult = DeclareAndInitialiseVariable(tokenGroup);
 						break;
 					}
 
 					case ActOfRose::Keyword::EKeywords::EK_Func:
 					{
-						int execResult = DeclareAndDefineFunction(tokenGroup);
-						if (execResult != AOR_SUCCESS)
-						{
-							return execResult;
-						}
+						execResult = DeclareAndDefineFunction(tokenGroup);
+						break;
+					}
 
+					case ActOfRose::Keyword::EKeywords::EK_Return:
+					{
+						execResult = AOR_LEAVE_EXECUTION;
 						break;
 					}
 
@@ -100,6 +98,18 @@ int ActOfRose::CExecutor::Execute(ActOfRose::Value::SValueReference* returnValue
 				ActOfRose::WriteLog(PREF_STRING("Unexpected token"), (sizeof(PREF_STRING("Unexpected token")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
 
 				return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
+			}
+		}
+
+		if (execResult != AOR_SUCCESS)
+		{
+			if (execResult == AOR_LEAVE_EXECUTION)
+			{
+				break;
+			}
+			else
+			{
+				return execResult;
 			}
 		}
 
