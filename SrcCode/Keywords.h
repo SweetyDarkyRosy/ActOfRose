@@ -32,7 +32,8 @@ namespace ActOfRose
 			EK_While,			// "while" keyword
 			EK_Do,				// "do" keyword
 			EK_Override,		// "override" keyword
-			EK_Strict			// "strict" keyword
+			EK_Strict,			// "strict" keyword
+			EK_Return,			// "return" keyword
 		};
 
 
