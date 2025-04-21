@@ -41,21 +41,21 @@ int ActOfRose::CFunction::Execute(ActOfRose::Value::SValueReference* returnValue
 	}
 
 
+	if (returnValueHolder != nullptr)
+	{
+		returnValueHolder->category = ActOfRose::Value::EValueCategories::EVC_None;
+	}
+
+
 	// ----- Execution -----
 
 	ActOfRose::CExecutor executor;				// Local instance of executor
-
 	{
-		int execResult = executor.Execute(&_mTokens);
+		int execResult = executor.Execute(returnValueHolder, &_mTokens);
 		if (execResult != AOR_SUCCESS)
 		{
 			return execResult;
 		}
-	}
-
-	if (returnValueHolder != nullptr)
-	{
-		returnValueHolder->category = ActOfRose::Value::EValueCategories::EVC_None;
 	}
 
 	return AOR_SUCCESS;

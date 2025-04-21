@@ -34,7 +34,7 @@ ActOfRose::CExecutor::CExecutor()
 
 
 // Executes an operation based on a token group pointed to by tokenGroup
-int ActOfRose::CExecutor::Execute(std::vector<ActOfRose::Token::SToken>* tokenGroup)
+int ActOfRose::CExecutor::Execute(ActOfRose::Value::SValueReference* returnValueHolder, std::vector<ActOfRose::Token::SToken>* tokenGroup)
 {
 	_pCurrTokenGroup = tokenGroup;
 	_mCurrTokenIndex = 0;

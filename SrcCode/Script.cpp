@@ -120,7 +120,8 @@ int ActOfRose::Script::CScript::Execute()
 		{
 			// Executes a retrieved sequence of tokens
 			ActOfRose::CExecutor localExecutor;					// Global instance of executor
-			result = localExecutor.Execute(lexer.GetTokensRetrievedArr());
+
+			result = localExecutor.Execute(nullptr, lexer.GetTokensRetrievedArr());
 			if (result != AOR_SUCCESS)
 			{
 				break;

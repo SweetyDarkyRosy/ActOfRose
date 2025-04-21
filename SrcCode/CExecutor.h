@@ -39,7 +39,7 @@ namespace ActOfRose
 
 	public:
 		// Executes an operation based on a token group pointed to by tokenGroup
-		int Execute(std::vector<ActOfRose::Token::SToken>* tokenGroup);
+		int Execute(ActOfRose::Value::SValueReference* returnValueHolder, std::vector<ActOfRose::Token::SToken>* tokenGroup);
 
 	private:
 		// Retrieves a value starting in a token with the current index and saved into the value reference pointer to by valueRefHolder
