@@ -50,7 +50,7 @@ int ActOfRose::CExecutor::Execute(ActOfRose::Value::SValueReference* returnValue
 			case ActOfRose::Token::ETokenType::ETTKeyword:
 			{
 				ActOfRose::Keyword::EKeywords keyword;
-				if (GetKeyword(&keyword, &((*tokenGroup)[0].value)) == false)
+				if (GetKeyword(&keyword, &((*tokenGroup)[_mCurrTokenIndex].value)) == false)
 				{
 					ActOfRose::WriteLog(PREF_STRING("Keyword not found. Internal error"),
 						(sizeof(PREF_STRING("Keyword not found. Internal error")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
