@@ -56,8 +56,7 @@ ActOfRose::AST::CExprASTOperandNode::CExprASTOperandNode(ActOfRose::Value::SValu
 // Destructor
 ActOfRose::AST::CExprASTOperandNode::~CExprASTOperandNode()
 {
-	if ((_mValueRef.category != ActOfRose::Value::EValueCategories::EVC_LValue) &&
-		(_mValueRef.category != ActOfRose::Value::EValueCategories::EVC_None))
+	if (_mValueRef.category == ActOfRose::Value::EValueCategories::EVC_RValue)
 	{
 		delete _mValueRef.value.value;
 	}
