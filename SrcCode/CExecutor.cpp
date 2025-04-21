@@ -927,7 +927,7 @@ int ActOfRose::CExecutor::ProcessIdentifier(ActOfRose::Value::SValueReference* v
 					return AOR_ERROR_TOKEN_PREMATURE_END_OF_SCRIPT;
 				}
 
-				std::vector<ActOfRose::Value::SValueReference> paramArr;		// Array of values as parameters
+				std::vector<ActOfRose::Value::CValue*> paramArr;		// Array of values as parameters
 				int result;
 
 				if ((*_pCurrTokenGroup)[_mCurrTokenIndex + 1].type != ActOfRose::Token::ETokenType::ETTRoundBracketRight)
@@ -958,20 +958,22 @@ int ActOfRose::CExecutor::ProcessIdentifier(ActOfRose::Value::SValueReference* v
 							break;
 						}
 
-						paramArr.emplace_back();
-						paramArr.back().category = newValueRef.category;
 
 						if (newValueRef.category == ActOfRose::Value::EValueCategories::EVC_LValue)
 						{
-							paramArr.back().value.valueHolder = newValueRef.value.valueHolder;
+							paramArr.push_back(AORSystemCopyValue(*(newValueRef.value.valueHolder)));
 						}
 						else if (newValueRef.category == ActOfRose::Value::EValueCategories::EVC_RValue)
 						{
-							paramArr.back().value.value = AORSystemCopyValue(newValueRef.value.value);
+							paramArr.push_back(AORSystemCopyValue(newValueRef.value.value));
 						}
 						else if (newValueRef.category == ActOfRose::Value::EValueCategories::EVC_PRValue)
 						{
-							paramArr.back().value.value = newValueRef.value.value;
+							paramArr.push_back(newValueRef.value.value);
+						}
+						else if (newValueRef.category == ActOfRose::Value::EValueCategories::EVC_None)
+						{
+							paramArr.push_back(nullptr);
 						}
 
 						delete exprRoot;
@@ -986,18 +988,15 @@ int ActOfRose::CExecutor::ProcessIdentifier(ActOfRose::Value::SValueReference* v
 					ActOfRose::CFunction* func = (ActOfRose::CFunction*)(element->addr);
 					func->Execute(valueRefHolder, &paramArr);
 				}
-
-
-				// ----- Cleanup -----
-
-				for (unsigned int paramIt = 0; paramIt < (unsigned int)(paramArr.size()); paramIt++)
+				else
 				{
-					if (paramArr[paramIt].category != ActOfRose::Value::EValueCategories::EVC_LValue)
+					// ----- Cleanup in case of error before function execution -----
+
+					for (unsigned int paramIt = 0; paramIt < (unsigned int)(paramArr.size()); paramIt++)
 					{
-						delete paramArr[paramIt].value.value;
+						delete paramArr[paramIt];
 					}
 				}
-
 
 				break;
 			}

@@ -22,6 +22,7 @@ namespace ActOfRose
 {
 	namespace Value
 	{
+		class CValue;						// Abstract class of value / data type
 		struct SValueReference;				// Structure of value reference
 	}
 
@@ -43,7 +44,7 @@ namespace ActOfRose
 
 
 		// Executes a function with a specified set of parameters
-		int Execute(ActOfRose::Value::SValueReference* returnValueHolder, std::vector<ActOfRose::Value::SValueReference>* params);
+		int Execute(ActOfRose::Value::SValueReference* returnValueHolder, std::vector<ActOfRose::Value::CValue*>* params);
 
 	private:
 		std::vector<std::string> _mParamNames;				// Array of names of function parameters

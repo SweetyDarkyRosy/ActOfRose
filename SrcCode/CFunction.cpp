@@ -21,7 +21,7 @@
 // ----- ActOfRose::CFunction class -----
 
 // Executes a function with a specified set of parameters
-int ActOfRose::CFunction::Execute(ActOfRose::Value::SValueReference* returnValueHolder, std::vector<ActOfRose::Value::SValueReference>* params)
+int ActOfRose::CFunction::Execute(ActOfRose::Value::SValueReference* returnValueHolder, std::vector<ActOfRose::Value::CValue*>* params)
 {
 	// ----- Checking -----
 
@@ -56,6 +56,15 @@ int ActOfRose::CFunction::Execute(ActOfRose::Value::SValueReference* returnValue
 		{
 			return execResult;
 		}
+	}
+
+
+	/**
+		Temporary deleting of incoming parameter values (they are not used now)
+	 */
+	for (unsigned int paramIt = 0; paramIt < (unsigned int)(params->size()); paramIt++)
+	{
+		delete (*params)[paramIt];
 	}
 
 	return AOR_SUCCESS;
