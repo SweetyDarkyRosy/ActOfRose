@@ -34,6 +34,7 @@ namespace ActOfRose
 			EK_Override,		// "override" keyword
 			EK_Strict,			// "strict" keyword
 			EK_Return,			// "return" keyword
+			EK_Local,			// "local" keyword
 		};
 
 
