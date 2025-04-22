@@ -852,7 +852,7 @@ int ActOfRose::CExecutor::DeclareAndDefineFunction(std::vector<ActOfRose::Token:
 	}
 
 	// New function
-	ActOfRose::CFunction* newFunction = new ActOfRose::CFunction();
+	ActOfRose::CUserFunction* newFunction = new ActOfRose::CUserFunction();
 
 
 	// ----- Collecting of parameter names -----
@@ -1006,7 +1006,7 @@ int ActOfRose::CExecutor::ProcessIdentifier(ActOfRose::Value::SValueReference* v
 				{
 					// ----- Execution -----
 
-					ActOfRose::CFunction* func = (ActOfRose::CFunction*)(element->addr);
+					ActOfRose::IFunction* func = (ActOfRose::IFunction*)(element->addr);
 					func->Execute(valueRefHolder, &paramArr);
 				}
 				else

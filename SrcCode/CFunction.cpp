@@ -18,10 +18,10 @@
 #include "Value/Value.h"
 
 
-// ----- ActOfRose::CFunction class -----
+// ----- ActOfRose::CUserFunction class -----
 
 // Executes a function with a specified set of parameters
-int ActOfRose::CFunction::Execute(ActOfRose::Value::SValueReference* returnValueHolder, std::vector<ActOfRose::Value::CValue*>* params)
+int ActOfRose::CUserFunction::Execute(ActOfRose::Value::SValueReference* returnValueHolder, std::vector<ActOfRose::Value::CValue*>* params)
 {
 	// ----- Checking -----
 

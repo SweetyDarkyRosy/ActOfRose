@@ -26,12 +26,24 @@ namespace ActOfRose
 		struct SValueReference;				// Structure of value reference
 	}
 
+	// Interface of function
+	struct IFunction
+	{
+		// Virtual destructor
+		virtual ~IFunction() {}
+
+
+		// Executes a function with a specified set of parameters
+		virtual int Execute(ActOfRose::Value::SValueReference* returnValueHolder, std::vector<ActOfRose::Value::CValue*>* params) = 0;
+
+	};
+
 	// Class of function
-	class CFunction
+	class CUserFunction : public ActOfRose::IFunction
 	{
 	public:
 		// Constructor
-		CFunction() {}
+		CUserFunction() {}
 
 	public:
 		// Adds a function parameter instance with a specific name
@@ -44,7 +56,7 @@ namespace ActOfRose
 
 
 		// Executes a function with a specified set of parameters
-		int Execute(ActOfRose::Value::SValueReference* returnValueHolder, std::vector<ActOfRose::Value::CValue*>* params);
+		virtual int Execute(ActOfRose::Value::SValueReference* returnValueHolder, std::vector<ActOfRose::Value::CValue*>* params) override;
 
 	private:
 		std::vector<std::string> _mParamNames;				// Array of names of function parameters
