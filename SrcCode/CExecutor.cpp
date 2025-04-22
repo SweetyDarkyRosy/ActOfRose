@@ -1007,7 +1007,11 @@ int ActOfRose::CExecutor::ProcessIdentifier(ActOfRose::Value::SValueReference* v
 					// ----- Execution -----
 
 					ActOfRose::IFunction* func = (ActOfRose::IFunction*)(element->addr);
-					func->Execute(valueRefHolder, &paramArr);
+					result = func->Execute(valueRefHolder, &paramArr);
+					if (result != AOR_SUCCESS)
+					{
+						return result;
+					}
 				}
 				else
 				{
