@@ -3,13 +3,13 @@
 	
 	This file is part of system source code.
 	
-	@Name:			CFunction.cpp
+	@Name:			Function.cpp
 	@Created:		19.04.2025
 	@Programmer:	Viktoriia Pashchenko (SweetyDarkyRosy)
 	
 	Implementations. */
 
-#include "CFunction.h"
+#include "Function.h"
 
 #include "ReturnCodes.h"
 #include "Log.h"

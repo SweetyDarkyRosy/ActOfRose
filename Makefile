@@ -43,4 +43,5 @@ compile:
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c SrcCode/Expression.cpp -o $(OBJ_DIR)/Expression.o
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c SrcCode/Operation.cpp -o $(OBJ_DIR)/Operation.o
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c SrcCode/CExecutor.cpp -o $(OBJ_DIR)/CExecutor.o
+	$(CXX) $(CXXFLAGS) $(INCLUDE) -c SrcCode/Function.cpp -o $(OBJ_DIR)/Function.o
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -c SrcCode/Main.cpp -o $(OBJ_DIR)/Main.o

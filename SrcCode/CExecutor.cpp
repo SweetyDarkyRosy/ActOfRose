@@ -16,7 +16,7 @@
 #include "SystemAPI.h"
 #include "Keywords.h"
 #include "CVariable.h"
-#include "CFunction.h"
+#include "Function.h"
 #include "Expression.h"
 #include "Operation.h"
 #include "CPreProcessor.h"

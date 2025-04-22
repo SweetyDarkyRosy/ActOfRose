@@ -3,7 +3,7 @@
 	
 	This file is part of system source code.
 	
-	@Name:			CFunction.h
+	@Name:			Function.h
 	@Created:		18.04.2025
 	@Programmer:	Viktoriia Pashchenko (SweetyDarkyRosy)
 	
