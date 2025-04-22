@@ -34,7 +34,9 @@ namespace ActOfRose
 			ETTRoundBracketLeft,				// Left round bracket
 			ETTRoundBracketRight,				// Right round bracket
 			ETTCurlyBracketLeft,				// Left curly bracket
-			ETTCurlyBracketRight				// Right curly bracket
+			ETTCurlyBracketRight,				// Right curly bracket
+			ETTSquareBracketLeft,				// Left square bracket
+			ETTSquareBracketRight				// Right square bracket
 		};
 
 		// Token structure

@@ -596,6 +596,41 @@ int ActOfRose::CLexer::RetrieveDelimiterToken(ActOfRose::Token::SToken* newToken
 
 		_mBlockDelimiterStack.pop();
 	}
+	else if (retrievedChar == '[')
+	{
+		newToken->type = ActOfRose::Token::ETokenType::ETTSquareBracketLeft;
+
+	#ifdef _DEBUG
+		{
+			std::string logMsg = "New token (Left square bracket): " + newToken->value;
+			ActOfRose::WriteLog(logMsg.c_str(), logMsg.size(), ActOfRose::ELogLevel::ELL_Debug);
+		}
+	#endif
+
+		_mBlockDelimiterStack.push(retrievedChar);
+	}
+	else if (retrievedChar == ']')
+	{
+		if ((_mBlockDelimiterStack.empty() == true) || (_mBlockDelimiterStack.top() != '['))
+		{
+			ActOfRose::WriteLog(PREF_STRING("No block to close with a right square bracket"),
+				(sizeof(PREF_STRING("No block to close with a right square bracket")) / sizeof(PChar)),
+				ActOfRose::ELogLevel::ELL_Error);
+
+			return AOR_ERROR_TOKEN_INVALID_ENDING_BLOCK_DELIMITER;
+		}
+
+		newToken->type = ActOfRose::Token::ETokenType::ETTSquareBracketRight;
+
+	#ifdef _DEBUG
+		{
+			std::string logMsg = "New token (Right square bracket): " + newToken->value;
+			ActOfRose::WriteLog(logMsg.c_str(), logMsg.size(), ActOfRose::ELogLevel::ELL_Debug);
+		}
+	#endif
+
+		_mBlockDelimiterStack.pop();
+	}
 
 	return AOR_SUCCESS;
 }
