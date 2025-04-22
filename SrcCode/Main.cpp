@@ -9,32 +9,10 @@
 	
 	High-level entry point. */
 
-#include <map>
-#include <stack>
-#include <filesystem>
-
 #include "ReturnCodes.h"
 #include "Log.h"
-#include "Element.h"
-#include "Script.h"
-#include "CPreProcessor.h"
-#include "CExecutor.h"
+#include "Global.h"
 #include "Utility/StringMisc.h"
-
-
-#define BUILD_ROOT_SCRIPT_DEFAULT_NAME						"ActionScript.aor"
-#define BUILD_ROOT_SCRIPT_DEFAULT_NAME_PREF					PREF_STRING("ActionScript.aor")
-
-
-/*[
-	Global variables
- ]*/
-
-ActOfRose::CPreProcessor									gPreprocessor;											// Global instance of preprocessor
-
-std::filesystem::path										gRootScriptPath(BUILD_ROOT_SCRIPT_DEFAULT_NAME_PREF);	// Path to a file with a root script
-std::map<const std::string, ActOfRose::SElement>			gGlobalIdentifierMap;									// Map of associations between identifiers and elements
-std::stack<ActOfRose::Script::CScriptContext>				gScriptContexts;										// Stack of script contexts
 
 
 // High-level entry point
