@@ -47,7 +47,7 @@ int ActOfRose::CExecutor::Execute(ActOfRose::Value::SValueReference* returnValue
 	{
 		int execResult = AOR_SUCCESS;
 
-		switch ((*tokenGroup)[0].type)
+		switch ((*tokenGroup)[_mCurrTokenIndex].type)
 		{
 			case ActOfRose::Token::ETokenType::ETTKeyword:
 			{
