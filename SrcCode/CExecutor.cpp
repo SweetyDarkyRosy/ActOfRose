@@ -114,14 +114,7 @@ int ActOfRose::CExecutor::Execute(ActOfRose::Value::SValueReference* returnValue
 
 		if (execResult != AOR_SUCCESS)
 		{
-			if (execResult == AOR_LEAVE_EXECUTION)
-			{
-				break;
-			}
-			else
-			{
-				return execResult;
-			}
+			return execResult;
 		}
 
 		_mCurrTokenIndex++;

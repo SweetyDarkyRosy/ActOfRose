@@ -59,12 +59,10 @@ int ActOfRose::CUserFunction::Execute(ActOfRose::Value::SValueReference* returnV
 	// ----- Execution -----
 
 	ActOfRose::CExecutor executor;				// Local instance of executor
+	int execResult = executor.Execute(returnValueHolder, &_mTokens);
+	if (execResult == AOR_LEAVE_EXECUTION)
 	{
-		int execResult = executor.Execute(returnValueHolder, &_mTokens);
-		if (execResult != AOR_SUCCESS)
-		{
-			return execResult;
-		}
+		execResult = AOR_SUCCESS;
 	}
 
 
@@ -76,5 +74,5 @@ int ActOfRose::CUserFunction::Execute(ActOfRose::Value::SValueReference* returnV
 		delete (*params)[paramIt];
 	}
 
-	return AOR_SUCCESS;
+	return execResult;
 }
