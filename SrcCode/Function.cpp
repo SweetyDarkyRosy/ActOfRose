@@ -18,6 +18,15 @@
 #include "Value/Value.h"
 
 
+// ----- ActOfRose::CPredefinedFunction class -----
+
+// Executes a function with a specified set of parameters
+int ActOfRose::CPredefinedFunction::Execute(ActOfRose::Value::SValueReference* returnValueHolder, std::vector<ActOfRose::Value::CValue*>* params)
+{
+	return _pFunc(returnValueHolder, params);
+}
+
+
 // ----- ActOfRose::CUserFunction class -----
 
 // Executes a function with a specified set of parameters

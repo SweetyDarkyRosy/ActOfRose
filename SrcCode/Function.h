@@ -38,7 +38,25 @@ namespace ActOfRose
 
 	};
 
-	// Class of function
+	// Class of precompiled function
+	class CPredefinedFunction : public ActOfRose::IFunction
+	{
+	public:
+		// Constructor
+		CPredefinedFunction(int (*func)(ActOfRose::Value::SValueReference*, std::vector<ActOfRose::Value::CValue*>*)) :
+			_pFunc(func)
+		{}
+
+	public:
+		// Executes a function with a specified set of parameters
+		virtual int Execute(ActOfRose::Value::SValueReference* returnValueHolder, std::vector<ActOfRose::Value::CValue*>* params) override;
+	
+	private:
+		int (*_pFunc)(ActOfRose::Value::SValueReference*, std::vector<ActOfRose::Value::CValue*>*);			// Function pointer
+
+	};
+
+	// Class of function defined in a script
 	class CUserFunction : public ActOfRose::IFunction
 	{
 	public:
