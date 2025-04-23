@@ -1045,6 +1045,8 @@ int ActOfRose::CExecutor::ProcessIdentifier(ActOfRose::Value::SValueReference* v
 					{
 						delete paramArr[paramIt];
 					}
+
+					return result;
 				}
 
 				break;
