@@ -27,6 +27,16 @@ namespace ActOfRose
 		// Destructor
 		~CScope();
 
+	public:
+		// Registers an identifier and builds an association with an element (variable or constant) in a scope
+		ActOfRose::SElement* RegisterIdentifierAndElement(const char* identifier, ActOfRose::EElementType type, void* addr);
+
+		// Checks if the identifier is already in use in a scope
+		bool IsIdentifierUsed(const char* identifier);
+
+		// Returns a pointer to a block of information about registered element by the given identifier if it exists in a scope
+		ActOfRose::SElement* GetElementByIdentifier(const char* identifier);
+
 	private:
 		std::map<const std::string, ActOfRose::SElement>		_mLocalIdentifierMap;		// Local map of associations between identifiers and elements
 

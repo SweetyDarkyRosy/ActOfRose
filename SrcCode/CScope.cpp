@@ -42,3 +42,43 @@ ActOfRose::CScope::~CScope()
 		}
 	}
 }
+
+// Registers an identifier and builds an association with an element (variable or constant) in a scope
+ActOfRose::SElement* ActOfRose::CScope::RegisterIdentifierAndElement(const char* identifier, ActOfRose::EElementType type, void* addr)
+{
+	std::pair<std::map<const std::string, ActOfRose::SElement>::iterator, bool> result = _mLocalIdentifierMap.insert({ identifier, { type, addr } });
+	if (result.second == true)
+	{
+		std::pair<const std::string, ActOfRose::SElement>* newElPair = &(*(result.first));
+
+		return &(newElPair->second);
+	}
+
+	return nullptr;
+}
+
+// Checks if the identifier is already in use in a scope
+bool ActOfRose::CScope::IsIdentifierUsed(const char* identifier)
+{
+	std::map<const std::string, ActOfRose::SElement>::iterator identifierIt = _mLocalIdentifierMap.find(identifier);
+	if (identifierIt == _mLocalIdentifierMap.end())
+	{
+		return false;
+	}
+
+	return true;
+}
+
+// Returns a pointer to a block of information about registered element by the given identifier if it exists in a scope
+ActOfRose::SElement* ActOfRose::CScope::GetElementByIdentifier(const char* identifier)
+{
+	std::map<const std::string, ActOfRose::SElement>::iterator identifierIt = _mLocalIdentifierMap.find(identifier);
+	if (identifierIt == _mLocalIdentifierMap.end())
+	{
+		return nullptr;
+	}
+
+	std::pair<const std::string, ActOfRose::SElement>* elementPair = &(*identifierIt);
+	
+	return &(elementPair->second);
+}
