@@ -13,6 +13,7 @@
 
 #include "ReturnCodes.h"
 #include "Log.h"
+#include "SystemAPI.h"
 #include "CExecutor.h"
 #include "Utility/StringMisc.h"
 #include "Value/Value.h"
@@ -58,8 +59,15 @@ int ActOfRose::CUserFunction::Execute(ActOfRose::Value::SValueReference* returnV
 
 	// ----- Execution -----
 
+	// Creates a function's local scope
+	ActOfRose::AORSystemAddScope(ActOfRose::EScopeVisibilityTypes::ESIT_LocalScope);
+
 	ActOfRose::CExecutor executor;				// Local instance of executor
 	int execResult = executor.Execute(returnValueHolder, &_mTokens);
+
+	// Removes a function's local scope
+	ActOfRose::AORSystemRemoveScope();
+
 	if (execResult == AOR_LEAVE_EXECUTION)
 	{
 		execResult = AOR_SUCCESS;

@@ -146,6 +146,7 @@ int ActOfRose::Context::CVarDeclarationContext::ProcessToken(ActOfRose::Token::S
 			{
 				case ActOfRose::Keyword::EKeywords::EK_Override:
 				case ActOfRose::Keyword::EKeywords::EK_Strict:
+				case ActOfRose::Keyword::EKeywords::EK_Local:
 				{
 					_mState = ActOfRose::Context::CVarDeclarationContext::EVarDeclarationCtxStates::EVDCS_VarKeyword;
 					break;

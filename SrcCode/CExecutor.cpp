@@ -65,6 +65,7 @@ int ActOfRose::CExecutor::Execute(ActOfRose::Value::SValueReference* returnValue
 					case ActOfRose::Keyword::EKeywords::EK_Override:
 					case ActOfRose::Keyword::EKeywords::EK_Var:
 					case ActOfRose::Keyword::EKeywords::EK_Strict:
+					case ActOfRose::Keyword::EKeywords::EK_Local:
 					{
 						execResult = DeclareAndInitialiseVariable(tokenGroup);
 						break;
@@ -737,6 +738,14 @@ int ActOfRose::CExecutor::DeclareAndInitialiseVariable(std::vector<ActOfRose::To
 				break;
 			}
 
+			case ActOfRose::Keyword::EKeywords::EK_Local:
+			{
+				isLocal = true;
+				
+				_mCurrTokenIndex += 2;
+				break;
+			}
+
 			default:
 			{
 				_mCurrTokenIndex++;
@@ -1021,15 +1030,8 @@ int ActOfRose::CExecutor::ProcessIdentifier(ActOfRose::Value::SValueReference* v
 				{
 					// ----- Execution -----
 
-					// Creates a function's local scope
-					ActOfRose::AORSystemAddScope(ActOfRose::EScopeVisibilityTypes::ESIT_LocalScope);
-
 					ActOfRose::IFunction* func = (ActOfRose::IFunction*)(element->addr);
 					result = func->Execute(valueRefHolder, &paramArr);
-
-					// Removes a function's local scope
-					ActOfRose::AORSystemRemoveScope();
-
 					if (result != AOR_SUCCESS)
 					{
 						return result;
