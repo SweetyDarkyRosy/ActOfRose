@@ -146,5 +146,14 @@ int ActOfRose::Script::CScript::Execute()
 ActOfRose::Script::CScriptContext::CScriptContext(ActOfRose::Script::CScript* relatedScript) :
 	_pRelatedScript(relatedScript)
 {
-	_mLocalScopes.push(ActOfRose::CScope(ActOfRose::EScopeVisibilityTypes::ESIT_LocalScope));
+	_mLocalScopes.push_back(ActOfRose::EScopeVisibilityTypes::ESIT_LocalScope);
+}
+
+// Removes a top scope
+void ActOfRose::Script::CScriptContext::RemoveScope()
+{
+	if (_mLocalScopes.size() != 0)
+	{
+		_mLocalScopes.pop_back();
+	}
 }

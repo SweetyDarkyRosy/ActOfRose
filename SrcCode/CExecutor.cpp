@@ -709,6 +709,8 @@ int ActOfRose::CExecutor::DeclareAndInitialiseVariable(std::vector<ActOfRose::To
 	ActOfRose::Value::CValue* newValue = nullptr;
 	// Flag indicating whether initial value is strictly necessary
 	bool isStrict = false;
+	// Flag indicating whether a new variable should be local (created for current scope)
+	bool isLocal = false;
 
 	{
 		ActOfRose::Keyword::EKeywords keyword;
@@ -732,7 +734,6 @@ int ActOfRose::CExecutor::DeclareAndInitialiseVariable(std::vector<ActOfRose::To
 				gPreprocessor.ExtractPredefinedValue(&newValue, (*tokenGroup)[_mCurrTokenIndex + 2].value.c_str());
 				
 				_mCurrTokenIndex += 2;
-
 				break;
 			}
 
@@ -747,13 +748,23 @@ int ActOfRose::CExecutor::DeclareAndInitialiseVariable(std::vector<ActOfRose::To
 
 	// Variable name
 	const char* variableName = (*tokenGroup)[_mCurrTokenIndex].value.c_str();
-
-
-	if (AORSystemIsIdentifierUsed(variableName) == true)
 	{
-		LogAlreadyUsedIdentifier(variableName);
+		bool isUsed;
+		if (isLocal == false)
+		{
+			isUsed = AORSystemIsIdentifierUsedGlobally(variableName);
+		}
+		else
+		{
+			isUsed = AORSystemIsIdentifierUsedInScope(variableName);
+		}
 
-		return AOR_ERROR_EXEC_IDENTIFIER_ALREADY_IN_USE;
+		if (isUsed == true)
+		{
+			LogAlreadyUsedIdentifier(variableName);
+
+			return AOR_ERROR_EXEC_IDENTIFIER_ALREADY_IN_USE;
+		}
 	}
 
 	_mCurrTokenIndex++;
@@ -799,7 +810,18 @@ int ActOfRose::CExecutor::DeclareAndInitialiseVariable(std::vector<ActOfRose::To
 		_mCurrTokenIndex = (unsigned int)(tokenGroup->size() - 1);
 	}
 
-	if (AORSystemRegisterIdentifierAndElement(variableName, ActOfRose::EElementType::EET_Variable, (void*)newVariable) == nullptr)
+
+	ActOfRose::SElement* newElementPtr;
+	if (isLocal == false)
+	{
+		newElementPtr = AORSystemRegisterGlobalIdentifierAndElement(variableName, ActOfRose::EElementType::EET_Variable, (void*)newVariable);
+	}
+	else
+	{
+		newElementPtr = AORSystemRegisterLocalIdentifierAndElement(variableName, ActOfRose::EElementType::EET_Variable, (void*)newVariable);
+	}
+
+	if (newElementPtr == nullptr)
 	{
 		delete newVariable;
 
@@ -837,7 +859,7 @@ int ActOfRose::CExecutor::DeclareAndDefineFunction(std::vector<ActOfRose::Token:
 
 	_mCurrTokenIndex++;
 
-	if (AORSystemIsIdentifierUsed(functionName) == true)
+	if (AORSystemIsIdentifierUsedGlobally(functionName) == true)
 	{
 		LogAlreadyUsedIdentifier(functionName);
 
@@ -877,7 +899,7 @@ int ActOfRose::CExecutor::DeclareAndDefineFunction(std::vector<ActOfRose::Token:
 	_mCurrTokenIndex = (unsigned int)(tokenGroup->size() - 1);
 
 
-	if (AORSystemRegisterIdentifierAndElement(functionName, ActOfRose::EElementType::EET_Function, (void*)newFunction) == nullptr)
+	if (AORSystemRegisterGlobalIdentifierAndElement(functionName, ActOfRose::EElementType::EET_Function, (void*)newFunction) == nullptr)
 	{
 		delete newFunction;
 
@@ -999,8 +1021,15 @@ int ActOfRose::CExecutor::ProcessIdentifier(ActOfRose::Value::SValueReference* v
 				{
 					// ----- Execution -----
 
+					// Creates a function's local scope
+					ActOfRose::AORSystemAddScope(ActOfRose::EScopeVisibilityTypes::ESIT_LocalScope);
+
 					ActOfRose::IFunction* func = (ActOfRose::IFunction*)(element->addr);
 					result = func->Execute(valueRefHolder, &paramArr);
+
+					// Removes a function's local scope
+					ActOfRose::AORSystemRemoveScope();
+
 					if (result != AOR_SUCCESS)
 					{
 						return result;

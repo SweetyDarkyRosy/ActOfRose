@@ -225,12 +225,6 @@ int ActOfRose::Context::CVarDeclarationContext::ProcessToken(ActOfRose::Token::S
 			}
 			else
 			{
-				/*
-				ActOfRose::WriteLog(PREF_STRING("Expected ';' after variable declaration"),
-					(sizeof(PREF_STRING("Expected ';' after variable declaration")) / sizeof(PChar)),
-					ActOfRose::ELogLevel::ELL_Error);
-				*/
-
 				ActOfRose::WriteLog(PREF_STRING("Expected initialiser"), (sizeof(PREF_STRING("Expected initialiser")) / sizeof(PChar)),
 					ActOfRose::ELogLevel::ELL_Error);
 

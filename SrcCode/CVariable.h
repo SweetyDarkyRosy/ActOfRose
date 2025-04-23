@@ -12,6 +12,7 @@
 #ifndef __ACT_OF_ROSE_VARIABLE_CLASS_H__
 #define __ACT_OF_ROSE_VARIABLE_CLASS_H__
 
+#include "SystemAPI.h"
 #include "Value/Value.h"
 
 
@@ -30,10 +31,18 @@ namespace ActOfRose
 		inline CVariable() :
 			_pValue(nullptr)
 		{}
+
+		// Move constructor
+		CVariable(ActOfRose::CVariable&& existingValue) :
+			_pValue(std::move(existingValue._pValue))
+		{}
+
+
 		// Constructor that takes a pointer to an existing value
 		inline CVariable(ActOfRose::Value::CValue* existingValue) :
 			_pValue(existingValue)
 		{}
+
 
 		// Destructor
 		inline ~CVariable()

@@ -13,6 +13,7 @@
 #define __ACT_OF_ROSE_SYSTEM_API_H__
 
 #include "Element.h"
+#include "CScope.h"
 
 
 namespace ActOfRose
@@ -44,16 +45,46 @@ namespace ActOfRose
 
 
 	/*[
+		Functions for working with scopes in script contexts
+	 ]*/
+
+	// Adds/pushes a scope in current script context
+	void AORSystemAddScope(ActOfRose::EScopeVisibilityTypes visibilityType);
+	// Removes a top scope from current script context
+	void AORSystemRemoveScope();
+
+
+	/*[
 		Functions for working with elements
 	 ]*/
 
 	// Registers an identifier and builds an association with an element (variable, constant or function)
-	ActOfRose::SElement* AORSystemRegisterIdentifierAndElement(const char* identifier, ActOfRose::EElementType type, void* addr);
+	ActOfRose::SElement* AORSystemRegisterGlobalIdentifierAndElement(const char* identifier, ActOfRose::EElementType type, void* addr);
 
 	// Checks if the identifier is already in use
-	bool AORSystemIsIdentifierUsed(const char* identifier);
+	bool AORSystemIsIdentifierUsedGlobally(const char* identifier);
 
 	// Returns a pointer to a block of information about registered element by the given identifier if it exists
+	ActOfRose::SElement* AORSystemGetGlobalElementByIdentifier(const char* identifier);
+
+
+	// Registers an identifier and builds an association with an element (variable or constant) in current scope
+	ActOfRose::SElement* AORSystemRegisterLocalIdentifierAndElement(const char* identifier, ActOfRose::EElementType type, void* addr);
+
+	// Checks if the identifier is already in use in current or lower accessible scopes
+	bool AORSystemIsIdentifierUsedLocally(const char* identifier);
+
+	// Checks if the identifier is already in use in current scope
+	bool AORSystemIsIdentifierUsedInScope(const char* identifier);
+
+	// Returns a pointer to a block of information about registered element by the given identifier if it exists in current or lower accessible scopes
+	ActOfRose::SElement* AORSystemGetLocalElementByIdentifier(const char* identifier);
+
+
+	/*
+		Returns a pointer to a block of information about registered element by the given identifier if it exists
+		globally or locally in current or lower accessible scopes
+	 **/
 	ActOfRose::SElement* AORSystemGetElementByIdentifier(const char* identifier);
 
 

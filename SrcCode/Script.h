@@ -14,7 +14,7 @@
 
 #include <fstream>
 #include <filesystem>
-#include <stack>
+#include <vector>
 
 #include "CScope.h"
 
@@ -56,9 +56,19 @@ namespace ActOfRose
 			// Constructor
 			CScriptContext(ActOfRose::Script::CScript* relatedScript);
 
+		public:
+			// Adds a scope
+			inline void AddScope(ActOfRose::EScopeVisibilityTypes visibilityType) { _mLocalScopes.push_back(visibilityType); }
+			// Removes a top scope
+			void RemoveScope();
+
+
+			// Returns a pointer to a stack of local scopes
+			inline std::vector<ActOfRose::CScope>* GetScopes() { return &_mLocalScopes; }
+	
 		private:
 			ActOfRose::Script::CScript* _pRelatedScript;			// Pointer to a related script
-			std::stack<ActOfRose::CScope> _mLocalScopes;			// Local scopes in a context of related script
+			std::vector<ActOfRose::CScope> _mLocalScopes;			// Local scopes in a context of related script
 
 		};
 	

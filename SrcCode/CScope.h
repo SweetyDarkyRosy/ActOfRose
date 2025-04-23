@@ -36,6 +36,11 @@ namespace ActOfRose
 			_mVisibilityType(visibilityType)
 		{}
 
+		// Move constructor
+		CScope(ActOfRose::CScope&& scope) :
+			_mLocalIdentifierMap(std::move(scope._mLocalIdentifierMap)), _mVisibilityType(scope._mVisibilityType)
+		{}
+
 		// Destructor
 		~CScope();
 

@@ -17,6 +17,7 @@
 #include <cmath>
 
 #include "ReturnCodes.h"
+#include "Global.h"
 #include "Log.h"
 #include "Token.h"
 #include "Script.h"
@@ -28,14 +29,6 @@
 #include "Value/CStringValue.h"
 #include "Value/CCharValue.h"
 #include "Value/CArrayValue.h"
-
-
-/*[
-	Global variables
- ]*/
-
-extern std::map<const std::string, ActOfRose::SElement>			gGlobalIdentifierMap;		// Map of associations between identifiers and elements
-extern std::stack<ActOfRose::Script::CScriptContext>			gScriptContexts;			// Stack of script contexts
 
 
 /*[
@@ -56,11 +49,28 @@ void ActOfRose::AORSystemPopScriptContext()
 
 
 /*[
+	Functions for working with scopes in script contexts
+ ]*/
+
+// Adds/pushes a scope in current script context
+void ActOfRose::AORSystemAddScope(ActOfRose::EScopeVisibilityTypes visibilityType)
+{
+	gScriptContexts.top().AddScope(visibilityType);
+}
+
+// Removes a top scope from current script context
+void ActOfRose::AORSystemRemoveScope()
+{
+	gScriptContexts.top().RemoveScope();
+}
+
+
+/*[
 	Functions for working with elements
  ]*/
 
-// Registers an identifier and builds an association with an element (variable, constant, function, or class)
-ActOfRose::SElement* ActOfRose::AORSystemRegisterIdentifierAndElement(const char* identifier, ActOfRose::EElementType type, void* addr)
+// Registers an identifier and builds an association with an element (variable, constant or function)
+ActOfRose::SElement* ActOfRose::AORSystemRegisterGlobalIdentifierAndElement(const char* identifier, ActOfRose::EElementType type, void* addr)
 {
 	std::pair<std::map<const std::string, ActOfRose::SElement>::iterator, bool> result = gGlobalIdentifierMap.insert({ identifier, { type, addr } });
 	
@@ -75,7 +85,7 @@ ActOfRose::SElement* ActOfRose::AORSystemRegisterIdentifierAndElement(const char
 }
 
 // Checks if the identifier is already in use
-bool ActOfRose::AORSystemIsIdentifierUsed(const char* identifier)
+bool ActOfRose::AORSystemIsIdentifierUsedGlobally(const char* identifier)
 {
 	std::map<const std::string, ActOfRose::SElement>::iterator identifierIt = gGlobalIdentifierMap.find(identifier);
 	if (identifierIt == gGlobalIdentifierMap.end())
@@ -87,7 +97,7 @@ bool ActOfRose::AORSystemIsIdentifierUsed(const char* identifier)
 }
 
 // Returns a pointer to a block of information about registered element by the given identifier if it exists
-ActOfRose::SElement* ActOfRose::AORSystemGetElementByIdentifier(const char* identifier)
+ActOfRose::SElement* ActOfRose::AORSystemGetGlobalElementByIdentifier(const char* identifier)
 {
 	std::map<const std::string, ActOfRose::SElement>::iterator identifierIt = gGlobalIdentifierMap.find(identifier);
 	if (identifierIt == gGlobalIdentifierMap.end())
@@ -98,6 +108,84 @@ ActOfRose::SElement* ActOfRose::AORSystemGetElementByIdentifier(const char* iden
 	std::pair<const std::string, ActOfRose::SElement>* elementPair = &(*identifierIt);
 	
 	return &(elementPair->second);
+}
+
+
+// Registers an identifier and builds an association with an element (variable or constant) in current scope
+ActOfRose::SElement* ActOfRose::AORSystemRegisterLocalIdentifierAndElement(const char* identifier, ActOfRose::EElementType type, void* addr)
+{
+	return gScriptContexts.top().GetScopes()->back().RegisterIdentifierAndElement(identifier, type, addr);
+}
+
+// Checks if the identifier is already in use in current or lower accessible scopes
+bool ActOfRose::AORSystemIsIdentifierUsedLocally(const char* identifier)
+{
+	std::vector<ActOfRose::CScope>* scopes = gScriptContexts.top().GetScopes();
+	for (unsigned int scopeIt = (unsigned int)(scopes->size()) - 1; scopeIt >= 0; scopeIt--)
+	{
+		if ((*scopes)[scopeIt].IsIdentifierUsed(identifier) == true)
+		{
+			return true;
+		}
+
+		if ((*scopes)[scopeIt].GetElementVisibilityType() == ActOfRose::EScopeVisibilityTypes::ESIT_LocalScope)
+		{
+			break;
+		}
+	}
+
+	return false;
+}
+
+// Checks if the identifier is already in use in current scope
+bool ActOfRose::AORSystemIsIdentifierUsedInScope(const char* identifier)
+{
+	return gScriptContexts.top().GetScopes()->back().IsIdentifierUsed(identifier);
+}
+
+// Returns a pointer to a block of information about registered element by the given identifier if it exists in current or lower accessible scopes
+ActOfRose::SElement* ActOfRose::AORSystemGetLocalElementByIdentifier(const char* identifier)
+{
+	std::vector<ActOfRose::CScope>* scopes = gScriptContexts.top().GetScopes();
+	for (unsigned int scopeIt = (unsigned int)(scopes->size()) - 1; scopeIt >= 0; scopeIt--)
+	{
+		ActOfRose::SElement* el = (*scopes)[scopeIt].GetElementByIdentifier(identifier);
+		if (el != nullptr)
+		{
+			return el;
+		}
+
+		if ((*scopes)[scopeIt].GetElementVisibilityType() == ActOfRose::EScopeVisibilityTypes::ESIT_LocalScope)
+		{
+			break;
+		}
+	}
+
+	return nullptr;
+}
+
+
+/*
+	Returns a pointer to a block of information about registered element by the given identifier if it exists
+	globally or locally in current or lower accessible scopes
+ **/
+ActOfRose::SElement* ActOfRose::AORSystemGetElementByIdentifier(const char* identifier)
+{
+	ActOfRose::SElement* el = nullptr;
+
+	el = AORSystemGetLocalElementByIdentifier(identifier);
+	if (el != nullptr)
+	{
+		return el;
+	}
+
+	el = AORSystemGetGlobalElementByIdentifier(identifier);
+	if (el != nullptr)
+	{
+		return el;
+	}
+
+	return nullptr;
 }
 
 
