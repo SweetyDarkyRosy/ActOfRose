@@ -20,10 +20,22 @@
 
 namespace ActOfRose
 {
+	// Types of visibility of elements in scopes
+	enum EScopeVisibilityTypes
+	{
+		ESIT_InheritingScope,			// Scope inherits local elements from lower scopes
+		ESIT_LocalScope					// Scope can access only its local elements
+	};
+
 	// Class of scope in a script context with local variables and constants
 	class CScope
 	{
 	public:
+		// Constructor
+		CScope(ActOfRose::EScopeVisibilityTypes visibilityType) :
+			_mVisibilityType(visibilityType)
+		{}
+
 		// Destructor
 		~CScope();
 
@@ -37,8 +49,14 @@ namespace ActOfRose
 		// Returns a pointer to a block of information about registered element by the given identifier if it exists in a scope
 		ActOfRose::SElement* GetElementByIdentifier(const char* identifier);
 
+
+		// Returns the type of visibility of elements in a scope
+		inline ActOfRose::EScopeVisibilityTypes GetElementVisibilityType() const { return _mVisibilityType; }
+
 	private:
-		std::map<const std::string, ActOfRose::SElement>		_mLocalIdentifierMap;		// Local map of associations between identifiers and elements
+		std::map<const std::string, ActOfRose::SElement> _mLocalIdentifierMap;		// Local map of associations between identifiers and elements
+
+		ActOfRose::EScopeVisibilityTypes _mVisibilityType;							// Type of visibility of elements in a scope
 
 	};
 

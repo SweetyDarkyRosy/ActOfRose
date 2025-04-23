@@ -146,5 +146,5 @@ int ActOfRose::Script::CScript::Execute()
 ActOfRose::Script::CScriptContext::CScriptContext(ActOfRose::Script::CScript* relatedScript) :
 	_pRelatedScript(relatedScript)
 {
-	_mLocalScopes.push(ActOfRose::CScope());
+	_mLocalScopes.push(ActOfRose::CScope(ActOfRose::EScopeVisibilityTypes::ESIT_LocalScope));
 }
