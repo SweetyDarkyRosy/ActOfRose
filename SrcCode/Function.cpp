@@ -14,6 +14,7 @@
 #include "ReturnCodes.h"
 #include "Log.h"
 #include "SystemAPI.h"
+#include "CVariable.h"
 #include "CExecutor.h"
 #include "Utility/StringMisc.h"
 #include "Value/Value.h"
@@ -57,10 +58,34 @@ int ActOfRose::CUserFunction::Execute(ActOfRose::Value::SValueReference* returnV
 	}
 
 
-	// ----- Execution -----
+	// ----- Preparation of arguments as local variables -----
 
 	// Creates a function's local scope
 	ActOfRose::AORSystemAddScope(ActOfRose::EScopeVisibilityTypes::ESIT_LocalScope);
+
+	for (unsigned int paramIt = 0; paramIt < (unsigned int)(params->size()); paramIt++)
+	{
+		// New variable
+		ActOfRose::CVariable* newLocalVariable = new ActOfRose::CVariable((*params)[paramIt]);
+
+		if (AORSystemRegisterLocalIdentifierAndElement(_mParamNames[paramIt].c_str(), ActOfRose::EElementType::EET_Variable, (void*)newLocalVariable) == nullptr)
+		{
+			delete newLocalVariable;
+
+			ActOfRose::AORSystemRemoveScope();
+
+			std::string errorMsg = "Runtime error. Failed to declare the ";
+			errorMsg += _mParamNames[paramIt];
+			errorMsg += " variable";
+
+			ActOfRose::WriteLog(errorMsg.c_str(), errorMsg.length(), ActOfRose::ELogLevel::ELL_Error);
+
+			return AOR_ERROR_INTERNAL_ERROR;
+		}
+	}
+
+
+	// ----- Execution -----
 
 	ActOfRose::CExecutor executor;				// Local instance of executor
 	int execResult = executor.Execute(returnValueHolder, &_mTokens);
@@ -71,15 +96,6 @@ int ActOfRose::CUserFunction::Execute(ActOfRose::Value::SValueReference* returnV
 	if (execResult == AOR_LEAVE_EXECUTION)
 	{
 		execResult = AOR_SUCCESS;
-	}
-
-
-	/**
-		Temporary deleting of incoming parameter values (they are not used now)
-	 */
-	for (unsigned int paramIt = 0; paramIt < (unsigned int)(params->size()); paramIt++)
-	{
-		delete (*params)[paramIt];
 	}
 
 	return execResult;
