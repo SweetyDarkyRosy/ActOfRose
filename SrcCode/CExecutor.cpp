@@ -77,6 +77,14 @@ int ActOfRose::CExecutor::Execute(ActOfRose::Value::SValueReference* returnValue
 						break;
 					}
 
+					case ActOfRose::Keyword::EKeywords::EK_If:
+					{
+						_mCurrTokenIndex = (unsigned int)(tokenGroup->size() - 1);
+						execResult = AOR_SUCCESS;
+
+						break;
+					}
+
 					case ActOfRose::Keyword::EKeywords::EK_Return:
 					{
 						if (returnValueHolder != nullptr)

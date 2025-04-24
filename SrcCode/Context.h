@@ -115,6 +115,34 @@ namespace ActOfRose
 
 		};
 
+		// Class of conditional context
+		class CConditionalContext : public CContext
+		{
+			// States of conditional context
+			enum EConditionalCtxStates
+			{
+				ECCS_Initial,					// Initial state of context
+				ECCS_ConditionBegin,			// Left round bracket for expression start is expected
+				ECCS_ConditionalExpr,			// Expression for condition is expected
+				ECCS_ConditionEnd,				// Right round bracket to end conditional expression is expected
+				ECCS_BodyStart,					// Left curly bracket is expected to start a function body
+				ECCS_BodyRoutine,				// Some expression, simple statement, compound statement or right curly bracket is expected
+				ECCS_SyntacticUnitEnd,			// Ending of expression, simple statement or compound statement (comma or semicolon) is expected
+			};
+
+		public:
+			// Constructor
+			CConditionalContext();
+
+		public:
+			// Analyses the given token, checks current sequence for logical errors and updates a context
+			virtual int ProcessToken(ActOfRose::Token::SToken* token) override;
+
+		private:
+			ActOfRose::Context::CConditionalContext::EConditionalCtxStates _mState;		// Context state
+
+		};
+
 		// Class of return statement context
 		class CReturnStatementContext : public CContext
 		{

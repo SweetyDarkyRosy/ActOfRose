@@ -108,6 +108,13 @@ int ActOfRose::Context::CSequencer::DetermineAndCreateContext(ActOfRose::Token::
 					break;
 				}
 
+				case ActOfRose::Keyword::EKeywords::EK_If:
+				{
+					_mContexts.push(new ActOfRose::Context::CConditionalContext());
+
+					break;
+				}
+
 				case ActOfRose::Keyword::EKeywords::EK_Return:
 				{
 					_mContexts.push(new ActOfRose::Context::CReturnStatementContext());
