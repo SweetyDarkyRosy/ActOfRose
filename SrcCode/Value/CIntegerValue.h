@@ -39,6 +39,9 @@ namespace ActOfRose
 			// Returns the raw 32-bit signed integer value
 			inline int GetRawValue() const { return _mValue; }
 
+			// Returns true if a value is non-zero
+			virtual bool IsZero() const override { return (_mValue == 0); }
+
 
 			// Converts a value to a byte string
 			virtual std::string ConvertValueToByteString() const override;

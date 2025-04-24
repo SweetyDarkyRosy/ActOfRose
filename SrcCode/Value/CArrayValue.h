@@ -43,6 +43,9 @@ namespace ActOfRose
 			// Returns a pointer to the raw underlying array of values
 			std::vector<ActOfRose::Value::CValue*>* GetRawArray() { return &_mValueArray; }
 
+			// Returns true if a value is non-zero
+			virtual bool IsZero() const override { return false; }
+
 
 			// Converts the array to a byte string
 			virtual std::string ConvertValueToByteString() const override;

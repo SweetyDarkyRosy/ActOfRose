@@ -52,6 +52,10 @@ namespace ActOfRose
 			// Returns the type of a value
 			inline ActOfRose::Value::EValueType GetValueType() const { return _mType; }
 
+			// Returns true if a value is non-zero
+			virtual bool IsZero() const = 0;
+
+
 			// Returns a pointer to a null-terminated UTF-8-encoded string with type name
 			inline const char* GetTypeByteString() const;
 			// Returns a pointer to a null-terminated UTF-16BE-encoded string with type name

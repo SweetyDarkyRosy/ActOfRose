@@ -42,6 +42,9 @@ namespace ActOfRose
 			// Returns a pointer to the underlying raw UTF-8-encoded null-terminated byte string
 			const char* GetRawString() const { return _mRawString.c_str(); }
 
+			// Returns true if a value is non-zero
+			virtual bool IsZero() const override { return false; }
+
 
 			// Converts the string to a byte string
 			virtual std::string ConvertValueToByteString() const override;

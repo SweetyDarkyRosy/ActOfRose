@@ -39,6 +39,9 @@ namespace ActOfRose
 			// Returns the raw boolean value
 			inline bool GetRawValue() const { return _mValue; }
 
+			// Returns true if a value is non-zero
+			virtual bool IsZero() const override { return (_mValue == false); }
+
 
 			// Converts a value to a byte string
 			virtual std::string ConvertValueToByteString() const override;

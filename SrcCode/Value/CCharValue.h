@@ -37,6 +37,9 @@ namespace ActOfRose
 			// Returns a pointer to the raw character set
 			const char* GetRawCharSet() const { return _mChar; }
 
+			// Returns true if a value is non-zero
+			virtual bool IsZero() const override { return (_mChar[0] == '\0'); }
+
 
 			// Converts a value to a byte string
 			virtual std::string ConvertValueToByteString() const override;
