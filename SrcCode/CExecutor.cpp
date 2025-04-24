@@ -47,12 +47,12 @@ int ActOfRose::CExecutor::Execute(ActOfRose::Value::SValueReference* returnValue
 	{
 		int execResult = AOR_SUCCESS;
 
-		switch ((*tokenGroup)[_mCurrTokenIndex].type)
+		switch ((*_pCurrTokenGroup)[_mCurrTokenIndex].type)
 		{
 			case ActOfRose::Token::ETokenType::ETTKeyword:
 			{
 				ActOfRose::Keyword::EKeywords keyword;
-				if (GetKeyword(&keyword, &((*tokenGroup)[_mCurrTokenIndex].value)) == false)
+				if (GetKeyword(&keyword, &((*_pCurrTokenGroup)[_mCurrTokenIndex].value)) == false)
 				{
 					ActOfRose::WriteLog(PREF_STRING("Keyword not found. Internal error"),
 						(sizeof(PREF_STRING("Keyword not found. Internal error")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
@@ -67,19 +67,19 @@ int ActOfRose::CExecutor::Execute(ActOfRose::Value::SValueReference* returnValue
 					case ActOfRose::Keyword::EKeywords::EK_Strict:
 					case ActOfRose::Keyword::EKeywords::EK_Local:
 					{
-						execResult = DeclareAndInitialiseVariable(tokenGroup);
+						execResult = DeclareAndInitialiseVariable();
 						break;
 					}
 
 					case ActOfRose::Keyword::EKeywords::EK_Func:
 					{
-						execResult = DeclareAndDefineFunction(tokenGroup);
+						execResult = DeclareAndDefineFunction();
 						break;
 					}
 
 					case ActOfRose::Keyword::EKeywords::EK_If:
 					{
-						_mCurrTokenIndex = (unsigned int)(tokenGroup->size() - 1);
+						_mCurrTokenIndex = (unsigned int)(_pCurrTokenGroup->size() - 1);
 						execResult = AOR_SUCCESS;
 
 						break;
@@ -712,7 +712,7 @@ int ActOfRose::CExecutor::EvaluateExpression(ActOfRose::Value::CValue** valueHol
 
 
 // Executes a variable declaration and initialisation
-int ActOfRose::CExecutor::DeclareAndInitialiseVariable(std::vector<ActOfRose::Token::SToken>* tokenGroup)
+int ActOfRose::CExecutor::DeclareAndInitialiseVariable()
 {
 	// New value
 	ActOfRose::Value::CValue* newValue = nullptr;
@@ -723,7 +723,7 @@ int ActOfRose::CExecutor::DeclareAndInitialiseVariable(std::vector<ActOfRose::To
 
 	{
 		ActOfRose::Keyword::EKeywords keyword;
-		if (GetKeyword(&keyword, &((*tokenGroup)[_mCurrTokenIndex].value)) == false)
+		if (GetKeyword(&keyword, &((*_pCurrTokenGroup)[_mCurrTokenIndex].value)) == false)
 		{
 			ActOfRose::WriteLog(PREF_STRING("Keyword not found. Internal error"),
 				(sizeof(PREF_STRING("Keyword not found. Internal error")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
@@ -740,7 +740,7 @@ int ActOfRose::CExecutor::DeclareAndInitialiseVariable(std::vector<ActOfRose::To
 
 			case ActOfRose::Keyword::EKeywords::EK_Override:
 			{
-				gPreprocessor.ExtractPredefinedValue(&newValue, (*tokenGroup)[_mCurrTokenIndex + 2].value.c_str());
+				gPreprocessor.ExtractPredefinedValue(&newValue, (*_pCurrTokenGroup)[_mCurrTokenIndex + 2].value.c_str());
 				
 				_mCurrTokenIndex += 2;
 				break;
@@ -764,7 +764,7 @@ int ActOfRose::CExecutor::DeclareAndInitialiseVariable(std::vector<ActOfRose::To
 
 
 	// Variable name
-	const char* variableName = (*tokenGroup)[_mCurrTokenIndex].value.c_str();
+	const char* variableName = (*_pCurrTokenGroup)[_mCurrTokenIndex].value.c_str();
 	{
 		bool isUsed;
 		if (isLocal == false)
@@ -792,7 +792,7 @@ int ActOfRose::CExecutor::DeclareAndInitialiseVariable(std::vector<ActOfRose::To
 
 	if (newValue == nullptr)
 	{
-		if ((*tokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTSemicolon)
+		if ((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTSemicolon)
 		{
 			if (isStrict == true)
 			{
@@ -804,8 +804,8 @@ int ActOfRose::CExecutor::DeclareAndInitialiseVariable(std::vector<ActOfRose::To
 
 			newVariable = new ActOfRose::CVariable();
 		}
-		else if (((*tokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTOperator) &&
-			((*tokenGroup)[_mCurrTokenIndex].value.compare("=") == 0))
+		else if (((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTOperator) &&
+			((*_pCurrTokenGroup)[_mCurrTokenIndex].value.compare("=") == 0))
 		{
 			_mCurrTokenIndex++;
 
@@ -824,7 +824,7 @@ int ActOfRose::CExecutor::DeclareAndInitialiseVariable(std::vector<ActOfRose::To
 	{
 		newVariable = new ActOfRose::CVariable(newValue);
 
-		_mCurrTokenIndex = (unsigned int)(tokenGroup->size() - 1);
+		_mCurrTokenIndex = (unsigned int)(_pCurrTokenGroup->size() - 1);
 	}
 
 
@@ -867,12 +867,12 @@ int ActOfRose::CExecutor::DeclareAndInitialiseVariable(std::vector<ActOfRose::To
 }
 
 // Executes a function declaration and definition
-int ActOfRose::CExecutor::DeclareAndDefineFunction(std::vector<ActOfRose::Token::SToken>* tokenGroup)
+int ActOfRose::CExecutor::DeclareAndDefineFunction()
 {
 	_mCurrTokenIndex++;
 
 	// Variable name
-	const char* functionName = (*tokenGroup)[_mCurrTokenIndex].value.c_str();
+	const char* functionName = (*_pCurrTokenGroup)[_mCurrTokenIndex].value.c_str();
 
 	_mCurrTokenIndex++;
 
@@ -889,15 +889,15 @@ int ActOfRose::CExecutor::DeclareAndDefineFunction(std::vector<ActOfRose::Token:
 
 	// ----- Collecting of parameter names -----
 
-	while ((*tokenGroup)[_mCurrTokenIndex].type != ActOfRose::Token::ETokenType::ETTRoundBracketRight)
+	while ((*_pCurrTokenGroup)[_mCurrTokenIndex].type != ActOfRose::Token::ETokenType::ETTRoundBracketRight)
 	{
 		_mCurrTokenIndex++;
 
-		newFunction->AddParameter((*tokenGroup)[_mCurrTokenIndex].value.c_str());
+		newFunction->AddParameter((*_pCurrTokenGroup)[_mCurrTokenIndex].value.c_str());
 
 	#ifdef _DEBUG
 		{
-			std::string msg = "Parameter name " + (*tokenGroup)[_mCurrTokenIndex].value + " for function " + functionName + " has been declared";
+			std::string msg = "Parameter name " + (*_pCurrTokenGroup)[_mCurrTokenIndex].value + " for function " + functionName + " has been declared";
 			ActOfRose::WriteLog(msg.c_str(), msg.length(), ActOfRose::ELogLevel::ELL_Debug);
 		}
 	#endif
@@ -910,10 +910,10 @@ int ActOfRose::CExecutor::DeclareAndDefineFunction(std::vector<ActOfRose::Token:
 
 	// ----- Copying of function body-related tokens -----
 
-	std::copy(tokenGroup->begin() + _mCurrTokenIndex, tokenGroup->end() - 1, std::back_inserter(*(newFunction->GetBodyTokens())));
+	std::copy(_pCurrTokenGroup->begin() + _mCurrTokenIndex, _pCurrTokenGroup->end() - 1, std::back_inserter(*(newFunction->GetBodyTokens())));
 
 
-	_mCurrTokenIndex = (unsigned int)(tokenGroup->size() - 1);
+	_mCurrTokenIndex = (unsigned int)(_pCurrTokenGroup->size() - 1);
 
 
 	if (AORSystemRegisterGlobalIdentifierAndElement(functionName, ActOfRose::EElementType::EET_Function, (void*)newFunction) == nullptr)
