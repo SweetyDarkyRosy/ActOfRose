@@ -62,6 +62,9 @@ namespace ActOfRose
 		// Executes a function declaration and definition
 		int DeclareAndDefineFunction();
 
+		// Processes a sequence of conditions and executes a sequence of operations under a satisfying condition
+		int ProcessConditions(ActOfRose::Value::SValueReference* returnValueHolder);
+
 		// Processes an encountered identifier and returns a value or a reference to value if possible
 		int ProcessIdentifier(ActOfRose::Value::SValueReference* valueRefHolder);
 
