@@ -944,7 +944,7 @@ int ActOfRose::CExecutor::ProcessConditions(ActOfRose::Value::SValueReference* r
 	{
 		int result = AOR_SUCCESS;
 
-		if ((*_pCurrTokenGroup)[_mCurrTokenIndex].value == "if")
+		if (((*_pCurrTokenGroup)[_mCurrTokenIndex].value == "if") || ((*_pCurrTokenGroup)[_mCurrTokenIndex].value == "elif"))
 		{
 			_mCurrTokenIndex += 2;
 
@@ -1049,14 +1049,17 @@ int ActOfRose::CExecutor::ProcessConditions(ActOfRose::Value::SValueReference* r
 
 					// ----- Execution -----
 
-					// Creates a function's local scope
-					ActOfRose::AORSystemAddScope(ActOfRose::EScopeVisibilityTypes::ESIT_InheritingScope);
+					if (bodyTokens.size() != 0)
+					{
+						// Creates a function's local scope
+						ActOfRose::AORSystemAddScope(ActOfRose::EScopeVisibilityTypes::ESIT_InheritingScope);
 
-					ActOfRose::CExecutor executor;				// Local instance of executor
-					result = executor.Execute(returnValueHolder, &bodyTokens);
+						ActOfRose::CExecutor executor;				// Local instance of executor
+						result = executor.Execute(returnValueHolder, &bodyTokens);
 
-					// Removes a function's local scope
-					ActOfRose::AORSystemRemoveScope();
+						// Removes a function's local scope
+						ActOfRose::AORSystemRemoveScope();
+					}
 				}
 
 				_mCurrTokenIndex = localCurrTokenIndex;
@@ -1068,6 +1071,66 @@ int ActOfRose::CExecutor::ProcessConditions(ActOfRose::Value::SValueReference* r
 			}
 
 			delete exprRoot;
+
+			if (result != AOR_SUCCESS)
+			{
+				return result;
+			}
+		}
+		else if ((*_pCurrTokenGroup)[_mCurrTokenIndex].value == "else")
+		{
+			_mCurrTokenIndex += 2;
+
+			// another index holder for finding the position of a curly bracket that indicates the end of a body
+			unsigned int localCurrTokenIndex = _mCurrTokenIndex;
+
+
+			// ----- Finding the end of a body -----
+
+			{
+				unsigned int curlyBracketBlockCount = 0;
+
+				while (localCurrTokenIndex < (unsigned int)(_pCurrTokenGroup->size()))
+				{
+					if ((*_pCurrTokenGroup)[localCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTCurlyBracketLeft)
+					{
+						curlyBracketBlockCount++;
+					}
+					else if ((*_pCurrTokenGroup)[localCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTCurlyBracketRight)
+					{
+						if (curlyBracketBlockCount == 0)
+						{
+							break;
+						}
+
+						curlyBracketBlockCount--;
+					}
+
+					localCurrTokenIndex++;
+				}
+			}
+
+			// ----- Extracting a body -----
+
+			std::vector<ActOfRose::Token::SToken> bodyTokens;
+			std::copy(_pCurrTokenGroup->begin() + _mCurrTokenIndex, _pCurrTokenGroup->begin() + localCurrTokenIndex, std::back_inserter(bodyTokens));
+
+
+			// ----- Execution -----
+
+			if (bodyTokens.size() != 0)
+			{
+				// Creates a function's local scope
+				ActOfRose::AORSystemAddScope(ActOfRose::EScopeVisibilityTypes::ESIT_InheritingScope);
+
+				ActOfRose::CExecutor executor;				// Local instance of executor
+				result = executor.Execute(returnValueHolder, &bodyTokens);
+
+				// Removes a function's local scope
+				ActOfRose::AORSystemRemoveScope();
+			}
+
+			_mCurrTokenIndex = localCurrTokenIndex;
 
 			if (result != AOR_SUCCESS)
 			{
