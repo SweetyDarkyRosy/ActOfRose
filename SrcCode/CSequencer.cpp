@@ -115,6 +115,22 @@ int ActOfRose::Context::CSequencer::DetermineAndCreateContext(ActOfRose::Token::
 					break;
 				}
 
+				case ActOfRose::Keyword::EKeywords::EK_Elif:
+				{
+					ActOfRose::WriteLog(PREF_STRING("'elif' without a previous 'if'"),
+						(sizeof(PREF_STRING("'elif' without a previous 'if'")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+					return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
+				}
+
+				case ActOfRose::Keyword::EKeywords::EK_Else:
+				{
+					ActOfRose::WriteLog(PREF_STRING("'else' without a previous 'if'"),
+						(sizeof(PREF_STRING("'else' without a previous 'if'")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+					return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
+				}
+
 				case ActOfRose::Keyword::EKeywords::EK_Return:
 				{
 					_mContexts.push(new ActOfRose::Context::CReturnStatementContext());
