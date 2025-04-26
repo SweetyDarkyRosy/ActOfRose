@@ -40,7 +40,8 @@ static inline bool IsDigit(char value)
 // Checks if the character is a delimiter character
 static inline bool IsDelimiter(char value)
 {
-	return ((value == ',') || (value == ';') || (value == ':') || (value == '(') || (value == ')') || (value == '{') || (value == '}'));
+	return ((value == ',') || (value == ';') || (value == ':') || (value == '(') || (value == ')') || (value == '{') || (value == '}')
+		|| (value == '[') || (value == ']'));
 }
 
 // Checks if the character is an operator character

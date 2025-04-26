@@ -151,8 +151,8 @@ int ActOfRose::AST::CExprASTOperatorNode::RetrieveValue(ActOfRose::Value::SValue
 
 		if (leftValueRef.category == ActOfRose::Value::EValueCategories::EVC_None)
 		{
-			ActOfRose::WriteLog(PREF_STRING("Child node of operator returned null value"),
-			(sizeof(PREF_STRING("Child node of operator returned null value")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+			ActOfRose::WriteLog(PREF_STRING("Child node of operator returned Null value"),
+			(sizeof(PREF_STRING("Child node of operator returned Null value")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
 
 			return AOR_ERROR_EXEC_INITIAL_VALUE_REQUIRED;
 		}
@@ -180,8 +180,8 @@ int ActOfRose::AST::CExprASTOperatorNode::RetrieveValue(ActOfRose::Value::SValue
 
 			return valueRetrievingResult;
 
-			ActOfRose::WriteLog(PREF_STRING("Child node of operator returned null value"),
-			(sizeof(PREF_STRING("Child node of operator returned null value")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+			ActOfRose::WriteLog(PREF_STRING("Child node of operator returned Null value"),
+			(sizeof(PREF_STRING("Child node of operator returned Null value")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
 
 			return AOR_ERROR_EXEC_INITIAL_VALUE_REQUIRED;
 		}

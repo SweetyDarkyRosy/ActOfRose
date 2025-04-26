@@ -11,10 +11,14 @@
 
 #include "CArrayValue.h"
 
+#include <SystemAPI.h>
+#include <ReturnCodes.h>
+#include <Log.h>
+#include <Utility/StringMisc.h>
 #include <Utility/StringConverting.h>
 
-#include "SystemAPI.h"
-#include "ReturnCodes.h"
+#include "CIntegerValue.h"
+#include "CFloatValue.h"
 
 
 // ----- ActOfRose::Value::CArrayValue class -----
@@ -101,5 +105,75 @@ std::wstring ActOfRose::Value::CArrayValue::ConvertValueToWideString() const
 int ActOfRose::Value::CArrayValue::ExecuteOperation(ActOfRose::Value::SValueReference* retValueRefHolder,
 	ActOfRose::Operation::EOperationTypes opType, ActOfRose::Value::SValueReference* rightValRef)
 {
-	return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
+	switch (opType)
+	{
+		case ActOfRose::Operation::EOperationTypes::EO_ElementAccess:
+		{
+			ActOfRose::Value::CValue* indexValue;
+			if (rightValRef->category == ActOfRose::Value::EValueCategories::EVC_None)
+			{
+				ActOfRose::WriteLog(PREF_STRING("Null value cannot serve as index"),
+					(sizeof(PREF_STRING("Null value cannot serve as index")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
+			}
+			else if (rightValRef->category == ActOfRose::Value::EValueCategories::EVC_LValue)
+			{
+				indexValue = *(rightValRef->value.valueHolder);
+			}
+			else
+			{
+				indexValue = rightValRef->value.value;
+			}
+
+
+			// ----- Access -----
+
+			int index;
+
+			if (indexValue->GetValueType() == ActOfRose::Value::EValueType::EVT_Integer)
+			{
+				ActOfRose::Value::CIntegerValue* integerValue = (ActOfRose::Value::CIntegerValue*)indexValue;
+				index = integerValue->GetRawValue();
+			}
+			else if (indexValue->GetValueType() == ActOfRose::Value::EValueType::EVT_FloatingPoint)
+			{
+				ActOfRose::Value::CFloatValue* integerValue = (ActOfRose::Value::CFloatValue*)indexValue;
+				index = (int)(integerValue->GetRawValue());
+			}
+			else
+			{
+				ActOfRose::WriteLog(PREF_STRING("Only integer and floating-point numbers can serve as indices"),
+					(sizeof(PREF_STRING("Only integer and floating-point numbers can serve as indices")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
+			}
+
+			if (index < 0)
+			{
+				ActOfRose::WriteLog(PREF_STRING("Negative index has been passed for internal element access"),
+					(sizeof(PREF_STRING("Negative index has been passed for internal element access")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_EXEC_OUT_OF_RANGE;
+			}
+			else if (index >= (int)(_mValueArray.size()))
+			{
+				ActOfRose::WriteLog(PREF_STRING("Out of range"), (sizeof(PREF_STRING("Out of range")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_EXEC_OUT_OF_RANGE;
+			}
+
+			retValueRefHolder->category = ActOfRose::Value::EValueCategories::EVC_LValue;
+			retValueRefHolder->value.valueHolder = &(_mValueArray[index]);
+			
+			break;
+		}
+
+		default:
+		{
+			return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
+		}
+	}
+
+	return AOR_SUCCESS;
 }

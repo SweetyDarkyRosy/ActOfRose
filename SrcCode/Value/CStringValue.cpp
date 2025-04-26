@@ -11,9 +11,8 @@
 
 #include "CStringValue.h"
 
+#include <ReturnCodes.h>
 #include <Utility/StringConverting.h>
-
-#include "ReturnCodes.h"
 
 
 // ----- ActOfRose::Value::CStringValue class -----
@@ -88,5 +87,13 @@ std::wstring ActOfRose::Value::CStringValue::ConvertValueToWideString() const
 int ActOfRose::Value::CStringValue::ExecuteOperation(ActOfRose::Value::SValueReference* retValueRefHolder,
 	ActOfRose::Operation::EOperationTypes opType, ActOfRose::Value::SValueReference* rightValRef)
 {
-	return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
+	switch (opType)
+	{
+		default:
+		{
+			return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
+		}
+	}
+
+	return AOR_SUCCESS;
 }

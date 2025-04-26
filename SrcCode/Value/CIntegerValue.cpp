@@ -11,9 +11,8 @@
 
 #include "CIntegerValue.h"
 
+#include <ReturnCodes.h>
 #include <Utility/StringConverting.h>
-
-#include "ReturnCodes.h"
 
 
 // ----- ActOfRose::Value::CIntegerValue class -----
@@ -41,6 +40,11 @@ int ActOfRose::Value::CIntegerValue::ExecuteOperation(ActOfRose::Value::SValueRe
 {
 	switch (opType)
 	{
+		case ActOfRose::Operation::EOperationTypes::EO_ElementAccess:
+		{
+			return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
+		}
+
 		case ActOfRose::Operation::EOperationTypes::EO_Summation:
 		{
 			ActOfRose::Value::CValue* rightValue = rightValRef->GetValue();

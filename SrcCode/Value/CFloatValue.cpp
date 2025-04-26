@@ -11,9 +11,8 @@
 
 #include "CFloatValue.h"
 
+#include <ReturnCodes.h>
 #include <Utility/StringConverting.h>
-
-#include "ReturnCodes.h"
 
 
 // ----- ActOfRose::Value::CFloatValue class -----
@@ -39,5 +38,13 @@ std::wstring ActOfRose::Value::CFloatValue::ConvertValueToWideString() const
 int ActOfRose::Value::CFloatValue::ExecuteOperation(ActOfRose::Value::SValueReference* retValueRefHolder,
 	ActOfRose::Operation::EOperationTypes opType, ActOfRose::Value::SValueReference* rightValRef)
 {
-	return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
+	switch (opType)
+	{
+		default:
+		{
+			return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
+		}
+	}
+
+	return AOR_SUCCESS;
 }

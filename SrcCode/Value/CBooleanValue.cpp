@@ -11,9 +11,8 @@
 
 #include "CBooleanValue.h"
 
+#include <ReturnCodes.h>
 #include <Utility/StringConverting.h>
-
-#include "ReturnCodes.h"
 
 
 // ----- ActOfRose::Value::CBooleanValue class -----
@@ -34,5 +33,13 @@ std::wstring ActOfRose::Value::CBooleanValue::ConvertValueToWideString() const
 int ActOfRose::Value::CBooleanValue::ExecuteOperation(ActOfRose::Value::SValueReference* retValueRefHolder,
 	ActOfRose::Operation::EOperationTypes opType, ActOfRose::Value::SValueReference* rightValRef)
 {
-	return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
+	switch (opType)
+	{
+		default:
+		{
+			return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
+		}
+	}
+
+	return AOR_SUCCESS;
 }

@@ -72,6 +72,7 @@ int ActOfRose::Context::CExpressionEvaluationContext::ProcessToken(ActOfRose::To
 		}
 
 		case ActOfRose::Token::ETokenType::ETTCurlyBracketLeft:
+		case ActOfRose::Token::ETokenType::ETTSquareBracketLeft:
 		case ActOfRose::Token::ETokenType::ETTRoundBracketLeft:
 		{
 			_mNestingDepth++;
@@ -79,6 +80,7 @@ int ActOfRose::Context::CExpressionEvaluationContext::ProcessToken(ActOfRose::To
 		}
 
 		case ActOfRose::Token::ETokenType::ETTCurlyBracketRight:
+		case ActOfRose::Token::ETokenType::ETTSquareBracketRight:
 		case ActOfRose::Token::ETokenType::ETTRoundBracketRight:
 		{
 			if (_mNestingDepth == 0)

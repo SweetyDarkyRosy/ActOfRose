@@ -284,6 +284,13 @@ int ActOfRose::CExecutor::BuildExpressionAST(ActOfRose::AST::CExprASTNode** tree
 				return AOR_SUCCESS;
 			}
 		}
+		else if ((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTSquareBracketRight)
+		{
+			if (depthLevel == 0)
+			{
+				return AOR_SUCCESS;
+			}
+		}
 		else if ((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTRoundBracketLeft)
 		{
 			if (*treeRootNodeHolder == nullptr)
@@ -724,6 +731,8 @@ int ActOfRose::CExecutor::EvaluateExpression(ActOfRose::Value::CValue** valueHol
 		{
 			delete newValueRef.value.value;
 		}
+
+		delete exprRoot;
 	}
 
 	return AOR_SUCCESS;
@@ -996,8 +1005,8 @@ int ActOfRose::CExecutor::ProcessConditions(ActOfRose::Value::SValueReference* r
 				ActOfRose::Value::CValue* exprResultValue;
 				if (condExprResult.category == ActOfRose::Value::EValueCategories::EVC_None)
 				{
-					ActOfRose::WriteLog(PREF_STRING("null value cannot be a condition"),
-						(sizeof(PREF_STRING("null value cannot be a condition")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+					ActOfRose::WriteLog(PREF_STRING("Null value cannot be a condition"),
+						(sizeof(PREF_STRING("Null value cannot be a condition")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
 
 					result = AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
 				}
@@ -1348,6 +1357,60 @@ int ActOfRose::CExecutor::ProcessIdentifier(ActOfRose::Value::SValueReference* v
 						delete paramArr[paramIt];
 					}
 
+					return result;
+				}
+
+				break;
+			}
+
+			case ActOfRose::Token::ETokenType::ETTSquareBracketLeft:
+			{
+				// ----- If an access to an inner element through index is encountered -----
+
+				if ((element->type != ActOfRose::EElementType::EET_Variable) &&
+					(element->type != ActOfRose::EElementType::EET_Constant))
+				{
+					std::string errorMsg = "Invalid operand type. ";
+					errorMsg += (*_pCurrTokenGroup)[_mCurrTokenIndex].value;
+					errorMsg += " is not variable or constant";
+
+					ActOfRose::WriteLog(errorMsg.c_str(), errorMsg.length(), ActOfRose::ELogLevel::ELL_Error);
+
+					return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
+				}
+
+				_mCurrTokenIndex += 2;
+
+				ActOfRose::Value::SValueReference indexValueHolder;
+				int result;
+
+				result = EvaluateExpression(&(indexValueHolder.value.value));
+				if (result != AOR_SUCCESS)
+				{
+					return result;
+				}
+
+				indexValueHolder.category = ActOfRose::Value::EValueCategories::EVC_PRValue;
+
+				if (element->type == ActOfRose::EElementType::EET_Variable)
+				{
+					ActOfRose::CVariable* var = (ActOfRose::CVariable*)(element->addr);
+					ActOfRose::Value::CValue* value = var->GetValue();
+
+					result = value->ExecuteOperation(valueRefHolder, ActOfRose::Operation::EOperationTypes::EO_ElementAccess,
+						&indexValueHolder);
+				}
+				else if (element->type != ActOfRose::EElementType::EET_Constant)
+				{
+					/*!
+						TODO: Implement support of constants later
+					*/
+				}
+
+				delete indexValueHolder.value.value;
+
+				if (result != AOR_SUCCESS)
+				{
 					return result;
 				}
 
