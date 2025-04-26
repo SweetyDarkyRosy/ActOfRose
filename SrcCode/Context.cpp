@@ -104,6 +104,78 @@ int ActOfRose::Context::CExpressionEvaluationContext::ProcessToken(ActOfRose::To
 }
 
 
+// ----- ActOfRose::Context::CIndividualExpressionContext class -----
+
+// Constructor
+ActOfRose::Context::CIndividualExpressionContext::CIndividualExpressionContext() :
+	_mState(ActOfRose::Context::CIndividualExpressionContext::EIndividualExprCtxStates::EIECS_Initial)
+{
+#ifdef _DEBUG
+	ActOfRose::WriteLog(PREF_STRING("New individual expression context has been created"),
+		(sizeof(PREF_STRING("New individual expression context has been created")) / sizeof(PChar)),
+		ActOfRose::ELogLevel::ELL_Debug);
+#endif
+}
+
+// Analyses the given token, checks current sequence for logical errors and updates a context
+int ActOfRose::Context::CIndividualExpressionContext::ProcessToken(ActOfRose::Token::SToken* token)
+{
+	switch (_mState)
+	{
+		case ActOfRose::Context::CIndividualExpressionContext::EIndividualExprCtxStates::EIECS_Initial:
+		{
+			switch (token->type)
+			{
+				case ActOfRose::Token::ETokenType::ETTNumber:
+				case ActOfRose::Token::ETokenType::ETTString:
+				case ActOfRose::Token::ETokenType::ETTIdentifier:
+				case ActOfRose::Token::ETokenType::ETTOperator:
+				case ActOfRose::Token::ETokenType::ETTRoundBracketLeft:
+				case ActOfRose::Token::ETokenType::ETTCurlyBracketLeft:
+				{
+					_mState = ActOfRose::Context::CIndividualExpressionContext::EIndividualExprCtxStates::EIECS_ExpressionEnd;
+
+					return AOR_CONTEXT_CREATE;
+				}
+
+				default:
+				{
+					ActOfRose::WriteLog(PREF_STRING("Expected expression"), (sizeof(PREF_STRING("Expected expression")) / sizeof(PChar)),
+						ActOfRose::ELogLevel::ELL_Error);
+
+					return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
+				}
+			}
+
+			break;
+		}
+
+		case ActOfRose::Context::CIndividualExpressionContext::EIndividualExprCtxStates::EIECS_ExpressionEnd:
+		{
+			switch (token->type)
+			{
+				case ActOfRose::Token::ETokenType::ETTSemicolon:
+				{
+					return AOR_CONTEXT_COMPLETE;
+				}
+
+				default:
+				{
+					ActOfRose::WriteLog(PREF_STRING("Expected ';'"), (sizeof(PREF_STRING("Expected ';'")) / sizeof(PChar)),
+						ActOfRose::ELogLevel::ELL_Error);
+
+					return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
+				}
+			}
+
+			break;
+		}
+	}
+
+	return AOR_SUCCESS;
+}
+
+
 // ----- ActOfRose::Context::CVarDeclarationContext class -----
 
 // Constructor

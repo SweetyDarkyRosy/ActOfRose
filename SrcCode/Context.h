@@ -65,6 +65,32 @@ namespace ActOfRose
 
 		};
 
+		// Class of individual independent expression
+		class CIndividualExpressionContext : public CContext
+		{
+			// States of variable declaration context
+			enum EIndividualExprCtxStates
+			{
+				EIECS_Initial,					// Initial state of context
+				EIECS_ExpressionEnd,			// Ending of expression (semicolon) is expected
+			};
+
+		public:
+			// Constructor
+			CIndividualExpressionContext();
+
+		public:
+			// Analyses the given token, checks current sequence for logical errors and updates a context
+			virtual int ProcessToken(ActOfRose::Token::SToken* token) override;
+
+			// Commits finalisation of context with current set of tokens if possible
+			virtual int CommitContextFinalisation() override { return AOR_ERROR_TOKEN_PREMATURE_END_OF_SCRIPT; }
+
+		private:
+			ActOfRose::Context::CIndividualExpressionContext::EIndividualExprCtxStates _mState;		// Context state
+
+		};
+
 		// Class of variable declaration context
 		class CVarDeclarationContext : public CContext
 		{
