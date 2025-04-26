@@ -42,12 +42,12 @@ static const std::unordered_map<std::string, ActOfRose::Operation::EOperationTyp
 static int ExecuteBinaryOperation(ActOfRose::Value::SValueReference* retValueRefHolder, ActOfRose::Operation::EOperationTypes opType,
 	ActOfRose::Value::SValueReference* leftOperandRef, ActOfRose::Value::SValueReference* rightOperandRef)
 {
-	// ----- Checking if the operation type is the assignment and if left value is lvalue -----
-
 	switch (opType)
 	{
 		case ActOfRose::Operation::EOperationTypes::EO_Assignment:
 		{
+			// ----- Checking if the operation type is the assignment and if left value is lvalue -----
+
 			if (leftOperandRef->category != ActOfRose::Value::EValueCategories::EVC_LValue)
 			{
 				ActOfRose::WriteLog(PREF_STRING("lvalue required as left operand"),
@@ -55,26 +55,41 @@ static int ExecuteBinaryOperation(ActOfRose::Value::SValueReference* retValueRef
 				
 				return AOR_ERROR_EXEC_LVALUE_REQUIRED;
 			}
+
+
+			// ----- Execution -----
+
+			delete *(leftOperandRef->value.valueHolder);
+
+			if (rightOperandRef->category == ActOfRose::Value::EValueCategories::EVC_LValue)
+			{
+				*(leftOperandRef->value.valueHolder) = ActOfRose::AORSystemCopyValue(*(rightOperandRef->value.valueHolder));
+			}
+			else
+			{
+				*(leftOperandRef->value.valueHolder) = ActOfRose::AORSystemCopyValue(rightOperandRef->value.value);
+			}
+
+			break;
 		}
 
 		default:
 		{
-			break;
+			ActOfRose::Value::CValue* leftValue;
+			if (leftOperandRef->category == ActOfRose::Value::EValueCategories::EVC_LValue)
+			{
+				leftValue = *(leftOperandRef->value.valueHolder);
+			}
+			else
+			{
+				leftValue = leftOperandRef->value.value;
+			}
+
+			return leftValue->ExecuteOperation(retValueRefHolder, opType, rightOperandRef);
 		}
 	}
 
-
-	ActOfRose::Value::CValue* leftValue;
-	if (leftOperandRef->category == ActOfRose::Value::EValueCategories::EVC_LValue)
-	{
-		leftValue = *(leftOperandRef->value.valueHolder);
-	}
-	else
-	{
-		leftValue = leftOperandRef->value.value;
-	}
-
-	return leftValue->ExecuteOperation(retValueRefHolder, opType, rightOperandRef);
+	return AOR_SUCCESS;
 }
 
 // Performs a unary operation of a specified type on the given operand
