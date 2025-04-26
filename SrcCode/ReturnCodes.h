@@ -19,7 +19,8 @@
 #define AOR_CONTEXT_COMPLETE								3			// Code returned to indicate that current context is complete
 #define AOR_CONTEXT_EXECUTE									4			// Code returned to indicate that current context is ready for execution
 #define AOR_CONTEXT_CREATE									5			// Code returned to indicate that a new context should be created
-#define AOR_LEAVE_EXECUTION									6			// Code returned to indicate that current subroutine (execution process) should be left
+#define AOR_CONTEXT_LOOKAHEAD_KEEP							6			// Code returned to indicate that a new context should be created but next token had been extracted for checking and not used, so it should be saved
+#define AOR_LEAVE_EXECUTION									7			// Code returned to indicate that current subroutine (execution process) should be left
 
 #define AOR_ERROR_INTERNAL_ERROR							(-1)		// Error due to some internal error
 #define AOR_ERROR_INVALID_ARG_NUMBER						(-2)		// Error due to some internal error
