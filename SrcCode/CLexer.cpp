@@ -54,7 +54,7 @@ static inline bool IsOperator(char value)
 
 // Constructor
 ActOfRose::CLexer::CLexer(std::istream* scriptStream) :
-	_pScriptStream(scriptStream)
+	_pScriptStream(scriptStream), _bIsLookaheadTokenSaved(false), _mPad{ 0, }
 {}
 
 
@@ -67,12 +67,58 @@ int ActOfRose::CLexer::Tokenise()
 	ActOfRose::Token::SToken token;
 	int result;
 
+
+	if (_bIsLookaheadTokenSaved == true)
+	{
+		// ----- Processing of a token saved for a new loop -----
+
+		result = sequencer.ProcessToken(&_mLookaheadSavedToken);
+		if (result == AOR_SUCCESS)
+		{
+			_mTokensRetrieved.push_back(_mLookaheadSavedToken);
+		}
+		else if (result == AOR_CONTEXT_EXECUTE_KEEP_LAST)
+		{
+			_mLookaheadSavedToken.value = _mLookaheadSavedToken.value;
+			_mLookaheadSavedToken.type = _mLookaheadSavedToken.type;
+
+			_bIsLookaheadTokenSaved = true;
+
+			return AOR_CONTEXT_EXECUTE;
+		}
+		else
+		{
+			return result;
+		}
+
+		_bIsLookaheadTokenSaved = false;
+	}
+
+
+	// ----- Main token processing loop -----
+
 	while ((result = RetrieveNextToken(&token)) == AOR_SUCCESS)
 	{
-		_mTokensRetrieved.push_back(token);
-
 		result = sequencer.ProcessToken(&token);
-		if (result != AOR_SUCCESS)
+		if (result == AOR_SUCCESS)
+		{
+			_mTokensRetrieved.push_back(token);
+		}
+		else if (result == AOR_CONTEXT_EXECUTE)
+		{
+			_mTokensRetrieved.push_back(token);
+			return result;
+		}
+		else if (result == AOR_CONTEXT_EXECUTE_KEEP_LAST)
+		{
+			_mLookaheadSavedToken.value = token.value;
+			_mLookaheadSavedToken.type = token.type;
+
+			_bIsLookaheadTokenSaved = true;
+
+			return AOR_CONTEXT_EXECUTE;
+		}
+		else
 		{
 			return result;
 		}

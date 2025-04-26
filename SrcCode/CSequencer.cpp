@@ -64,6 +64,23 @@ int ActOfRose::Context::CSequencer::ProcessToken(ActOfRose::Token::SToken* token
 				result = AOR_CONTEXT_EXECUTE;
 			}
 		}
+		else if (result == AOR_CONTEXT_LOOKAHEAD_KEEP)
+		{
+			delete _mContexts.top();
+			_mContexts.pop();
+
+			if (_mContexts.size() == 0)
+			{
+				result = AOR_CONTEXT_EXECUTE_KEEP_LAST;
+			}
+			else
+			{
+				if ((result = DetermineAndCreateContext(token)) != AOR_SUCCESS)
+				{
+					return result;
+				}
+			}
+		}
 		else
 		{
 			break;

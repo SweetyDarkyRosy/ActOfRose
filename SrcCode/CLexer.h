@@ -58,9 +58,13 @@ namespace ActOfRose
 		void SkipComment();
 
 	private:
-		std::istream* _pScriptStream;							// Pointer to a script stream
-		std::vector<ActOfRose::Token::SToken> _mTokensRetrieved;		// Array of retrieved tokens
-		std::stack<char> _mBlockDelimiterStack;					// Stack for collecting the starting (left) block delimiters and checking for the sequence of their use
+		std::istream* _pScriptStream;								// Pointer to a script stream
+		std::vector<ActOfRose::Token::SToken> _mTokensRetrieved;	// Array of retrieved tokens
+		std::stack<char> _mBlockDelimiterStack;						// Stack for collecting the starting (left) block delimiters and checking for the sequence of their use
+
+		ActOfRose::Token::SToken _mLookaheadSavedToken;				// Last token holder for a next loop
+		bool _bIsLookaheadTokenSaved;								// Flag for indicating if last token was saved for a next loop
+		char _mPad[3];												// For memory alignment
 
 	};
 
