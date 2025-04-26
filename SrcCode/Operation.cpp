@@ -61,7 +61,11 @@ static int ExecuteBinaryOperation(ActOfRose::Value::SValueReference* retValueRef
 
 			delete *(leftOperandRef->value.valueHolder);
 
-			if (rightOperandRef->category == ActOfRose::Value::EValueCategories::EVC_LValue)
+			if (rightOperandRef->category == ActOfRose::Value::EValueCategories::EVC_None)
+			{
+				*(leftOperandRef->value.valueHolder) = nullptr;
+			}
+			else if (rightOperandRef->category == ActOfRose::Value::EValueCategories::EVC_LValue)
 			{
 				*(leftOperandRef->value.valueHolder) = ActOfRose::AORSystemCopyValue(*(rightOperandRef->value.valueHolder));
 			}
