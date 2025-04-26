@@ -111,6 +111,17 @@ int ActOfRose::CExecutor::Execute(ActOfRose::Value::SValueReference* returnValue
 				break;
 			}
 
+			case ActOfRose::Token::ETokenType::ETTNumber:
+			case ActOfRose::Token::ETokenType::ETTString:
+			case ActOfRose::Token::ETokenType::ETTCurlyBracketLeft:
+			case ActOfRose::Token::ETokenType::ETTIdentifier:
+			case ActOfRose::Token::ETokenType::ETTOperator:
+			case ActOfRose::Token::ETokenType::ETTRoundBracketLeft:
+			{
+				execResult = EvaluateExpression(nullptr);
+				break;
+			}
+
 			default:
 			{
 				ActOfRose::WriteLog(PREF_STRING("Unexpected token"), (sizeof(PREF_STRING("Unexpected token")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
@@ -672,38 +683,48 @@ int ActOfRose::CExecutor::EvaluateExpression(ActOfRose::Value::CValue** valueHol
 		return result;
 	}
 
-	ActOfRose::Value::CValue* newValue;
-	if (newValueRef.category == ActOfRose::Value::EValueCategories::EVC_LValue)
+	if (valueHolder != nullptr)
 	{
-		newValue = AORSystemCopyValue(*(newValueRef.value.valueHolder));
-	}
-	else if (newValueRef.category == ActOfRose::Value::EValueCategories::EVC_RValue)
-	{
-		newValue = AORSystemCopyValue(newValueRef.value.value);
-	}
-	else if (newValueRef.category == ActOfRose::Value::EValueCategories::EVC_PRValue)
-	{
-		newValue = newValueRef.value.value;
+		ActOfRose::Value::CValue* newValue;
+		if (newValueRef.category == ActOfRose::Value::EValueCategories::EVC_LValue)
+		{
+			newValue = AORSystemCopyValue(*(newValueRef.value.valueHolder));
+		}
+		else if (newValueRef.category == ActOfRose::Value::EValueCategories::EVC_RValue)
+		{
+			newValue = AORSystemCopyValue(newValueRef.value.value);
+		}
+		else if (newValueRef.category == ActOfRose::Value::EValueCategories::EVC_PRValue)
+		{
+			newValue = newValueRef.value.value;
+		}
+		else
+		{
+			newValue = nullptr;
+		}
+
+		delete exprRoot;
+
+	#ifdef _DEBUG
+		if (newValue != nullptr)
+		{
+			std::string msg = "Value ";
+			msg += newValue->ConvertValueToByteString();
+			msg += " has been retrieved while expression evaluation";
+
+			ActOfRose::WriteLog(msg.c_str(), msg.length(), ActOfRose::ELogLevel::ELL_Debug);
+		}
+	#endif
+
+		*valueHolder = newValue;
 	}
 	else
 	{
-		newValue = nullptr;
+		if (newValueRef.category == ActOfRose::Value::EValueCategories::EVC_PRValue)
+		{
+			delete newValueRef.value.value;
+		}
 	}
-
-	delete exprRoot;
-
-#ifdef _DEBUG
-	if (newValue != nullptr)
-	{
-		std::string msg = "Value ";
-		msg += newValue->ConvertValueToByteString();
-		msg += " has been retrieved while expression evaluation";
-
-		ActOfRose::WriteLog(msg.c_str(), msg.length(), ActOfRose::ELogLevel::ELL_Debug);
-	}
-#endif
-
-	*valueHolder = newValue;
 
 	return AOR_SUCCESS;
 }
