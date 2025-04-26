@@ -12,6 +12,7 @@
 #ifndef __ACT_OF_ROSE_CONTEXT_CLASSES_H__
 #define __ACT_OF_ROSE_CONTEXT_CLASSES_H__
 
+#include "ReturnCodes.h"
 #include "Keywords.h"
 
 
@@ -35,6 +36,9 @@ namespace ActOfRose
 			// Analyses the given token, checks current sequence for logical errors and updates a context
 			virtual int ProcessToken(ActOfRose::Token::SToken* token) = 0;
 
+			// Commits finalisation of context with current set of tokens if possible
+			virtual int CommitContextFinalisation() = 0;
+
 		};
 
 
@@ -52,6 +56,9 @@ namespace ActOfRose
 		public:
 			// Analyses the given token, checks current sequence for logical errors and updates a context
 			virtual int ProcessToken(ActOfRose::Token::SToken* token) override;
+
+			// Commits finalisation of context with current set of tokens if possible
+			virtual int CommitContextFinalisation() override { return AOR_ERROR_TOKEN_PREMATURE_END_OF_SCRIPT; }
 
 		private:
 			unsigned int _mNestingDepth;			// Nesting depth
@@ -79,6 +86,9 @@ namespace ActOfRose
 		public:
 			// Analyses the given token, checks current sequence for logical errors and updates a context
 			virtual int ProcessToken(ActOfRose::Token::SToken* token) override;
+
+			// Commits finalisation of context with current set of tokens if possible
+			virtual int CommitContextFinalisation() override { return AOR_ERROR_TOKEN_PREMATURE_END_OF_SCRIPT; }
 
 		private:
 			ActOfRose::Context::CVarDeclarationContext::EVarDeclarationCtxStates _mState;		// Context state
@@ -109,6 +119,9 @@ namespace ActOfRose
 		public:
 			// Analyses the given token, checks current sequence for logical errors and updates a context
 			virtual int ProcessToken(ActOfRose::Token::SToken* token) override;
+
+			// Commits finalisation of context with current set of tokens if possible
+			virtual int CommitContextFinalisation() override { return AOR_ERROR_TOKEN_PREMATURE_END_OF_SCRIPT; }
 
 		private:
 			ActOfRose::Context::CFuncDeclarationContext::EFuncDeclarationCtxStates _mState;		// Context state
@@ -147,6 +160,9 @@ namespace ActOfRose
 			// Analyses the given token, checks current sequence for logical errors and updates a context
 			virtual int ProcessToken(ActOfRose::Token::SToken* token) override;
 
+			// Commits finalisation of context with current set of tokens if possible
+			virtual int CommitContextFinalisation() override;
+
 		private:
 			ActOfRose::Context::CConditionalContext::EConditionalCtxStates _mState;					// Context state
 			ActOfRose::Context::CConditionalContext::EConditionalCtxBranchTypes _mLastBranchtype;	// Types of last branch
@@ -171,6 +187,9 @@ namespace ActOfRose
 		public:
 			// Analyses the given token, checks current sequence for logical errors and updates a context
 			virtual int ProcessToken(ActOfRose::Token::SToken* token) override;
+
+			// Commits finalisation of context with current set of tokens if possible
+			virtual int CommitContextFinalisation() override { return AOR_ERROR_TOKEN_PREMATURE_END_OF_SCRIPT; }
 
 		private:
 			ActOfRose::Context::CReturnStatementContext::EReturnStatementCtxStates _mState;		// Context state

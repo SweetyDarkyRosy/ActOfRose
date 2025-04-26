@@ -12,7 +12,6 @@
 #include "Context.h"
 
 #include "Log.h"
-#include "ReturnCodes.h"
 #include "Token.h"
 #include "Utility/StringMisc.h"
 
@@ -702,6 +701,17 @@ int ActOfRose::Context::CConditionalContext::ProcessToken(ActOfRose::Token::STok
 	}
 
 	return AOR_SUCCESS;
+}
+
+// Commits finalisation of context with current set of tokens if possible
+int ActOfRose::Context::CConditionalContext::CommitContextFinalisation()
+{
+	if (_mState == ActOfRose::Context::CConditionalContext::EConditionalCtxStates::ECCS_BranchDisjunction)
+	{
+		return AOR_CONTEXT_COMPLETE;
+	}
+
+	return AOR_ERROR_TOKEN_PREMATURE_END_OF_SCRIPT;
 }
 
 
