@@ -74,6 +74,9 @@ static int ExecuteBinaryOperation(ActOfRose::Value::SValueReference* retValueRef
 				*(leftOperandRef->value.valueHolder) = ActOfRose::AORSystemCopyValue(rightOperandRef->value.value);
 			}
 
+			retValueRefHolder->category = ActOfRose::Value::EValueCategories::EVC_LValue;
+			retValueRefHolder->value.valueHolder = leftOperandRef->value.valueHolder;
+
 			break;
 		}
 
