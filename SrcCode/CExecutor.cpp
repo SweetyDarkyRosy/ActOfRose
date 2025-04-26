@@ -940,6 +940,8 @@ int ActOfRose::CExecutor::DeclareAndDefineFunction()
 // Processes a sequence of conditions and executes a sequence of operations under a satisfying condition
 int ActOfRose::CExecutor::ProcessConditions(ActOfRose::Value::SValueReference* returnValueHolder)
 {
+	bool isExecuted = false;
+
 	while (_mCurrTokenIndex < (unsigned int)(_pCurrTokenGroup->size()))
 	{
 		int result = AOR_SUCCESS;
@@ -948,81 +950,177 @@ int ActOfRose::CExecutor::ProcessConditions(ActOfRose::Value::SValueReference* r
 		{
 			_mCurrTokenIndex += 2;
 
-
-			// ----- Processing of condition -----
-
-			ActOfRose::AST::CExprASTNode* exprRoot;
+			if (isExecuted == false)
 			{
-				result = BuildExpressionAST(&exprRoot);
+				// ----- Processing of condition -----
+
+				ActOfRose::AST::CExprASTNode* exprRoot;
+				{
+					result = BuildExpressionAST(&exprRoot);
+					if (result != AOR_SUCCESS)
+					{
+						delete exprRoot;
+						break;
+					}
+				}
+
+				ActOfRose::Value::SValueReference condExprResult;
+				result = exprRoot->RetrieveValue(&condExprResult);
 				if (result != AOR_SUCCESS)
 				{
 					delete exprRoot;
 					break;
 				}
-			}
 
-			ActOfRose::Value::SValueReference condExprResult;
-			result = exprRoot->RetrieveValue(&condExprResult);
-			if (result != AOR_SUCCESS)
-			{
-				delete exprRoot;
-				break;
-			}
-
-			ActOfRose::Value::CValue* exprResultValue;
-			if (condExprResult.category == ActOfRose::Value::EValueCategories::EVC_None)
-			{
-				ActOfRose::WriteLog(PREF_STRING("null value cannot be a condition"),
-					(sizeof(PREF_STRING("null value cannot be a condition")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
-
-				result = AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
-			}
-			else
-			{
-				if (condExprResult.category == ActOfRose::Value::EValueCategories::EVC_LValue)
+				ActOfRose::Value::CValue* exprResultValue;
+				if (condExprResult.category == ActOfRose::Value::EValueCategories::EVC_None)
 				{
-					exprResultValue = *(condExprResult.value.valueHolder);
+					ActOfRose::WriteLog(PREF_STRING("null value cannot be a condition"),
+						(sizeof(PREF_STRING("null value cannot be a condition")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+					result = AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
 				}
 				else
 				{
-					exprResultValue = condExprResult.value.value;
+					if (condExprResult.category == ActOfRose::Value::EValueCategories::EVC_LValue)
+					{
+						exprResultValue = *(condExprResult.value.valueHolder);
+					}
+					else
+					{
+						exprResultValue = condExprResult.value.value;
+					}
+
+					if (exprResultValue->GetValueType() == ActOfRose::Value::EValueType::EVT_String)
+					{
+						ActOfRose::WriteLog(PREF_STRING("String cannot be a condition"),
+							(sizeof(PREF_STRING("String cannot be a condition")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+		
+						result = AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
+					}
+					else if (exprResultValue->GetValueType() == ActOfRose::Value::EValueType::EVT_Array)
+					{
+						ActOfRose::WriteLog(PREF_STRING("Array cannot be a condition"),
+							(sizeof(PREF_STRING("Array cannot be a condition")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+						result = AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
+					}
 				}
 
-				if (exprResultValue->GetValueType() == ActOfRose::Value::EValueType::EVT_String)
-				{
-					ActOfRose::WriteLog(PREF_STRING("String cannot be a condition"),
-						(sizeof(PREF_STRING("String cannot be a condition")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
-	
-					result = AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
-				}
-				else if (exprResultValue->GetValueType() == ActOfRose::Value::EValueType::EVT_Array)
-				{
-					ActOfRose::WriteLog(PREF_STRING("Array cannot be a condition"),
-						(sizeof(PREF_STRING("Array cannot be a condition")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+				_mCurrTokenIndex += 2;
 
-					result = AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
+				if (result == AOR_SUCCESS)
+				{
+					// another index holder for finding the position of a curly bracket that indicates the end of a body
+					unsigned int localCurrTokenIndex = _mCurrTokenIndex;
+
+					// ----- Finding the end of a body -----
+
+					{
+						unsigned int curlyBracketBlockCount = 0;
+
+						while (localCurrTokenIndex < (unsigned int)(_pCurrTokenGroup->size()))
+						{
+							if ((*_pCurrTokenGroup)[localCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTCurlyBracketLeft)
+							{
+								curlyBracketBlockCount++;
+							}
+							else if ((*_pCurrTokenGroup)[localCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTCurlyBracketRight)
+							{
+								if (curlyBracketBlockCount == 0)
+								{
+									break;
+								}
+
+								curlyBracketBlockCount--;
+							}
+
+							localCurrTokenIndex++;
+						}
+					}
+
+
+					// ----- Checking the result value -----
+
+					if (exprResultValue->IsZero() == false)
+					{
+						// ----- Extracting a body -----
+
+						std::vector<ActOfRose::Token::SToken> bodyTokens;
+						std::copy(_pCurrTokenGroup->begin() + _mCurrTokenIndex, _pCurrTokenGroup->begin() + localCurrTokenIndex, std::back_inserter(bodyTokens));
+
+
+						// ----- Execution -----
+
+						if (bodyTokens.size() != 0)
+						{
+							// Creates a function's local scope
+							ActOfRose::AORSystemAddScope(ActOfRose::EScopeVisibilityTypes::ESIT_InheritingScope);
+
+							ActOfRose::CExecutor executor;				// Local instance of executor
+							result = executor.Execute(returnValueHolder, &bodyTokens);
+
+							// Removes a function's local scope
+							ActOfRose::AORSystemRemoveScope();
+
+							isExecuted = true;
+						}
+					}
+
+					_mCurrTokenIndex = localCurrTokenIndex;
+				}
+
+				if (condExprResult.category == ActOfRose::Value::EValueCategories::EVC_PRValue)
+				{
+					delete condExprResult.value.value;
+				}
+
+				delete exprRoot;
+
+				if (result != AOR_SUCCESS)
+				{
+					return result;
 				}
 			}
-
-			_mCurrTokenIndex += 2;
-
-			if (result == AOR_SUCCESS)
+			else
 			{
-				// another index holder for finding the position of a curly bracket that indicates the end of a body
-				unsigned int localCurrTokenIndex = _mCurrTokenIndex;
+				// ----- Skipping -----
 
-				// ----- Finding the end of a body -----
+				{
+					unsigned int roundBracketBlockCount = 0;
+
+					while (_mCurrTokenIndex < (unsigned int)(_pCurrTokenGroup->size()))
+					{
+						if ((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTRoundBracketLeft)
+						{
+							roundBracketBlockCount++;
+						}
+						else if ((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTRoundBracketRight)
+						{
+							if (roundBracketBlockCount == 0)
+							{
+								break;
+							}
+
+							roundBracketBlockCount--;
+						}
+
+						_mCurrTokenIndex++;
+					}
+				}
+
+				_mCurrTokenIndex += 2;
 
 				{
 					unsigned int curlyBracketBlockCount = 0;
 
-					while (localCurrTokenIndex < (unsigned int)(_pCurrTokenGroup->size()))
+					while (_mCurrTokenIndex < (unsigned int)(_pCurrTokenGroup->size()))
 					{
-						if ((*_pCurrTokenGroup)[localCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTCurlyBracketLeft)
+						if ((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTCurlyBracketLeft)
 						{
 							curlyBracketBlockCount++;
 						}
-						else if ((*_pCurrTokenGroup)[localCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTCurlyBracketRight)
+						else if ((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTCurlyBracketRight)
 						{
 							if (curlyBracketBlockCount == 0)
 							{
@@ -1032,49 +1130,9 @@ int ActOfRose::CExecutor::ProcessConditions(ActOfRose::Value::SValueReference* r
 							curlyBracketBlockCount--;
 						}
 
-						localCurrTokenIndex++;
+						_mCurrTokenIndex++;
 					}
 				}
-
-
-				// ----- Checking the result value -----
-
-				if (exprResultValue->IsZero() == false)
-				{
-					// ----- Extracting a body -----
-
-					std::vector<ActOfRose::Token::SToken> bodyTokens;
-					std::copy(_pCurrTokenGroup->begin() + _mCurrTokenIndex, _pCurrTokenGroup->begin() + localCurrTokenIndex, std::back_inserter(bodyTokens));
-
-
-					// ----- Execution -----
-
-					if (bodyTokens.size() != 0)
-					{
-						// Creates a function's local scope
-						ActOfRose::AORSystemAddScope(ActOfRose::EScopeVisibilityTypes::ESIT_InheritingScope);
-
-						ActOfRose::CExecutor executor;				// Local instance of executor
-						result = executor.Execute(returnValueHolder, &bodyTokens);
-
-						// Removes a function's local scope
-						ActOfRose::AORSystemRemoveScope();
-					}
-				}
-
-				_mCurrTokenIndex = localCurrTokenIndex;
-			}
-
-			if (condExprResult.category == ActOfRose::Value::EValueCategories::EVC_PRValue)
-			{
-				delete condExprResult.value.value;
-			}
-
-			delete exprRoot;
-
-			if (result != AOR_SUCCESS)
-			{
-				return result;
 			}
 		}
 		else if ((*_pCurrTokenGroup)[_mCurrTokenIndex].value == "else")
@@ -1110,24 +1168,29 @@ int ActOfRose::CExecutor::ProcessConditions(ActOfRose::Value::SValueReference* r
 				}
 			}
 
-			// ----- Extracting a body -----
-
-			std::vector<ActOfRose::Token::SToken> bodyTokens;
-			std::copy(_pCurrTokenGroup->begin() + _mCurrTokenIndex, _pCurrTokenGroup->begin() + localCurrTokenIndex, std::back_inserter(bodyTokens));
-
-
-			// ----- Execution -----
-
-			if (bodyTokens.size() != 0)
+			if (isExecuted == false)
 			{
-				// Creates a function's local scope
-				ActOfRose::AORSystemAddScope(ActOfRose::EScopeVisibilityTypes::ESIT_InheritingScope);
+				// ----- Extracting a body -----
 
-				ActOfRose::CExecutor executor;				// Local instance of executor
-				result = executor.Execute(returnValueHolder, &bodyTokens);
+				std::vector<ActOfRose::Token::SToken> bodyTokens;
+				std::copy(_pCurrTokenGroup->begin() + _mCurrTokenIndex, _pCurrTokenGroup->begin() + localCurrTokenIndex, std::back_inserter(bodyTokens));
 
-				// Removes a function's local scope
-				ActOfRose::AORSystemRemoveScope();
+
+				// ----- Execution -----
+
+				if (bodyTokens.size() != 0)
+				{
+					// Creates a function's local scope
+					ActOfRose::AORSystemAddScope(ActOfRose::EScopeVisibilityTypes::ESIT_InheritingScope);
+
+					ActOfRose::CExecutor executor;				// Local instance of executor
+					result = executor.Execute(returnValueHolder, &bodyTokens);
+
+					// Removes a function's local scope
+					ActOfRose::AORSystemRemoveScope();
+
+					isExecuted = true;
+				}
 			}
 
 			_mCurrTokenIndex = localCurrTokenIndex;
