@@ -90,6 +90,26 @@ int ActOfRose::Context::CSequencer::ProcessToken(ActOfRose::Token::SToken* token
 	return result;
 }
 
+// Commits finalisation of contexts and returns a status code
+int ActOfRose::Context::CSequencer::CommitFinalisation()
+{
+	int result;
+
+	while (_mContexts.empty() == false)
+	{
+		result = _mContexts.top()->CommitContextFinalisation();
+		if (result < 0)
+		{
+			return result;
+		}
+
+		delete _mContexts.top();
+		_mContexts.pop();
+	}
+
+	return result;
+}
+
 // Determines a context based on a given token and creates it
 int ActOfRose::Context::CSequencer::DetermineAndCreateContext(ActOfRose::Token::SToken* token)
 {

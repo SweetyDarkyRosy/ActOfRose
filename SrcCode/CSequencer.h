@@ -40,6 +40,9 @@ namespace ActOfRose
 			// Analyses the given token and manages current context
 			int ProcessToken(ActOfRose::Token::SToken* token);
 
+			// Commits finalisation of contexts and returns a status code
+			int CommitFinalisation();
+
 		private:
 			// Determines a context based on a given token and creates it
 			int DetermineAndCreateContext(ActOfRose::Token::SToken* token);
