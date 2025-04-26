@@ -128,6 +128,15 @@ namespace ActOfRose
 				ECCS_BodyStart,					// Left curly bracket is expected to start a function body
 				ECCS_BodyRoutine,				// Some expression, simple statement, compound statement or right curly bracket is expected
 				ECCS_SyntacticUnitEnd,			// Ending of expression, simple statement or compound statement (comma or semicolon) is expected
+				ECCS_BranchDisjunction,			// The 'elif' keyword, the 'else' keyword or end of branching (right curly bracket) is expected
+			};
+
+			// Types of branches
+			enum EConditionalCtxBranchTypes
+			{
+				ECCBT_If,			// "if"
+				ECCBT_Elif,			// "elif"
+				ECCBT_Else,			// "else"
 			};
 
 		public:
@@ -139,7 +148,8 @@ namespace ActOfRose
 			virtual int ProcessToken(ActOfRose::Token::SToken* token) override;
 
 		private:
-			ActOfRose::Context::CConditionalContext::EConditionalCtxStates _mState;		// Context state
+			ActOfRose::Context::CConditionalContext::EConditionalCtxStates _mState;					// Context state
+			ActOfRose::Context::CConditionalContext::EConditionalCtxBranchTypes _mLastBranchtype;	// Types of last branch
 
 		};
 

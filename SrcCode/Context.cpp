@@ -485,7 +485,8 @@ int ActOfRose::Context::CFuncDeclarationContext::ProcessToken(ActOfRose::Token::
 
 // Constructor
 ActOfRose::Context::CConditionalContext::CConditionalContext() :
-	_mState(ActOfRose::Context::CConditionalContext::EConditionalCtxStates::ECCS_Initial)
+	_mState(ActOfRose::Context::CConditionalContext::EConditionalCtxStates::ECCS_Initial),
+	_mLastBranchtype(ActOfRose::Context::CConditionalContext::EConditionalCtxBranchTypes::ECCBT_If)
 {
 #ifdef _DEBUG
 	ActOfRose::WriteLog(PREF_STRING("New conditional context has been created"), (sizeof(PREF_STRING("New conditional context has been created")) / sizeof(PChar)),
@@ -584,7 +585,9 @@ int ActOfRose::Context::CConditionalContext::ProcessToken(ActOfRose::Token::STok
 			{
 				case ActOfRose::Token::ETokenType::ETTCurlyBracketRight:
 				{
-					return AOR_CONTEXT_COMPLETE;
+					_mState = ActOfRose::Context::CConditionalContext::EConditionalCtxStates::ECCS_BranchDisjunction;
+
+					break;
 				}
 
 				case ActOfRose::Token::ETokenType::ETTNumber:
@@ -629,6 +632,70 @@ int ActOfRose::Context::CConditionalContext::ProcessToken(ActOfRose::Token::STok
 			}
 
 			_mState = ActOfRose::Context::CConditionalContext::EConditionalCtxStates::ECCS_BodyRoutine;
+
+			break;
+		}
+
+		case ActOfRose::Context::CConditionalContext::EConditionalCtxStates::ECCS_BranchDisjunction:
+		{
+			switch (token->type)
+			{
+				case ActOfRose::Token::ETokenType::ETTKeyword:
+				{
+					ActOfRose::Keyword::EKeywords keyword;
+					if (GetKeyword(&keyword, &(token->value)) == false)
+					{
+						ActOfRose::WriteLog(PREF_STRING("Keyword not found. Internal error"),
+							(sizeof(PREF_STRING("Keyword not found. Internal error")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+						return AOR_ERROR_INTERNAL_ERROR;
+					}
+
+					switch (keyword)
+					{
+						case ActOfRose::Keyword::EKeywords::EK_Elif:
+						{
+							if (_mLastBranchtype == ActOfRose::Context::CConditionalContext::EConditionalCtxBranchTypes::ECCBT_Else)
+							{
+								ActOfRose::WriteLog(PREF_STRING("'elif' statement cannot appear after 'else'"),
+									(sizeof(PREF_STRING("'elif' statement cannot appear after 'else'")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+								return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
+							}
+
+							_mState = ActOfRose::Context::CConditionalContext::EConditionalCtxStates::ECCS_ConditionBegin;
+							_mLastBranchtype = ActOfRose::Context::CConditionalContext::EConditionalCtxBranchTypes::ECCBT_Elif;
+
+							break;
+						}
+
+						case ActOfRose::Keyword::EKeywords::EK_Else:
+						{
+							_mState = ActOfRose::Context::CConditionalContext::EConditionalCtxStates::ECCS_BodyStart;
+							_mLastBranchtype = ActOfRose::Context::CConditionalContext::EConditionalCtxBranchTypes::ECCBT_Else;
+
+							break;
+						}
+
+						default:
+						{
+							return AOR_CONTEXT_LOOKAHEAD_KEEP;
+						}
+					}
+
+					break;
+				}
+
+				case ActOfRose::Token::ETokenType::ETTCurlyBracketRight:
+				{
+					return AOR_CONTEXT_COMPLETE;
+				}
+
+				default:
+				{
+					return AOR_CONTEXT_LOOKAHEAD_KEEP;
+				}
+			}
 
 			break;
 		}
