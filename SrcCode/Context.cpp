@@ -341,6 +341,7 @@ int ActOfRose::Context::CVarDeclarationContext::ProcessToken(ActOfRose::Token::S
 			switch (token->type)
 			{
 				case ActOfRose::Token::ETokenType::ETTSemicolon:
+				case ActOfRose::Token::ETokenType::ETTComma:
 				{
 					return AOR_CONTEXT_COMPLETE;
 				}
@@ -945,6 +946,299 @@ int ActOfRose::Context::CWhileLoopContext::ProcessToken(ActOfRose::Token::SToken
 	return AOR_SUCCESS;
 }
 
+
+// ----- ActOfRose::Context::CForLoopContext class -----
+
+// Constructor
+ActOfRose::Context::CForLoopContext::CForLoopContext() :
+	_mState(ActOfRose::Context::CForLoopContext::EForLoopCtxStates::EFLCS_Initial)
+{
+#ifdef _DEBUG
+	ActOfRose::WriteLog(PREF_STRING("New 'for' loop context has been created"),
+		(sizeof(PREF_STRING("New 'for' loop context has been created")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Debug);
+#endif
+}
+
+// Analyses the given token, checks current sequence for logical errors and updates a context
+int ActOfRose::Context::CForLoopContext::ProcessToken(ActOfRose::Token::SToken* token)
+{
+	switch (_mState)
+	{
+		case ActOfRose::Context::CForLoopContext::EForLoopCtxStates::EFLCS_Initial:
+		{
+			_mState = ActOfRose::Context::CForLoopContext::EForLoopCtxStates::EFLCS_ControlBlockBegin;
+
+			break;
+		}
+
+		case ActOfRose::Context::CForLoopContext::EForLoopCtxStates::EFLCS_ControlBlockBegin:
+		{
+			if (token->type != ActOfRose::Token::ETokenType::ETTRoundBracketLeft)
+			{
+				ActOfRose::WriteLog(PREF_STRING("Left round bracket was expected"), (sizeof(PREF_STRING("Left round bracket was expected")) / sizeof(PChar)),
+					ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
+			}
+
+			_mState = ActOfRose::Context::CForLoopContext::EForLoopCtxStates::EFLCS_InitExprStmtDisjunction;
+
+			break;
+		}
+
+		case ActOfRose::Context::CForLoopContext::EForLoopCtxStates::EFLCS_InitExprStmtDisjunction:
+		{
+			switch (token->type)
+			{
+				case ActOfRose::Token::ETokenType::ETTNumber:
+				case ActOfRose::Token::ETokenType::ETTString:
+				case ActOfRose::Token::ETokenType::ETTIdentifier:
+				case ActOfRose::Token::ETokenType::ETTOperator:
+				case ActOfRose::Token::ETokenType::ETTRoundBracketLeft:
+				case ActOfRose::Token::ETokenType::ETTCurlyBracketLeft:
+				{
+					_mState = ActOfRose::Context::CForLoopContext::EForLoopCtxStates::EFLCS_InitExprStmtEnd;
+
+					return AOR_CONTEXT_CREATE;
+				}
+
+				case ActOfRose::Token::ETokenType::ETTKeyword:
+				{
+					ActOfRose::Keyword::EKeywords keyword;
+					if (GetKeyword(&keyword, &(token->value)) == false)
+					{
+						ActOfRose::WriteLog(PREF_STRING("Keyword not found. Internal error"),
+							(sizeof(PREF_STRING("Keyword not found. Internal error")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+						return AOR_ERROR_INTERNAL_ERROR;
+					}
+
+					switch (keyword)
+					{
+						case ActOfRose::Keyword::EKeywords::EK_Var:
+						case ActOfRose::Keyword::EKeywords::EK_Override:
+						case ActOfRose::Keyword::EKeywords::EK_Strict:
+						case ActOfRose::Keyword::EKeywords::EK_Local:
+						{
+							_mState = ActOfRose::Context::CForLoopContext::EForLoopCtxStates::EFLCS_InitExprStmtEnd;
+
+							return AOR_CONTEXT_CREATE;
+						}
+
+						default:
+						{
+							ActOfRose::WriteLog(PREF_STRING("Expected expression"), (sizeof(PREF_STRING("Expected expression")) / sizeof(PChar)),
+								ActOfRose::ELogLevel::ELL_Error);
+
+							return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
+						}
+					}
+				}
+
+				case ActOfRose::Token::ETokenType::ETTSemicolon:
+				{
+					_mState = ActOfRose::Context::CForLoopContext::EForLoopCtxStates::EFLCS_ConditionalExprDisjunction;
+					break;
+				}
+
+				default:
+				{
+					ActOfRose::WriteLog(PREF_STRING("Expected expression"), (sizeof(PREF_STRING("Expected expression")) / sizeof(PChar)),
+						ActOfRose::ELogLevel::ELL_Error);
+
+					return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
+				}
+			}
+
+			break;
+		}
+
+		case ActOfRose::Context::CForLoopContext::EForLoopCtxStates::EFLCS_InitExprStmtEnd:
+		{
+			if (token->type != ActOfRose::Token::ETokenType::ETTSemicolon)
+			{
+				ActOfRose::WriteLog(PREF_STRING("Expected ';'"), (sizeof(PREF_STRING("Expected ';'")) / sizeof(PChar)),
+					ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
+			}
+
+			_mState = ActOfRose::Context::CForLoopContext::EForLoopCtxStates::EFLCS_ConditionalExprDisjunction;
+
+			break;
+		}
+
+		case ActOfRose::Context::CForLoopContext::EForLoopCtxStates::EFLCS_ConditionalExprDisjunction:
+		{
+			switch (token->type)
+			{
+				case ActOfRose::Token::ETokenType::ETTNumber:
+				case ActOfRose::Token::ETokenType::ETTString:
+				case ActOfRose::Token::ETokenType::ETTIdentifier:
+				case ActOfRose::Token::ETokenType::ETTOperator:
+				case ActOfRose::Token::ETokenType::ETTRoundBracketLeft:
+				case ActOfRose::Token::ETokenType::ETTCurlyBracketLeft:
+				{
+					_mState = ActOfRose::Context::CForLoopContext::EForLoopCtxStates::EFLCS_ConditionalExprEnd;
+
+					return AOR_CONTEXT_CREATE;
+				}
+
+				case ActOfRose::Token::ETokenType::ETTSemicolon:
+				{
+					_mState = ActOfRose::Context::CForLoopContext::EForLoopCtxStates::EFLCS_AdvancementExprDisjunction;
+					break;
+				}
+
+				default:
+				{
+					ActOfRose::WriteLog(PREF_STRING("Expected expression"), (sizeof(PREF_STRING("Expected expression")) / sizeof(PChar)),
+						ActOfRose::ELogLevel::ELL_Error);
+
+					return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
+				}
+			}
+
+			break;
+		}
+
+		case ActOfRose::Context::CForLoopContext::EForLoopCtxStates::EFLCS_ConditionalExprEnd:
+		{
+			if (token->type != ActOfRose::Token::ETokenType::ETTSemicolon)
+			{
+				ActOfRose::WriteLog(PREF_STRING("Expected ';'"), (sizeof(PREF_STRING("Expected ';'")) / sizeof(PChar)),
+					ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
+			}
+
+			_mState = ActOfRose::Context::CForLoopContext::EForLoopCtxStates::EFLCS_AdvancementExprDisjunction;
+
+			break;
+		}
+
+		case ActOfRose::Context::CForLoopContext::EForLoopCtxStates::EFLCS_AdvancementExprDisjunction:
+		{
+			switch (token->type)
+			{
+				case ActOfRose::Token::ETokenType::ETTNumber:
+				case ActOfRose::Token::ETokenType::ETTString:
+				case ActOfRose::Token::ETokenType::ETTIdentifier:
+				case ActOfRose::Token::ETokenType::ETTOperator:
+				case ActOfRose::Token::ETokenType::ETTRoundBracketLeft:
+				case ActOfRose::Token::ETokenType::ETTCurlyBracketLeft:
+				{
+					_mState = ActOfRose::Context::CForLoopContext::EForLoopCtxStates::EFLCS_ControlBlockEnd;
+
+					return AOR_CONTEXT_CREATE;
+				}
+
+				case ActOfRose::Token::ETokenType::ETTRoundBracketRight:
+				{
+					_mState = ActOfRose::Context::CForLoopContext::EForLoopCtxStates::EFLCS_BodyStart;
+					break;
+				}
+
+				default:
+				{
+					ActOfRose::WriteLog(PREF_STRING("Expected expression"), (sizeof(PREF_STRING("Expected expression")) / sizeof(PChar)),
+						ActOfRose::ELogLevel::ELL_Error);
+
+					return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
+				}
+			}
+
+			break;
+		}
+
+		case ActOfRose::Context::CForLoopContext::EForLoopCtxStates::EFLCS_ControlBlockEnd:
+		{
+			if (token->type != ActOfRose::Token::ETokenType::ETTRoundBracketRight)
+			{
+				ActOfRose::WriteLog(PREF_STRING("Right round bracket was expected"), (sizeof(PREF_STRING("Right round bracket was expected")) / sizeof(PChar)),
+					ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
+			}
+
+			_mState = ActOfRose::Context::CForLoopContext::EForLoopCtxStates::EFLCS_BodyStart;
+
+			break;
+		}
+
+		case ActOfRose::Context::CForLoopContext::EForLoopCtxStates::EFLCS_BodyStart:
+		{
+			if (token->type != ActOfRose::Token::ETokenType::ETTCurlyBracketLeft)
+			{
+				ActOfRose::WriteLog(PREF_STRING("Left curly bracket was expected"),
+					(sizeof(PREF_STRING("Left curly bracket was expected")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
+			}
+
+			_mState = ActOfRose::Context::CForLoopContext::EForLoopCtxStates::EFLCS_BodyRoutine;
+
+			break;
+		}
+
+		case ActOfRose::Context::CForLoopContext::EForLoopCtxStates::EFLCS_BodyRoutine:
+		{
+			switch (token->type)
+			{
+				case ActOfRose::Token::ETokenType::ETTCurlyBracketRight:
+				{
+					return AOR_CONTEXT_COMPLETE;
+				}
+
+				case ActOfRose::Token::ETokenType::ETTNumber:
+				case ActOfRose::Token::ETokenType::ETTString:
+				case ActOfRose::Token::ETokenType::ETTIdentifier:
+				case ActOfRose::Token::ETokenType::ETTOperator:
+				case ActOfRose::Token::ETokenType::ETTRoundBracketLeft:
+				case ActOfRose::Token::ETokenType::ETTCurlyBracketLeft:
+				case ActOfRose::Token::ETokenType::ETTKeyword:
+				{
+					_mState = ActOfRose::Context::CForLoopContext::EForLoopCtxStates::EFLCS_SyntacticUnitEnd;
+
+					return AOR_CONTEXT_CREATE;
+				}
+
+				default:
+				{
+					ActOfRose::WriteLog(PREF_STRING("Expected expression"), (sizeof(PREF_STRING("Expected expression")) / sizeof(PChar)),
+						ActOfRose::ELogLevel::ELL_Error);
+
+					return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
+				}
+			}
+
+			break;
+		}
+
+		case ActOfRose::Context::CForLoopContext::EForLoopCtxStates::EFLCS_SyntacticUnitEnd:
+		{
+			switch (token->type)
+			{
+				case ActOfRose::Token::ETokenType::ETTCurlyBracketRight:
+				case ActOfRose::Token::ETokenType::ETTSemicolon:
+				{
+					break;
+				}
+
+				default:
+				{
+					return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
+				}
+			}
+
+			_mState = ActOfRose::Context::CForLoopContext::EForLoopCtxStates::EFLCS_BodyRoutine;
+
+			break;
+		}
+	}
+
+	return AOR_SUCCESS;
+}
 
 
 // ----- ActOfRose::Context::CReturnStatementContext class -----

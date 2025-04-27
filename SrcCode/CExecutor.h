@@ -68,6 +68,9 @@ namespace ActOfRose
 		// Processes a 'while' loop and executes its body until a condition is not satisfied
 		int ProcessWhileLoop(ActOfRose::Value::SValueReference* returnValueHolder);
 
+		// Processes a 'for' loop and executes its body until a condition is not satisfied
+		int ProcessForLoop(ActOfRose::Value::SValueReference* returnValueHolder);
+
 		// Processes an encountered identifier and returns a value or a reference to value if possible
 		int ProcessIdentifier(ActOfRose::Value::SValueReference* valueRefHolder);
 

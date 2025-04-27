@@ -226,6 +226,41 @@ namespace ActOfRose
 
 		};
 
+		// Class of "for" loop context
+		class CForLoopContext : public CContext
+		{
+			// States of "for" loop context
+			enum EForLoopCtxStates
+			{
+				EFLCS_Initial,						// Initial state of context
+				EFLCS_ControlBlockBegin,			// Left round bracket for starting a loop control block is expected
+				EFLCS_InitExprStmtDisjunction,		// Initial expression or simple statement (called in the beginning of loop) or a semicolon is expected
+				EFLCS_InitExprStmtEnd,				// End of initial expression or simple statement (semicolon) is expected
+				EFLCS_ConditionalExprDisjunction,	// Conditional expression or a semicolon is expected
+				EFLCS_ConditionalExprEnd,			// End of conditional expression (semicolon) is expected
+				EFLCS_AdvancementExprDisjunction,	// Advancement expression or a right round bracket for ending a loop control block is expected
+				EFLCS_ControlBlockEnd,				// Right round bracket for ending a loop control block is expected
+				EFLCS_BodyStart,					// Left curly bracket is expected to start a function body
+				EFLCS_BodyRoutine,					// Some expression, simple statement, compound statement or right curly bracket is expected
+				EFLCS_SyntacticUnitEnd,				// Ending of expression, simple statement or compound statement (comma or semicolon) is expected
+			};
+
+		public:
+			// Constructor
+			CForLoopContext();
+
+		public:
+			// Analyses the given token, checks current sequence for logical errors and updates a context
+			virtual int ProcessToken(ActOfRose::Token::SToken* token) override;
+
+			// Commits finalisation of context with current set of tokens if possible
+			virtual int CommitContextFinalisation() override { return AOR_ERROR_TOKEN_PREMATURE_END_OF_SCRIPT; }
+
+		private:
+			ActOfRose::Context::CForLoopContext::EForLoopCtxStates _mState;		// Context state
+
+		};
+
 		// Class of return statement context
 		class CReturnStatementContext : public CContext
 		{
