@@ -182,6 +182,13 @@ int ActOfRose::Context::CSequencer::DetermineAndCreateContext(ActOfRose::Token::
 					break;
 				}
 
+				case ActOfRose::Keyword::EKeywords::EK_Do:
+				{
+					_mContexts.push(new ActOfRose::Context::CDoWhileLoopContext());
+
+					break;
+				}
+
 				case ActOfRose::Keyword::EKeywords::EK_Return:
 				{
 					_mContexts.push(new ActOfRose::Context::CReturnStatementContext());

@@ -95,6 +95,12 @@ int ActOfRose::CExecutor::Execute(ActOfRose::Value::SValueReference* returnValue
 						break;
 					}
 
+					case ActOfRose::Keyword::EKeywords::EK_Do:
+					{
+						execResult = ProcessDoWhileLoop(returnValueHolder);
+						break;
+					}
+
 					case ActOfRose::Keyword::EKeywords::EK_Return:
 					{
 						if (returnValueHolder != nullptr)
@@ -1670,6 +1676,172 @@ int ActOfRose::CExecutor::ProcessForLoop(ActOfRose::Value::SValueReference* retu
 
 	// Removes a loop's local scope
 	ActOfRose::AORSystemRemoveScope();
+
+	return result;
+}
+
+// Processes a 'do-while' loop and executes its body until a condition is not satisfied
+int ActOfRose::CExecutor::ProcessDoWhileLoop(ActOfRose::Value::SValueReference* returnValueHolder)
+{
+	int result = AOR_SUCCESS;
+
+	_mCurrTokenIndex += 2;
+
+
+	// ----- Extracting a body -----
+
+	std::vector<ActOfRose::Token::SToken> bodyTokens;
+	{
+		// ----- Finding the end of a body -----
+
+		// Another index holder for finding the position of a curly bracket that indicates the end of a body
+		unsigned int bodyEndTokenIndex = _mCurrTokenIndex;
+
+		unsigned int curlyBracketBlockCount = 0;
+
+		while (bodyEndTokenIndex < (unsigned int)(_pCurrTokenGroup->size()))
+		{
+			if ((*_pCurrTokenGroup)[bodyEndTokenIndex].type == ActOfRose::Token::ETokenType::ETTCurlyBracketLeft)
+			{
+				curlyBracketBlockCount++;
+			}
+			else if ((*_pCurrTokenGroup)[bodyEndTokenIndex].type == ActOfRose::Token::ETokenType::ETTCurlyBracketRight)
+			{
+				if (curlyBracketBlockCount == 0)
+				{
+					break;
+				}
+
+				curlyBracketBlockCount--;
+			}
+
+			bodyEndTokenIndex++;
+		}
+
+
+		// ----- Copying of body-related tokens -----
+
+		std::copy(_pCurrTokenGroup->begin() + _mCurrTokenIndex, _pCurrTokenGroup->begin() + bodyEndTokenIndex, std::back_inserter(bodyTokens));
+
+
+		_mCurrTokenIndex = bodyEndTokenIndex;
+	}
+
+
+	_mCurrTokenIndex += 3;
+
+
+	// ----- Processing of conditional expression -----
+
+	// Index holding an index of a conditional expression
+	unsigned int condExprFirstTokenIndex = _mCurrTokenIndex;
+	{
+		unsigned int roundBracketBlockCount = 0;
+
+		while (_mCurrTokenIndex < (unsigned int)(_pCurrTokenGroup->size()))
+		{
+			if ((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTRoundBracketLeft)
+			{
+				roundBracketBlockCount++;
+			}
+			else if ((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTRoundBracketRight)
+			{
+				if (roundBracketBlockCount == 0)
+				{
+					break;
+				}
+
+				roundBracketBlockCount--;
+			}
+
+			_mCurrTokenIndex++;
+		}
+	}
+
+
+	// ----- Loop -----
+
+	while (true)
+	{
+		// ----- Execution -----
+
+		// Creates a loop's local scope
+		ActOfRose::AORSystemAddScope(ActOfRose::EScopeVisibilityTypes::ESIT_InheritingScope);
+
+		ActOfRose::CExecutor executor;				// Local instance of executor
+		result = executor.Execute(returnValueHolder, &bodyTokens);
+
+		// Removes a loop's local scope
+		ActOfRose::AORSystemRemoveScope();
+
+		if (result != AOR_SUCCESS)
+		{
+			break;
+		}
+
+
+		// ----- Cehcking the condition -----
+
+		_mCurrTokenIndex = condExprFirstTokenIndex;
+
+		ActOfRose::AST::CExprASTNode* exprRoot;
+		{
+			result = BuildExpressionAST(&exprRoot);
+			if (result != AOR_SUCCESS)
+			{
+				delete exprRoot;
+				return result;
+			}
+		}
+
+		ActOfRose::Value::SValueReference resultValueRef;
+		result = exprRoot->RetrieveValue(&resultValueRef);
+		if (result != AOR_SUCCESS)
+		{
+			delete exprRoot;
+			return result;
+		}
+		
+
+		ActOfRose::Value::CValue* resultValue;
+		if (resultValueRef.category == ActOfRose::Value::EValueCategories::EVC_None)
+		{
+			delete exprRoot;
+
+			ActOfRose::WriteLog(PREF_STRING("Null value cannot be a condition"),
+				(sizeof(PREF_STRING("Null value cannot be a condition")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+			result = AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
+
+			break;
+		}
+		else if (resultValueRef.category == ActOfRose::Value::EValueCategories::EVC_LValue)
+		{
+			resultValue = *(resultValueRef.value.valueHolder);
+		}
+		else
+		{
+			resultValue = resultValueRef.value.value;
+		}
+
+		bool isConditionSatisfied = (resultValue->IsZero() == false);
+
+		if (resultValueRef.category == ActOfRose::Value::EValueCategories::EVC_PRValue)
+		{
+			delete resultValue;
+		}
+
+		delete exprRoot;
+
+
+		if (isConditionSatisfied == false)
+		{
+			break;
+		}
+	}
+
+
+	_mCurrTokenIndex++;
 
 	return result;
 }

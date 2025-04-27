@@ -97,7 +97,7 @@ namespace ActOfRose
 			// States of variable declaration context
 			enum EVarDeclarationCtxStates
 			{
-				EVDCS_Initial,						// Initial state of context
+				EVDCS_Initial,					// Initial state of context
 				EVDCS_VarKeyword,				// "var" keyword is expected
 				EVDCS_VariableName,				// Identifier with variable name is expected
 				EVDCS_InitDisjunction,			// Initialisation branching between two options
@@ -258,6 +258,39 @@ namespace ActOfRose
 
 		private:
 			ActOfRose::Context::CForLoopContext::EForLoopCtxStates _mState;		// Context state
+
+		};
+
+		// Class of "do-while" loop context
+		class CDoWhileLoopContext : public CContext
+		{
+			// States of "while" loop context
+			enum EDoWhileLoopCtxStates
+			{
+				EDWLCS_Initial,						// Initial state of context
+				EDWLCS_BodyStart,					// Left curly bracket is expected to start a function body
+				EDWLCS_BodyRoutine,					// Some expression, simple statement, compound statement or right curly bracket is expected
+				EDWLCS_SyntacticUnitEnd,			// Ending of expression, simple statement or compound statement (comma or semicolon) is expected
+				EDWLCS_WhileKeyword,				// "while" keyword is expected
+				EDWLCS_ConditionBegin,				// Left round bracket for starting conditional block is expected
+				EDWLCS_ConditionalExpr,				// Conditional expression is expected
+				EDWLCS_ConditionEnd,				// Right round bracket for finishing a conditional block is expected
+				EDWLCS_StatementEnd,				// Ending of statement (semicolon) is expected
+			};
+
+		public:
+			// Constructor
+			CDoWhileLoopContext();
+
+		public:
+			// Analyses the given token, checks current sequence for logical errors and updates a context
+			virtual int ProcessToken(ActOfRose::Token::SToken* token) override;
+
+			// Commits finalisation of context with current set of tokens if possible
+			virtual int CommitContextFinalisation() override { return AOR_ERROR_TOKEN_PREMATURE_END_OF_SCRIPT; }
+
+		private:
+			ActOfRose::Context::CDoWhileLoopContext::EDoWhileLoopCtxStates _mState;		// Context state
 
 		};
 
