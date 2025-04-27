@@ -944,10 +944,35 @@ int ActOfRose::CExecutor::DeclareAndDefineFunction()
 
 	// ----- Copying of function body-related tokens -----
 
-	std::copy(_pCurrTokenGroup->begin() + _mCurrTokenIndex, _pCurrTokenGroup->end() - 1, std::back_inserter(*(newFunction->GetBodyTokens())));
+	{
+		// Another index holder for finding the position of a curly bracket that indicates the end of a body
+		unsigned int bodyEndTokenIndex = _mCurrTokenIndex;
+		
+		unsigned int curlyBracketBlockCount = 0;
 
+		while (bodyEndTokenIndex < (unsigned int)(_pCurrTokenGroup->size()))
+		{
+			if ((*_pCurrTokenGroup)[bodyEndTokenIndex].type == ActOfRose::Token::ETokenType::ETTCurlyBracketLeft)
+			{
+				curlyBracketBlockCount++;
+			}
+			else if ((*_pCurrTokenGroup)[bodyEndTokenIndex].type == ActOfRose::Token::ETokenType::ETTCurlyBracketRight)
+			{
+				if (curlyBracketBlockCount == 0)
+				{
+					break;
+				}
 
-	_mCurrTokenIndex = (unsigned int)(_pCurrTokenGroup->size() - 1);
+				curlyBracketBlockCount--;
+			}
+
+			bodyEndTokenIndex++;
+		}
+
+		std::copy(_pCurrTokenGroup->begin() + _mCurrTokenIndex, _pCurrTokenGroup->begin() + bodyEndTokenIndex, std::back_inserter(*(newFunction->GetBodyTokens())));
+
+		_mCurrTokenIndex = bodyEndTokenIndex;
+	}
 
 
 	if (AORSystemRegisterGlobalIdentifierAndElement(functionName, ActOfRose::EElementType::EET_Function, (void*)newFunction) == nullptr)
@@ -1049,6 +1074,7 @@ int ActOfRose::CExecutor::ProcessConditions(ActOfRose::Value::SValueReference* r
 				{
 					// Another index holder for finding the position of a curly bracket that indicates the end of a body
 					unsigned int bodyEndTokenIndex = _mCurrTokenIndex;
+
 
 					// ----- Finding the end of a body -----
 
