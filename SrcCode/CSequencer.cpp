@@ -168,6 +168,13 @@ int ActOfRose::Context::CSequencer::DetermineAndCreateContext(ActOfRose::Token::
 					return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
 				}
 
+				case ActOfRose::Keyword::EKeywords::EK_While:
+				{
+					_mContexts.push(new ActOfRose::Context::CWhileLoopContext());
+
+					break;
+				}
+
 				case ActOfRose::Keyword::EKeywords::EK_Return:
 				{
 					_mContexts.push(new ActOfRose::Context::CReturnStatementContext());

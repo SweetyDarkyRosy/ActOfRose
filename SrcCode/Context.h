@@ -195,6 +195,37 @@ namespace ActOfRose
 
 		};
 
+		// Class of "while" loop context
+		class CWhileLoopContext : public CContext
+		{
+			// States of "while" loop context
+			enum EWhileLoopCtxStates
+			{
+				EWLCS_Initial,						// Initial state of context
+				EWLCS_ConditionBegin,				// Left round bracket for starting conditional block is expected
+				EWLCS_ConditionalExpr,				// Conditional expression is expected
+				EWLCS_ConditionEnd,					// Right round bracket for finishing a conditional block is expected
+				EWLCS_BodyStart,					// Left curly bracket is expected to start a function body
+				EWLCS_BodyRoutine,					// Some expression, simple statement, compound statement or right curly bracket is expected
+				EWLCS_SyntacticUnitEnd,				// Ending of expression, simple statement or compound statement (comma or semicolon) is expected
+			};
+
+		public:
+			// Constructor
+			CWhileLoopContext();
+
+		public:
+			// Analyses the given token, checks current sequence for logical errors and updates a context
+			virtual int ProcessToken(ActOfRose::Token::SToken* token) override;
+
+			// Commits finalisation of context with current set of tokens if possible
+			virtual int CommitContextFinalisation() override { return AOR_ERROR_TOKEN_PREMATURE_END_OF_SCRIPT; }
+
+		private:
+			ActOfRose::Context::CWhileLoopContext::EWhileLoopCtxStates _mState;		// Context state
+
+		};
+
 		// Class of return statement context
 		class CReturnStatementContext : public CContext
 		{
