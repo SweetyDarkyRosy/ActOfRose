@@ -65,6 +65,8 @@ int ActOfRose::BuiltIn::Print(ActOfRose::Value::SValueReference* returnValueHold
 		write(1, (const void*)(utf8ValueStr.c_str()), utf8ValueStr.length());
 		write(1, "\n", 1);
 	#endif
+
+		delete (*params)[0];
 	}
 
 	return AOR_SUCCESS;
