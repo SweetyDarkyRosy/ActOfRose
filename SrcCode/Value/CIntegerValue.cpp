@@ -66,6 +66,8 @@ int ActOfRose::Value::CIntegerValue::ExecuteOperation(ActOfRose::Value::SValueRe
 				}
 			}
 
+			retValueRefHolder->category = ActOfRose::Value::EValueCategories::EVC_PRValue;
+
 			break;
 		}
 
@@ -89,6 +91,8 @@ int ActOfRose::Value::CIntegerValue::ExecuteOperation(ActOfRose::Value::SValueRe
 					return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
 				}
 			}
+
+			retValueRefHolder->category = ActOfRose::Value::EValueCategories::EVC_PRValue;
 
 			break;
 		}
@@ -114,6 +118,8 @@ int ActOfRose::Value::CIntegerValue::ExecuteOperation(ActOfRose::Value::SValueRe
 				}
 			}
 
+			retValueRefHolder->category = ActOfRose::Value::EValueCategories::EVC_PRValue;
+
 			break;
 		}
 
@@ -138,12 +144,15 @@ int ActOfRose::Value::CIntegerValue::ExecuteOperation(ActOfRose::Value::SValueRe
 				}
 			}
 
+			retValueRefHolder->category = ActOfRose::Value::EValueCategories::EVC_PRValue;
+
 			break;
 		}
 
 		case ActOfRose::Operation::EOperationTypes::EO_Negation:
 		{
 			retValueRefHolder->value.value = new ActOfRose::Value::CIntegerValue(_mValue * (-1));
+			retValueRefHolder->category = ActOfRose::Value::EValueCategories::EVC_PRValue;
 
 			break;
 		}
@@ -153,8 +162,6 @@ int ActOfRose::Value::CIntegerValue::ExecuteOperation(ActOfRose::Value::SValueRe
 			return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
 		}
 	}
-
-	retValueRefHolder->category = ActOfRose::Value::EValueCategories::EVC_PRValue;
 
 	return AOR_SUCCESS;
 }

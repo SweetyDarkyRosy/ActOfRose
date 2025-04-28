@@ -89,6 +89,18 @@ int ActOfRose::Value::CStringValue::ExecuteOperation(ActOfRose::Value::SValueRef
 {
 	switch (opType)
 	{
+		case ActOfRose::Operation::EOperationTypes::EO_Summation:
+		{
+			ActOfRose::Value::CValue* rightValue = rightValRef->GetValue();
+
+			std::string newString = _mRawString + rightValue->ConvertValueToByteString();
+
+			retValueRefHolder->value.value = new ActOfRose::Value::CStringValue(newString.c_str());
+			retValueRefHolder->category = ActOfRose::Value::EValueCategories::EVC_PRValue;
+
+			break;
+		}
+
 		default:
 		{
 			return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
