@@ -47,5 +47,6 @@
 #define AOR_ERROR_EXEC_INITIAL_VALUE_REQUIRED				(-22)		// Error due to initial value is required for "strict" variable/constant
 #define AOR_ERROR_EXEC_INVALID_ARGUMENT_NUMBER				(-23)		// Error due to invalid number of parameters/arguments passed to the function call
 #define AOR_ERROR_EXEC_OUT_OF_RANGE							(-24)		// Error due to out-of-range access
+#define AOR_ERROR_EXEC_INVALID_PARAMETER					(-25)		// Error due to invalid parameter passed to a function while calling it
 
 #endif // !__ACT_OF_ROSE_ERROR_CODES_H__
