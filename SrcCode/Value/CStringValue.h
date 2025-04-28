@@ -41,6 +41,8 @@ namespace ActOfRose
 			void SetRawString(const char* string);
 			// Returns a pointer to the underlying raw UTF-8-encoded null-terminated byte string
 			const char* GetRawString() const { return _mRawString.c_str(); }
+			// Returns a pointer to the underlying instance of STD's std::string
+			const std::string* GetSTDString() const { return &_mRawString; }
 
 			// Returns true if a value is non-zero
 			virtual bool IsZero() const override { return false; }
