@@ -32,6 +32,8 @@
 
 // Wrapper of built-in 'ActOfRose::BuiltIn::Print' function
 ActOfRose::CPredefinedFunction								gBuiltInFuncPrint(ActOfRose::BuiltIn::Print);
+// Wrapper of built-in 'ActOfRose::BuiltIn::Execute' function
+ActOfRose::CPredefinedFunction								gBuiltInFuncExecute(ActOfRose::BuiltIn::Execute);
 
 
 ActOfRose::CPreProcessor									gPreprocessor;											// Global instance of preprocessor
@@ -42,4 +44,5 @@ std::stack<ActOfRose::Script::CScriptContext>				gScriptContexts;										// St
 // Map of associations between identifiers and elements
 std::map<const std::string, ActOfRose::SElement>			gGlobalIdentifierMap = {
 	{ "Print", { ActOfRose::EElementType::EET_Function, &gBuiltInFuncPrint } },
+	{ "Execute", { ActOfRose::EElementType::EET_Function, &gBuiltInFuncExecute } },
 };
