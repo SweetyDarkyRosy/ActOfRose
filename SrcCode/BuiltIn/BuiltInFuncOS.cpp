@@ -14,11 +14,15 @@
 #if defined (WIN32) || defined (_WIN32)
 	#define WIN32_LEAN_AND_MEAN
 	#include <Windows.h>
-
-	#include <cstring>
 #elif defined (__linux__)
+	#include <sys/ptrace.h>
+	#include <sys/wait.h>
+
 	#include <unistd.h>
+	#include <signal.h>
 #endif
+
+#include <cstring>
 
 #include <ReturnCodes.h>
 #include <Log.h>
@@ -179,6 +183,223 @@ int ActOfRose::BuiltIn::Execute(ActOfRose::Value::SValueReference* returnValueHo
 		// ----- Cleanup -----
 
 		free(utf16BECmdRaw);
+
+	#elif defined (__linux__)
+		const std::string* utf8Cmd = ((ActOfRose::Value::CStringValue*)((*params)[0]))->GetSTDString();
+		std::vector<std::string> tempArgArr;
+		{
+			unsigned int utf8CmdWalkerIndex = 0;
+			while (utf8CmdWalkerIndex < (unsigned int)(utf8Cmd->size()))
+			{
+				if ((*utf8Cmd)[utf8CmdWalkerIndex] != ' ')
+				{
+					std::string arg;
+
+					if ((*utf8Cmd)[utf8CmdWalkerIndex] == '\"')
+					{
+						utf8CmdWalkerIndex++;
+
+						while (utf8CmdWalkerIndex < (unsigned int)(utf8Cmd->size()))
+						{
+							if ((*utf8Cmd)[utf8CmdWalkerIndex] == '\"')
+							{
+								break;
+							}
+							else if ((*utf8Cmd)[utf8CmdWalkerIndex] == '\\')
+							{
+								if ((utf8CmdWalkerIndex < (unsigned int)(utf8Cmd->size() - 1)) &&
+									((*utf8Cmd)[utf8CmdWalkerIndex + 1] == '\"'))
+								{
+									arg += (*utf8Cmd)[utf8CmdWalkerIndex];
+									arg += (*utf8Cmd)[utf8CmdWalkerIndex + 1];
+
+									utf8CmdWalkerIndex++;
+								}
+								else
+								{
+									arg += (*utf8Cmd)[utf8CmdWalkerIndex];
+								}
+							}
+							else
+							{
+								arg += (*utf8Cmd)[utf8CmdWalkerIndex];
+							}
+
+							utf8CmdWalkerIndex++;
+						}
+					}
+					else if ((*utf8Cmd)[utf8CmdWalkerIndex] == '\'')
+					{
+						utf8CmdWalkerIndex++;
+
+						while (utf8CmdWalkerIndex < (unsigned int)(utf8Cmd->size()))
+						{
+							if ((*utf8Cmd)[utf8CmdWalkerIndex] == '\'')
+							{
+								break;
+							}
+							else if ((*utf8Cmd)[utf8CmdWalkerIndex] == '\\')
+							{
+								if ((utf8CmdWalkerIndex < (unsigned int)(utf8Cmd->size() - 1)) &&
+									((*utf8Cmd)[utf8CmdWalkerIndex + 1] == '\''))
+								{
+									arg += (*utf8Cmd)[utf8CmdWalkerIndex];
+									arg += (*utf8Cmd)[utf8CmdWalkerIndex + 1];
+
+									utf8CmdWalkerIndex++;
+								}
+								else
+								{
+									arg += (*utf8Cmd)[utf8CmdWalkerIndex];
+								}
+							}
+							else
+							{
+								arg += (*utf8Cmd)[utf8CmdWalkerIndex];
+							}
+
+							utf8CmdWalkerIndex++;
+						}
+					}
+					else
+					{
+						while (utf8CmdWalkerIndex < (unsigned int)(utf8Cmd->size()))
+						{
+							if ((*utf8Cmd)[utf8CmdWalkerIndex] == ' ')
+							{
+								break;
+							}
+							else
+							{
+								arg += (*utf8Cmd)[utf8CmdWalkerIndex];
+							}
+
+							utf8CmdWalkerIndex++;
+						}
+					}
+
+					tempArgArr.push_back(arg);
+				}
+
+				utf8CmdWalkerIndex++;
+			}
+		}
+
+		// Actual array of arguments for creating a child process
+		char** actualArgArr = (char**)malloc(sizeof(char*) * (tempArgArr.size() + 1));
+		
+		for (unsigned int it = 0; it < (unsigned int)(tempArgArr.size()); it++)
+		{
+			char* arg = (char*)malloc(tempArgArr[it].size() + 1);
+			std::memcpy((void*)arg, (const void*)(tempArgArr[it].c_str()), tempArgArr[it].size());
+			arg[tempArgArr[it].size()] = '\0';
+
+			actualArgArr[it] = arg;
+		}
+
+		actualArgArr[tempArgArr.size()] = nullptr;
+
+
+		pid_t procID = fork();
+		if (procID < 0)
+		{
+			for (unsigned int it = 0; it < (unsigned int)(tempArgArr.size()); it++)
+			{
+				free(actualArgArr[it]);
+			}
+
+			free(actualArgArr);
+
+			delete (*params)[0];
+
+			ActOfRose::WriteLog(PREF_STRING("Internal error. Could not create a child process"),
+				(sizeof(PREF_STRING("Internal error. Could not create a child process")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+			return AOR_ERROR_INTERNAL_ERROR;
+		}
+		else if (procID == 0)
+		{
+			ptrace(PTRACE_TRACEME, 0, NULL, NULL);
+
+			{
+				pid_t currChildProcID = getpid();
+				kill(currChildProcID, 19);
+			}
+
+			execvp(actualArgArr[0], actualArgArr);
+			
+			ActOfRose::WriteLog(PREF_STRING("Internal error. Could not create a child process"),
+				(sizeof(PREF_STRING("Internal error. Could not create a child process")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+			exit(1);
+		}
+		else
+		{	
+			int status;
+
+			wait4(procID, &status, 0, NULL);
+			ptrace(PTRACE_SETOPTIONS, procID, NULL, (1 << 4));
+			ptrace(PTRACE_CONT, procID, NULL, NULL);
+
+			wait4(procID, &status, 0, NULL);
+			ptrace(PTRACE_CONT, procID, NULL, NULL);
+
+			if ((status >> 8) != (5 | (4 << 8)))
+			{
+				for (unsigned int it = 0; it < (unsigned int)(tempArgArr.size()); it++)
+				{
+					free(actualArgArr[it]);
+				}
+
+				free(actualArgArr);
+
+				delete (*params)[0];
+
+				return AOR_ERROR_INTERNAL_ERROR;
+			}
+		}
+
+
+		// ----- Waiting -----
+
+		{
+			int status;
+
+			size_t returnValue = wait4(procID, &status, 0, NULL);
+			if (returnValue > 0)
+			{
+				int childProcReturnValue = (status & 0xFF00) >> 8;
+
+				returnValueHolder->category = ActOfRose::Value::EValueCategories::EVC_PRValue;
+				returnValueHolder->value.value = new ActOfRose::Value::CIntegerValue(childProcReturnValue);
+			}
+			else
+			{
+				for (unsigned int it = 0; it < (unsigned int)(tempArgArr.size()); it++)
+				{
+					free(actualArgArr[it]);
+				}
+
+				free(actualArgArr);
+
+				delete (*params)[0];
+
+				ActOfRose::WriteLog(PREF_STRING("Internal error while waiting for a child process"),
+					(sizeof(PREF_STRING("Internal error while waiting for a child process")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_INTERNAL_ERROR;
+			}
+		}
+
+
+		// ----- Cleanup -----
+
+		for (unsigned int it = 0; it < (unsigned int)(tempArgArr.size()); it++)
+		{
+			free(actualArgArr[it]);
+		}
+
+		free(actualArgArr);
 
 	#endif
 
