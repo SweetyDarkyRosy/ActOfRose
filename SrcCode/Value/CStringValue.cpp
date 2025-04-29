@@ -91,6 +91,11 @@ int ActOfRose::Value::CStringValue::ExecuteOperation(ActOfRose::Value::SValueRef
 	{
 		case ActOfRose::Operation::EOperationTypes::EO_Summation:
 		{
+			if (rightValRef->category == ActOfRose::Value::EValueCategories::EVC_None)
+			{
+				break;
+			}
+
 			ActOfRose::Value::CValue* rightValue = rightValRef->GetValue();
 
 			std::string newString = _mRawString + rightValue->ConvertValueToByteString();

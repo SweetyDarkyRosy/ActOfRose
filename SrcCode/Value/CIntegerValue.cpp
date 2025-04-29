@@ -44,6 +44,11 @@ int ActOfRose::Value::CIntegerValue::ExecuteOperation(ActOfRose::Value::SValueRe
 	{
 		case ActOfRose::Operation::EOperationTypes::EO_Summation:
 		{
+			if (rightValRef->category == ActOfRose::Value::EValueCategories::EVC_None)
+			{
+				break;
+			}
+
 			ActOfRose::Value::CValue* rightValue = rightValRef->GetValue();
 			switch (rightValue->GetValueType())
 			{
@@ -80,6 +85,11 @@ int ActOfRose::Value::CIntegerValue::ExecuteOperation(ActOfRose::Value::SValueRe
 
 		case ActOfRose::Operation::EOperationTypes::EO_Subtraction:
 		{
+			if (rightValRef->category == ActOfRose::Value::EValueCategories::EVC_None)
+			{
+				break;
+			}
+
 			ActOfRose::Value::CValue* rightValue = rightValRef->GetValue();
 			switch (rightValue->GetValueType())
 			{
@@ -116,6 +126,11 @@ int ActOfRose::Value::CIntegerValue::ExecuteOperation(ActOfRose::Value::SValueRe
 
 		case ActOfRose::Operation::EOperationTypes::EO_Multiplication:
 		{
+			if (rightValRef->category == ActOfRose::Value::EValueCategories::EVC_None)
+			{
+				break;
+			}
+
 			ActOfRose::Value::CValue* rightValue = rightValRef->GetValue();
 			switch (rightValue->GetValueType())
 			{
@@ -152,6 +167,11 @@ int ActOfRose::Value::CIntegerValue::ExecuteOperation(ActOfRose::Value::SValueRe
 
 		case ActOfRose::Operation::EOperationTypes::EO_Division:
 		{
+			if (rightValRef->category == ActOfRose::Value::EValueCategories::EVC_None)
+			{
+				break;
+			}
+			
 			ActOfRose::Value::CValue* rightValue = rightValRef->GetValue();
 			switch (rightValue->GetValueType())
 			{
