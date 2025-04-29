@@ -43,6 +43,9 @@ namespace ActOfRose
 			// Returns the state of readiness of the file containing a script
 			inline bool IsLoaded() const { return _mScriptFile.is_open(); }
 
+			// Returns a pointer to the path
+			std::filesystem::path* GetPath() { return &_mScriptPath; }
+
 		private:
 			std::ifstream _mScriptFile;						// File with a script
 			std::filesystem::path _mScriptPath;				// Path to a file with a script
