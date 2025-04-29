@@ -50,7 +50,11 @@ std::string ActOfRose::Value::CArrayValue::ConvertValueToByteString() const
 
 	for (unsigned int valueIt = 0; valueIt < (unsigned int)(_mValueArray.size()); valueIt++)
 	{
-		if (_mValueArray[valueIt]->GetValueType() == ActOfRose::Value::EValueType::EVT_String)
+		if (_mValueArray[valueIt] == nullptr)
+		{
+			resultValueStr += "Null";
+		}
+		else if (_mValueArray[valueIt]->GetValueType() == ActOfRose::Value::EValueType::EVT_String)
 		{
 			resultValueStr += '\"';
 			resultValueStr += _mValueArray[valueIt]->ConvertValueToByteString();
@@ -79,7 +83,11 @@ std::wstring ActOfRose::Value::CArrayValue::ConvertValueToWideString() const
 
 	for (unsigned int valueIt = 0; valueIt < (unsigned int)(_mValueArray.size()); valueIt++)
 	{
-		if (_mValueArray[valueIt]->GetValueType() == ActOfRose::Value::EValueType::EVT_String)
+		if (_mValueArray[valueIt] == nullptr)
+		{
+			resultValueStr += L"Null";
+		}
+		else if (_mValueArray[valueIt]->GetValueType() == ActOfRose::Value::EValueType::EVT_String)
 		{
 			resultValueStr += L'\"';
 			resultValueStr += _mValueArray[valueIt]->ConvertValueToWideString();
