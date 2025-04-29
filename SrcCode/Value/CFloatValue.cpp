@@ -78,6 +78,32 @@ int ActOfRose::Value::CFloatValue::ExecuteOperation(ActOfRose::Value::SValueRefe
 			break;
 		}
 
+		case ActOfRose::Operation::EOperationTypes::EO_Subtraction:
+		{
+			ActOfRose::Value::CValue* rightValue = rightValRef->GetValue();
+			switch (rightValue->GetValueType())
+			{
+				case ActOfRose::Value::EValueType::EVT_FloatingPoint:
+				{
+					ActOfRose::Value::CFloatValue* rightFloatValue = (ActOfRose::Value::CFloatValue*)rightValue;
+					float floatResult = _mValue - rightFloatValue->GetRawValue();
+
+					retValueRefHolder->value.value = new ActOfRose::Value::CFloatValue(floatResult);
+
+					break;
+				}
+
+				default:
+				{
+					return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
+				}
+			}
+
+			retValueRefHolder->category = ActOfRose::Value::EValueCategories::EVC_PRValue;
+
+			break;
+		}
+
 		default:
 		{
 			return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
