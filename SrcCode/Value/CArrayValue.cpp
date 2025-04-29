@@ -115,6 +115,26 @@ int ActOfRose::Value::CArrayValue::ExecuteOperation(ActOfRose::Value::SValueRefe
 {
 	switch (opType)
 	{
+		case ActOfRose::Operation::EOperationTypes::EO_Summation:
+		{
+			ActOfRose::Value::CArrayValue* newArray = new ActOfRose::Value::CArrayValue(this);
+
+			if (rightValRef->category == ActOfRose::Value::EValueCategories::EVC_None)
+			{
+				newArray->AddValue(nullptr);
+			}
+			else
+			{
+				ActOfRose::Value::CValue* newValue = AORSystemCopyValue(rightValRef->GetValue());
+				newArray->AddValue(newValue);
+			}
+
+			retValueRefHolder->value.value = newArray;
+			retValueRefHolder->category = ActOfRose::Value::EValueCategories::EVC_PRValue;
+
+			break;
+		}
+
 		case ActOfRose::Operation::EOperationTypes::EO_ElementAccess:
 		{
 			ActOfRose::Value::CValue* indexValue;
