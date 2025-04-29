@@ -20,6 +20,7 @@
 #include "Utility/StringMisc.h"
 
 #include "BuiltIn/BuiltInFuncOS.h"
+#include "BuiltIn/BuiltInFuncScript.h"
 
 
 #define BUILD_ROOT_SCRIPT_DEFAULT_NAME						"ActionScript.aor"
@@ -34,6 +35,8 @@
 ActOfRose::CPredefinedFunction								gBuiltInFuncPrint(ActOfRose::BuiltIn::Print);
 // Wrapper of built-in 'ActOfRose::BuiltIn::Execute' function
 ActOfRose::CPredefinedFunction								gBuiltInFuncExecute(ActOfRose::BuiltIn::Execute);
+// Wrapper of built-in 'ActOfRose::BuiltIn::Act' function
+ActOfRose::CPredefinedFunction								gBuiltInFuncAct(ActOfRose::BuiltIn::Act);
 
 
 ActOfRose::CPreProcessor									gPreprocessor;											// Global instance of preprocessor
@@ -45,4 +48,5 @@ std::stack<ActOfRose::Script::CScriptContext>				gScriptContexts;										// St
 std::map<const std::string, ActOfRose::SElement>			gGlobalIdentifierMap = {
 	{ "Print", { ActOfRose::EElementType::EET_Function, &gBuiltInFuncPrint } },
 	{ "Execute", { ActOfRose::EElementType::EET_Function, &gBuiltInFuncExecute } },
+	{ "Act", { ActOfRose::EElementType::EET_Function, &gBuiltInFuncAct } },
 };
