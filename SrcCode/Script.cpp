@@ -36,14 +36,8 @@ ActOfRose::Script::CScript::CScript(const char* scriptFilePath)
 	std::wstring utf16BEPath;
 	if (ConvertStringUTF8ToUTF16BE(&utf16BEPath, scriptFilePath, std::strlen(scriptFilePath)) == AOR_SUCCESS)
 	{
-		int ansiStrLength = WideCharToMultiByte(CP_ACP, 0, utf16BEPath.c_str(), (-1), NULL, 0, 0, 0);
-		char* ansiPath = (char*)malloc(ansiStrLength);
-		WideCharToMultiByte(CP_ACP, 0, utf16BEPath.c_str(), (-1), ansiPath, ansiStrLength, 0, 0);
-
-		_mScriptFile.open(ansiPath);
-		_mScriptPath = ansiPath;
-
-		free(ansiPath);
+		_mScriptPath = utf16BEPath;
+		_mScriptFile.open(_mScriptPath);
 	}
 #elif defined (__linux__)
 	_mScriptPath = scriptFilePath;
