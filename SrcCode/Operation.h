@@ -33,7 +33,8 @@ namespace ActOfRose
 			EO_Division,				// Division
 			EO_Assignment,				// Assignment
 			EO_Negation,				// Negation
-			EO_ElementAccess			// Access to an element through index
+			EO_ElementAccess,			// Access to an element through index
+			EO_CampareEqualTo,			// Comparison operation (equal to)
 		};
 
 

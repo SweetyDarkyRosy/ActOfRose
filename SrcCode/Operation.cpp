@@ -30,7 +30,8 @@ static const std::unordered_map<std::string, ActOfRose::Operation::EOperationTyp
 	{ "-", ActOfRose::Operation::EOperationTypes::EO_Subtraction },
 	{ "*", ActOfRose::Operation::EOperationTypes::EO_Multiplication },
 	{ "/", ActOfRose::Operation::EOperationTypes::EO_Division },
-	{ "=", ActOfRose::Operation::EOperationTypes::EO_Assignment }
+	{ "=", ActOfRose::Operation::EOperationTypes::EO_Assignment },
+	{ "==", ActOfRose::Operation::EOperationTypes::EO_CampareEqualTo },
 };
 
 
