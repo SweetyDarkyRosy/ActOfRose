@@ -139,6 +139,37 @@ int ActOfRose::Value::CStringValue::ExecuteOperation(ActOfRose::Value::SValueRef
 			break;
 		}
 
+		case ActOfRose::Operation::EOperationTypes::EO_CampareNotEqualTo:
+		{
+			if (rightValRef->category == ActOfRose::Value::EValueCategories::EVC_None)
+			{
+				return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
+			}
+			
+			ActOfRose::Value::CValue* rightValue = rightValRef->GetValue();
+			switch (rightValue->GetValueType())
+			{
+				case ActOfRose::Value::EValueType::EVT_String:
+				{
+					ActOfRose::Value::CStringValue* rightString = (ActOfRose::Value::CStringValue*)rightValue;
+					
+					bool areStringsEqual = (_mRawString == *(rightString->GetSTDString()));
+					retValueRefHolder->value.value = new ActOfRose::Value::CBooleanValue(areStringsEqual == false);
+
+					break;
+				}
+
+				default:
+				{
+					return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
+				}
+			}
+
+			retValueRefHolder->category = ActOfRose::Value::EValueCategories::EVC_PRValue;
+
+			break;
+		}
+
 		default:
 		{
 			return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
