@@ -47,7 +47,8 @@ static inline bool IsDelimiter(char value)
 // Checks if the character is an operator character
 static inline bool IsOperator(char value)
 {
-	return ((value == '+') || (value == '-') || (value == '*') || (value == '/') || (value == '%') || (value == '=') || (value == '<') || (value == '>') || (value == '&') || (value == '|'));
+	return ((value == '+') || (value == '-') || (value == '*') || (value == '/') || (value == '%') || (value == '=') || (value == '<') || (value == '>') || (value == '&') || (value == '|') ||
+		(value == '!'));
 }
 
 
