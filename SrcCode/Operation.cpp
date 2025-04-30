@@ -32,6 +32,7 @@ static const std::unordered_map<std::string, ActOfRose::Operation::EOperationTyp
 	{ "/", ActOfRose::Operation::EOperationTypes::EO_Division },
 	{ "=", ActOfRose::Operation::EOperationTypes::EO_Assignment },
 	{ "==", ActOfRose::Operation::EOperationTypes::EO_CampareEqualTo },
+	{ "!=", ActOfRose::Operation::EOperationTypes::EO_CampareNotEqualTo },
 };
 
 
