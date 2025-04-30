@@ -23,6 +23,7 @@
 #endif
 
 #include <cstring>
+#include <cctype>
 
 #include <ReturnCodes.h>
 #include <Log.h>
@@ -30,6 +31,7 @@
 #include <Utility/StringConverting.h>
 
 #include <Value/CIntegerValue.h>
+#include <Value/CBooleanValue.h>
 #include <Value/CStringValue.h>
 
 
@@ -410,4 +412,60 @@ int ActOfRose::BuiltIn::Execute(ActOfRose::Value::SValueReference* returnValueHo
 	}
 
 	return AOR_SUCCESS;
+}
+
+// Checks the given OS name and returns true if current host OS is equal to a specified one. Otherwise, the function returns false
+int ActOfRose::BuiltIn::IsCurrentOS(ActOfRose::Value::SValueReference* returnValueHolder, std::vector<ActOfRose::Value::CValue*>* params)
+{
+	if (params->size() != 1)
+	{
+		if (params->size() > 1)
+		{
+			ActOfRose::WriteLog(PREF_STRING("Too many arguments have been passed"),
+				(sizeof(PREF_STRING("Too many arguments have been passed")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+			return AOR_ERROR_EXEC_INVALID_ARGUMENT_NUMBER;
+		}
+		else
+		{
+			ActOfRose::WriteLog(PREF_STRING("Too few arguments have been passed"),
+				(sizeof(PREF_STRING("Too few arguments have been passed")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+			return AOR_ERROR_EXEC_INVALID_ARGUMENT_NUMBER;
+		}
+	}
+
+	if (((*params)[0] != nullptr) && ((*params)[0]->GetValueType() == ActOfRose::Value::EValueType::EVT_String))
+	{
+		std::string lowercaseName(*(((ActOfRose::Value::CStringValue*)((*params)[0]))->GetSTDString()));
+		
+		for (unsigned int charIt = 0; charIt < (unsigned int)(lowercaseName.size()); charIt++)
+		{
+			lowercaseName[charIt] = (char)std::tolower(lowercaseName[charIt]);
+		}
+
+		returnValueHolder->category = ActOfRose::Value::EValueCategories::EVC_PRValue;
+	
+	#if defined (WIN32) || defined (_WIN32)
+		if (lowercaseName.compare("windows") == 0)
+	#elif defined (__linux__)
+		if (lowercaseName.compare("linux") == 0)
+	#else
+		if (false)
+	#endif
+		{
+			returnValueHolder->value.value = new ActOfRose::Value::CBooleanValue(true);
+
+			return AOR_SUCCESS;
+		}
+
+		returnValueHolder->value.value = new ActOfRose::Value::CBooleanValue(false);
+		
+		return AOR_SUCCESS;
+	}
+
+	ActOfRose::WriteLog(PREF_STRING("Invalid parameter. OS/system name should be provided using a string"),
+		(sizeof(PREF_STRING("Invalid parameter. OS/system name should be provided using a string")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+	return AOR_ERROR_EXEC_INVALID_PARAMETER;
 }
