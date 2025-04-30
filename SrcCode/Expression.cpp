@@ -113,9 +113,15 @@ unsigned int ActOfRose::AST::CExprASTOperatorNode::GetPrecedence() const
 			return 2;
 		}
 
-		case ActOfRose::Operation::EOperationTypes::EO_Assignment:
+		case ActOfRose::Operation::EOperationTypes::EO_CampareEqualTo:
+		case ActOfRose::Operation::EOperationTypes::EO_CampareNotEqualTo:
 		{
 			return 3;
+		}
+
+		case ActOfRose::Operation::EOperationTypes::EO_Assignment:
+		{
+			return 4;
 		}
 
 		default:
