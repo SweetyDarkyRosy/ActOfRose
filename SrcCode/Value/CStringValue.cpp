@@ -14,6 +14,8 @@
 #include <ReturnCodes.h>
 #include <Utility/StringConverting.h>
 
+#include "CBooleanValue.h"
+
 
 // ----- ActOfRose::Value::CStringValue class -----
 
@@ -101,6 +103,37 @@ int ActOfRose::Value::CStringValue::ExecuteOperation(ActOfRose::Value::SValueRef
 			std::string newString = _mRawString + rightValue->ConvertValueToByteString();
 
 			retValueRefHolder->value.value = new ActOfRose::Value::CStringValue(newString.c_str());
+			retValueRefHolder->category = ActOfRose::Value::EValueCategories::EVC_PRValue;
+
+			break;
+		}
+
+		case ActOfRose::Operation::EOperationTypes::EO_CampareEqualTo:
+		{
+			if (rightValRef->category == ActOfRose::Value::EValueCategories::EVC_None)
+			{
+				return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
+			}
+			
+			ActOfRose::Value::CValue* rightValue = rightValRef->GetValue();
+			switch (rightValue->GetValueType())
+			{
+				case ActOfRose::Value::EValueType::EVT_String:
+				{
+					ActOfRose::Value::CStringValue* rightString = (ActOfRose::Value::CStringValue*)rightValue;
+					
+					bool areStringsEqual = (_mRawString == *(rightString->GetSTDString()));
+					retValueRefHolder->value.value = new ActOfRose::Value::CBooleanValue(areStringsEqual);
+
+					break;
+				}
+
+				default:
+				{
+					return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
+				}
+			}
+
 			retValueRefHolder->category = ActOfRose::Value::EValueCategories::EVC_PRValue;
 
 			break;
