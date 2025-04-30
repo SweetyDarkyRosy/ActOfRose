@@ -39,6 +39,8 @@ ActOfRose::CPredefinedFunction								gBuiltInFuncExecute(ActOfRose::BuiltIn::Ex
 ActOfRose::CPredefinedFunction								gBuiltInFuncAct(ActOfRose::BuiltIn::Act);
 // Wrapper of built-in 'ActOfRose::BuiltIn::GetCurrentScriptPath' function
 ActOfRose::CPredefinedFunction								gBuiltInFuncGetCurrentScriptPath(ActOfRose::BuiltIn::GetCurrentScriptPath);
+// Wrapper of built-in 'ActOfRose::BuiltIn::GetRootScriptPath' function
+ActOfRose::CPredefinedFunction								gBuiltInFuncGetRootScriptPath(ActOfRose::BuiltIn::GetRootScriptPath);
 
 
 ActOfRose::CPreProcessor									gPreprocessor;											// Global instance of preprocessor
@@ -52,4 +54,5 @@ std::map<const std::string, ActOfRose::SElement>			gGlobalIdentifierMap = {
 	{ "Execute", { ActOfRose::EElementType::EET_Function, &gBuiltInFuncExecute } },
 	{ "Act", { ActOfRose::EElementType::EET_Function, &gBuiltInFuncAct } },
 	{ "GetCurrentScriptPath", { ActOfRose::EElementType::EET_Function, &gBuiltInFuncGetCurrentScriptPath } },
+	{ "GetRootScriptPath", { ActOfRose::EElementType::EET_Function, &gBuiltInFuncGetRootScriptPath } },
 };

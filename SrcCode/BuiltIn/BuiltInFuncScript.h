@@ -31,6 +31,9 @@ namespace ActOfRose
 		// Returns the path of current script
 		int GetCurrentScriptPath(ActOfRose::Value::SValueReference* returnValueHolder, std::vector<ActOfRose::Value::CValue*>* params);
 
+		// Returns the path of root script
+		int GetRootScriptPath(ActOfRose::Value::SValueReference* returnValueHolder, std::vector<ActOfRose::Value::CValue*>* params);
+
 	} // !namespace BuiltIn
 } // !namespace ActOfRose
 

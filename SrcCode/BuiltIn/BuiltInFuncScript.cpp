@@ -139,3 +139,38 @@ int ActOfRose::BuiltIn::GetCurrentScriptPath(ActOfRose::Value::SValueReference* 
 
 	return AOR_SUCCESS;
 }
+
+// Returns the path of root script
+int ActOfRose::BuiltIn::GetRootScriptPath(ActOfRose::Value::SValueReference* returnValueHolder, std::vector<ActOfRose::Value::CValue*>* params)
+{
+	if (params->size() != 0)
+	{
+		ActOfRose::WriteLog(PREF_STRING("Too many arguments have been passed"),
+			(sizeof(PREF_STRING("Too many arguments have been passed")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+		return AOR_ERROR_EXEC_INVALID_ARGUMENT_NUMBER;
+	}
+
+#if defined (WIN32) || defined (_WIN32)
+	std::string utf8AbsolutePathStr;
+	{
+		std::wstring utf16BEAbsolutePathStr = std::filesystem::absolute(gRootScriptPath).wstring();
+
+		if (ConvertStringUTF16BEToUTF8(&utf8AbsolutePathStr, &utf16BEAbsolutePathStr) != AOR_SUCCESS)
+		{
+			ActOfRose::WriteLog(PREF_STRING("Internal error. Could not convert an argument from UTF-16BE to UTF-8"),
+				(sizeof(PREF_STRING("Internal error. Could not convert an argument from UTF-16BE to UTF-8")) / sizeof(PChar)),
+				ActOfRose::ELogLevel::ELL_Error);
+
+			return AOR_ERROR_INTERNAL_ERROR;
+		}
+	}
+	returnValueHolder->value.value = new ActOfRose::Value::CStringValue(utf8AbsolutePathStr.c_str());
+#elif defined (__linux__)
+	returnValueHolder->value.value = new ActOfRose::Value::CStringValue(gRootScriptPath.string().c_str());
+#endif
+
+	returnValueHolder->category = ActOfRose::Value::EValueCategories::EVC_PRValue;
+
+	return AOR_SUCCESS;
+}
