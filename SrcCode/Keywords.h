@@ -36,6 +36,7 @@ namespace ActOfRose
 			EK_Return,			// "return" keyword
 			EK_Local,			// "local" keyword
 			EK_True,			// "true" keyword
+			EK_False,			// "false" keyword
 		};
 
 
