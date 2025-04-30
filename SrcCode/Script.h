@@ -65,9 +65,12 @@ namespace ActOfRose
 			// Removes a top scope
 			void RemoveScope();
 
-
 			// Returns a pointer to a stack of local scopes
 			inline std::vector<ActOfRose::CScope>* GetScopes() { return &_mLocalScopes; }
+
+
+			// Returns a pointer to a stack of local scopes
+			inline ActOfRose::Script::CScript* GetScript() { return _pRelatedScript; }
 	
 		private:
 			ActOfRose::Script::CScript* _pRelatedScript;			// Pointer to a related script
