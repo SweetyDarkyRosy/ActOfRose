@@ -33,6 +33,8 @@ static const std::unordered_map<std::string, ActOfRose::Keyword::EKeywords> sKey
 	{ "strict", ActOfRose::Keyword::EKeywords::EK_Strict },
 	{ "return", ActOfRose::Keyword::EKeywords::EK_Return },
 	{ "local", ActOfRose::Keyword::EKeywords::EK_Local },
+	{ "true", ActOfRose::Keyword::EKeywords::EK_True },
+	{ "false", ActOfRose::Keyword::EKeywords::EK_False },
 };
 
 
