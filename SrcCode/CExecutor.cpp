@@ -1889,7 +1889,7 @@ int ActOfRose::CExecutor::ProcessIdentifier(ActOfRose::Value::SValueReference* v
 				}
 
 				std::vector<ActOfRose::Value::CValue*> paramArr;		// Array of values as parameters
-				int result;
+				int result = AOR_SUCCESS;
 
 				if ((*_pCurrTokenGroup)[_mCurrTokenIndex + 1].type != ActOfRose::Token::ETokenType::ETTRoundBracketRight)
 				{
@@ -1938,6 +1938,10 @@ int ActOfRose::CExecutor::ProcessIdentifier(ActOfRose::Value::SValueReference* v
 
 						delete exprRoot;
 					}
+				}
+				else
+				{
+					_mCurrTokenIndex++;
 				}
 
 
