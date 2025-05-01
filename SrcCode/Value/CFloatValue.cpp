@@ -417,6 +417,15 @@ int ActOfRose::Value::CFloatValue::ExecuteOperation(ActOfRose::Value::SValueRefe
 
 					break;
 				}
+				
+				case ActOfRose::Value::EValueType::EVT_Integer:
+				{
+					ActOfRose::Value::CIntegerValue* rightIntValue = (ActOfRose::Value::CIntegerValue*)rightValue;
+					
+					retValueRefHolder->value.value = new ActOfRose::Value::CBooleanValue(_mValue > (float)(rightIntValue->GetRawValue()));
+
+					break;
+				}
 
 				default:
 				{
