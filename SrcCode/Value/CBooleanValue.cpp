@@ -242,6 +242,14 @@ int ActOfRose::Value::CBooleanValue::ExecuteOperation(ActOfRose::Value::SValueRe
 			break;
 		}
 
+		case ActOfRose::Operation::EOperationTypes::EO_Negation:
+		{
+			retValueRefHolder->value.value = new ActOfRose::Value::CIntegerValue((int)_mValue * (-1));
+			retValueRefHolder->category = ActOfRose::Value::EValueCategories::EVC_PRValue;
+
+			break;
+		}
+
 		default:
 		{
 			return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
