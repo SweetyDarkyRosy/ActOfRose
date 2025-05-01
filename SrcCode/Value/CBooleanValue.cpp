@@ -14,6 +14,8 @@
 #include <ReturnCodes.h>
 #include <Utility/StringConverting.h>
 
+#include "CIntegerValue.h"
+
 
 // ----- ActOfRose::Value::CBooleanValue class -----
 
@@ -49,6 +51,16 @@ int ActOfRose::Value::CBooleanValue::ExecuteOperation(ActOfRose::Value::SValueRe
 				{
 					ActOfRose::Value::CBooleanValue* rightBoolValue = (ActOfRose::Value::CBooleanValue*)rightValue;
 					int intResult = (int)_mValue + (int)(rightBoolValue->GetRawValue());
+
+					retValueRefHolder->value.value = new ActOfRose::Value::CIntegerValue(intResult);
+
+					break;
+				}
+
+				case ActOfRose::Value::EValueType::EVT_Integer:
+				{
+					ActOfRose::Value::CIntegerValue* rightIntValue = (ActOfRose::Value::CIntegerValue*)rightValue;
+					int intResult = (int)_mValue + rightIntValue->GetRawValue();
 
 					retValueRefHolder->value.value = new ActOfRose::Value::CIntegerValue(intResult);
 
