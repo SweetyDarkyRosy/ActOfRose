@@ -31,14 +31,23 @@ namespace ActOfRose
 		// Executes a command line
 		int Execute(ActOfRose::Value::SValueReference* returnValueHolder, std::vector<ActOfRose::Value::CValue*>* params);
 
+
 		// Checks the given OS name and returns true if current host OS is equal to a specified one. Otherwise, the function returns false
 		int IsCurrentOS(ActOfRose::Value::SValueReference* returnValueHolder, std::vector<ActOfRose::Value::CValue*>* params);
+
+
+		/*[
+			Filesystem-related functions
+		 ]*/
 
 		// Returns current directory path
 		int GetCurrentDirPath(ActOfRose::Value::SValueReference* returnValueHolder, std::vector<ActOfRose::Value::CValue*>* params);
 
 		// Sets current directory path and returns true in case of success. Otherwise, the function returns false
 		int SetCurrentDirPath(ActOfRose::Value::SValueReference* returnValueHolder, std::vector<ActOfRose::Value::CValue*>* params);
+
+		// Checks if a file or directory at a specified path exists
+		int CheckPath(ActOfRose::Value::SValueReference* returnValueHolder, std::vector<ActOfRose::Value::CValue*>* params);
 
 	} // !namespace BuiltIn
 } // !namespace ActOfRose
