@@ -36,6 +36,7 @@ static const std::unordered_map<std::string, ActOfRose::Operation::EOperationTyp
 	{ "<", ActOfRose::Operation::EOperationTypes::EO_CampareLessThan },
 	{ ">", ActOfRose::Operation::EOperationTypes::EO_CampareGreaterThan },
 	{ "<=", ActOfRose::Operation::EOperationTypes::EO_CampareLessThanOrEqualTo },
+	{ ">=", ActOfRose::Operation::EOperationTypes::EO_CampareGreaterThanOrEqualTo },
 };
 
 
