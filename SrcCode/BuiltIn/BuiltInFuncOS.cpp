@@ -24,6 +24,7 @@
 
 #include <cstring>
 #include <cctype>
+#include <filesystem>
 
 #include <ReturnCodes.h>
 #include <Log.h>
@@ -468,4 +469,39 @@ int ActOfRose::BuiltIn::IsCurrentOS(ActOfRose::Value::SValueReference* returnVal
 		(sizeof(PREF_STRING("Invalid parameter. OS/system name should be provided using a string")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
 
 	return AOR_ERROR_EXEC_INVALID_PARAMETER;
+}
+
+// Returns current directory path
+int ActOfRose::BuiltIn::GetCurrentDirPath(ActOfRose::Value::SValueReference* returnValueHolder, std::vector<ActOfRose::Value::CValue*>* params)
+{
+	if (params->size() != 0)
+	{
+		ActOfRose::WriteLog(PREF_STRING("Too many arguments have been passed"),
+			(sizeof(PREF_STRING("Too many arguments have been passed")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+		return AOR_ERROR_EXEC_INVALID_ARGUMENT_NUMBER;
+	}
+
+#if defined (WIN32) || defined (_WIN32)
+	std::string utf8AbsolutePathStr;
+	{
+		std::wstring utf16BEAbsolutePathStr = std::filesystem::current_path().wstring();
+
+		if (ConvertStringUTF16BEToUTF8(&utf8AbsolutePathStr, &utf16BEAbsolutePathStr) != AOR_SUCCESS)
+		{
+			ActOfRose::WriteLog(PREF_STRING("Internal error. Could not convert an argument from UTF-16BE to UTF-8"),
+				(sizeof(PREF_STRING("Internal error. Could not convert an argument from UTF-16BE to UTF-8")) / sizeof(PChar)),
+				ActOfRose::ELogLevel::ELL_Error);
+
+			return AOR_ERROR_INTERNAL_ERROR;
+		}
+	}
+	returnValueHolder->value.value = new ActOfRose::Value::CStringValue(utf8AbsolutePathStr.c_str());
+#elif defined (__linux__)
+	returnValueHolder->value.value = new ActOfRose::Value::CStringValue(std::filesystem::current_path.string().c_str());
+#endif
+
+	returnValueHolder->category = ActOfRose::Value::EValueCategories::EVC_PRValue;
+
+	return AOR_SUCCESS;
 }

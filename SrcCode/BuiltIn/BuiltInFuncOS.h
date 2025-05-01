@@ -34,6 +34,9 @@ namespace ActOfRose
 		// Checks the given OS name and returns true if current host OS is equal to a specified one. Otherwise, the function returns false
 		int IsCurrentOS(ActOfRose::Value::SValueReference* returnValueHolder, std::vector<ActOfRose::Value::CValue*>* params);
 
+		// Returns current directory path
+		int GetCurrentDirPath(ActOfRose::Value::SValueReference* returnValueHolder, std::vector<ActOfRose::Value::CValue*>* params);
+
 	} // !namespace BuiltIn
 } // !namespace ActOfRose
 

@@ -43,6 +43,8 @@ ActOfRose::CPredefinedFunction								gBuiltInFuncGetCurrentScriptPath(ActOfRose
 ActOfRose::CPredefinedFunction								gBuiltInFuncGetRootScriptPath(ActOfRose::BuiltIn::GetRootScriptPath);
 // Wrapper of built-in 'ActOfRose::BuiltIn::IsCurrentOS' function
 ActOfRose::CPredefinedFunction								gBuiltInFuncIsCurrentOS(ActOfRose::BuiltIn::IsCurrentOS);
+// Wrapper of built-in 'ActOfRose::BuiltIn::GetCurrentDirPath' function
+ActOfRose::CPredefinedFunction								gBuiltInFuncGetCurrentDirPath(ActOfRose::BuiltIn::GetCurrentDirPath);
 
 
 ActOfRose::CPreProcessor									gPreprocessor;											// Global instance of preprocessor
@@ -58,4 +60,5 @@ std::map<const std::string, ActOfRose::SElement>			gGlobalIdentifierMap = {
 	{ "GetCurrentScriptPath", { ActOfRose::EElementType::EET_Function, &gBuiltInFuncGetCurrentScriptPath } },
 	{ "GetRootScriptPath", { ActOfRose::EElementType::EET_Function, &gBuiltInFuncGetRootScriptPath } },
 	{ "IsCurrentOS", { ActOfRose::EElementType::EET_Function, &gBuiltInFuncIsCurrentOS } },
+	{ "GetCurrentDirPath", { ActOfRose::EElementType::EET_Function, &gBuiltInFuncGetCurrentDirPath } },
 };
