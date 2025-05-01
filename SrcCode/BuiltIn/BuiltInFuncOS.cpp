@@ -505,3 +505,93 @@ int ActOfRose::BuiltIn::GetCurrentDirPath(ActOfRose::Value::SValueReference* ret
 
 	return AOR_SUCCESS;
 }
+
+// Sets current directory path
+int ActOfRose::BuiltIn::SetCurrentDirPath(ActOfRose::Value::SValueReference* returnValueHolder, std::vector<ActOfRose::Value::CValue*>* params)
+{
+	if (params->size() != 1)
+	{
+		if (params->size() > 1)
+		{
+			ActOfRose::WriteLog(PREF_STRING("Too many arguments have been passed"),
+				(sizeof(PREF_STRING("Too many arguments have been passed")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+			return AOR_ERROR_EXEC_INVALID_ARGUMENT_NUMBER;
+		}
+		else
+		{
+			ActOfRose::WriteLog(PREF_STRING("Too few arguments have been passed"),
+				(sizeof(PREF_STRING("Too few arguments have been passed")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+			return AOR_ERROR_EXEC_INVALID_ARGUMENT_NUMBER;
+		}
+	}
+
+	int result = AOR_SUCCESS;
+
+	if ((*params)[0] != nullptr)
+	{
+		if ((*params)[0]->GetValueType() != ActOfRose::Value::EValueType::EVT_String)
+		{
+			ActOfRose::WriteLog(PREF_STRING("Invalid parameter. String with path should be passed"),
+				(sizeof(PREF_STRING("Invalid parameter. String with path should be passed")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+			result = AOR_ERROR_EXEC_INVALID_PARAMETER;
+		}
+		else
+		{
+			ActOfRose::Value::CStringValue* pathStr = (ActOfRose::Value::CStringValue*)((*params)[0]);
+			bool isSuccess = true;
+
+			try
+			{
+			#if defined (WIN32) || defined (_WIN32)
+				std::wstring utf16BEPath;
+				if (ConvertStringUTF8ToUTF16BE(&utf16BEPath, pathStr->GetSTDString()) != AOR_SUCCESS)
+				{
+					ActOfRose::WriteLog(PREF_STRING("Internal error. Could not convert a UTF-8-encoded string to UTF-16BE-encoded string"),
+						(sizeof(PREF_STRING("Internal error. Could not convert a UTF-8-encoded string to UTF-16BE-encoded string")) / sizeof(PChar)),
+						ActOfRose::ELogLevel::ELL_Error);
+					return AOR_ERROR_EXEC_INVALID_PARAMETER;
+				}
+
+				current_path(std::filesystem::path(utf16BEPath));
+			#elif defined (__linux__)
+				current_path(std::filesystem::path(pathStr->GetRawString()));
+			#endif
+			}
+			catch (std::filesystem::filesystem_error const& error)
+			{
+			#if defined (WIN32) || defined (_WIN32)
+				std::wstring errorMsg = L"Could not change current directory to ";
+				errorMsg += error.path1().wstring();
+			#elif defined (__linux__)
+				std::string errorMsg = "Could not change current directory to ";
+				errorMsg += error.path1().string();
+			#endif
+
+				ActOfRose::WriteLog(errorMsg.c_str(), errorMsg.length(), ActOfRose::ELogLevel::ELL_Error);
+
+				isSuccess = false;
+			}
+
+			returnValueHolder->value.value = new ActOfRose::Value::CBooleanValue(isSuccess);
+			returnValueHolder->category = ActOfRose::Value::EValueCategories::EVC_PRValue;
+		}
+	}
+	else
+	{
+		ActOfRose::WriteLog(PREF_STRING("Invalid parameter. String with path should be passed"),
+			(sizeof(PREF_STRING("Invalid parameter. String with path should be passed")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+		result = AOR_ERROR_EXEC_INVALID_PARAMETER;
+	}
+
+
+	// ----- Cleanup -----
+
+	delete (*params)[0];
+
+
+	return result;
+}

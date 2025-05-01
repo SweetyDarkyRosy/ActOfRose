@@ -37,6 +37,9 @@ namespace ActOfRose
 		// Returns current directory path
 		int GetCurrentDirPath(ActOfRose::Value::SValueReference* returnValueHolder, std::vector<ActOfRose::Value::CValue*>* params);
 
+		// Sets current directory path and returns true in case of success. Otherwise, the function returns false
+		int SetCurrentDirPath(ActOfRose::Value::SValueReference* returnValueHolder, std::vector<ActOfRose::Value::CValue*>* params);
+
 	} // !namespace BuiltIn
 } // !namespace ActOfRose
 
