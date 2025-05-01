@@ -104,8 +104,14 @@ int ActOfRose::CExecutor::Execute(ActOfRose::Value::SValueReference* returnValue
 
 					case ActOfRose::Keyword::EKeywords::EK_Return:
 					{
-						if (returnValueHolder != nullptr)
+						if (returnValueHolder == nullptr)
 						{
+							returnValueHolder->category = ActOfRose::Value::EValueCategories::EVC_None;
+						}
+						else
+						{
+							_mCurrTokenIndex++;
+
 							int exprEvalResult = EvaluateExpression(&(returnValueHolder->value.value));
 							if (exprEvalResult != AOR_SUCCESS)
 							{
