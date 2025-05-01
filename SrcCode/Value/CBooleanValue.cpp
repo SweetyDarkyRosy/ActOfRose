@@ -15,6 +15,7 @@
 #include <Utility/StringConverting.h>
 
 #include "CIntegerValue.h"
+#include "CFloatValue.h"
 
 
 // ----- ActOfRose::Value::CBooleanValue class -----
@@ -63,6 +64,16 @@ int ActOfRose::Value::CBooleanValue::ExecuteOperation(ActOfRose::Value::SValueRe
 					int intResult = (int)_mValue + rightIntValue->GetRawValue();
 
 					retValueRefHolder->value.value = new ActOfRose::Value::CIntegerValue(intResult);
+
+					break;
+				}
+
+				case ActOfRose::Value::EValueType::EVT_FloatingPoint:
+				{
+					ActOfRose::Value::CFloatValue* rightFloatValue = (ActOfRose::Value::CFloatValue*)rightValue;
+					float floatResult = (float)_mValue + rightFloatValue->GetRawValue();
+
+					retValueRefHolder->value.value = new ActOfRose::Value::CFloatValue(floatResult);
 
 					break;
 				}
