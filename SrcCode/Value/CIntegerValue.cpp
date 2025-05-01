@@ -175,6 +175,16 @@ int ActOfRose::Value::CIntegerValue::ExecuteOperation(ActOfRose::Value::SValueRe
 					break;
 				}
 
+				case ActOfRose::Value::EValueType::EVT_Boolean:
+				{
+					ActOfRose::Value::CBooleanValue* rightBoolValue = (ActOfRose::Value::CBooleanValue*)rightValue;
+					int intResult = _mValue * (int)(rightBoolValue->GetRawValue());
+
+					retValueRefHolder->value.value = new ActOfRose::Value::CIntegerValue(intResult);
+
+					break;
+				}
+
 				default:
 				{
 					return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
