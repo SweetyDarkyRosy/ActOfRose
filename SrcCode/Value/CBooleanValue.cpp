@@ -191,6 +191,37 @@ int ActOfRose::Value::CBooleanValue::ExecuteOperation(ActOfRose::Value::SValueRe
 			break;
 		}
 
+		case ActOfRose::Operation::EOperationTypes::EO_Division:
+		{
+			if (rightValRef->category == ActOfRose::Value::EValueCategories::EVC_None)
+			{
+				break;
+			}
+
+			ActOfRose::Value::CValue* rightValue = rightValRef->GetValue();
+			switch (rightValue->GetValueType())
+			{
+				case ActOfRose::Value::EValueType::EVT_Boolean:
+				{
+					ActOfRose::Value::CBooleanValue* rightBoolValue = (ActOfRose::Value::CBooleanValue*)rightValue;
+					int intResult = (int)_mValue / (int)(rightBoolValue->GetRawValue());
+
+					retValueRefHolder->value.value = new ActOfRose::Value::CIntegerValue(intResult);
+
+					break;
+				}
+
+				default:
+				{
+					return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
+				}
+			}
+
+			retValueRefHolder->category = ActOfRose::Value::EValueCategories::EVC_PRValue;
+
+			break;
+		}
+
 		default:
 		{
 			return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
