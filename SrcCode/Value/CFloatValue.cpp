@@ -247,6 +247,14 @@ int ActOfRose::Value::CFloatValue::ExecuteOperation(ActOfRose::Value::SValueRefe
 			break;
 		}
 
+		case ActOfRose::Operation::EOperationTypes::EO_Negation:
+		{
+			retValueRefHolder->value.value = new ActOfRose::Value::CFloatValue(-1.0 * _mValue);
+			retValueRefHolder->category = ActOfRose::Value::EValueCategories::EVC_PRValue;
+
+			break;
+		}
+
 		default:
 		{
 			return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
