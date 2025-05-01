@@ -12,6 +12,7 @@
 #include "CFloatValue.h"
 
 #include "CIntegerValue.h"
+#include "CBooleanValue.h"
 
 #include <ReturnCodes.h>
 #include <Utility/StringConverting.h>
@@ -48,7 +49,7 @@ int ActOfRose::Value::CFloatValue::ExecuteOperation(ActOfRose::Value::SValueRefe
 			{
 				break;
 			}
-			
+
 			ActOfRose::Value::CValue* rightValue = rightValRef->GetValue();
 			switch (rightValue->GetValueType())
 			{
@@ -66,6 +67,16 @@ int ActOfRose::Value::CFloatValue::ExecuteOperation(ActOfRose::Value::SValueRefe
 				{
 					ActOfRose::Value::CIntegerValue* rightIntValue = (ActOfRose::Value::CIntegerValue*)rightValue;
 					float floatResult = _mValue + (float)(rightIntValue->GetRawValue());
+
+					retValueRefHolder->value.value = new ActOfRose::Value::CFloatValue(floatResult);
+
+					break;
+				}
+
+				case ActOfRose::Value::EValueType::EVT_Boolean:
+				{
+					ActOfRose::Value::CBooleanValue* rightBoolValue = (ActOfRose::Value::CBooleanValue*)rightValue;
+					float floatResult = _mValue + (float)(rightBoolValue->GetRawValue());
 
 					retValueRefHolder->value.value = new ActOfRose::Value::CFloatValue(floatResult);
 
