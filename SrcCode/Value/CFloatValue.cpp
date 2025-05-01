@@ -379,6 +379,15 @@ int ActOfRose::Value::CFloatValue::ExecuteOperation(ActOfRose::Value::SValueRefe
 					break;
 				}
 
+				case ActOfRose::Value::EValueType::EVT_Boolean:
+				{
+					ActOfRose::Value::CBooleanValue* rightBoolValue = (ActOfRose::Value::CBooleanValue*)rightValue;
+					
+					retValueRefHolder->value.value = new ActOfRose::Value::CBooleanValue(_mValue < (float)(rightBoolValue->GetRawValue()));
+
+					break;
+				}
+
 				default:
 				{
 					return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
