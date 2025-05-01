@@ -36,6 +36,7 @@ namespace ActOfRose
 			EO_ElementAccess,			// Access to an element through index
 			EO_CampareEqualTo,			// Comparison operation (equal to)
 			EO_CampareNotEqualTo,		// Comparison operation (not equal to)
+			EO_CampareLessThan,			// Comparison operation (less than)
 		};
 
 
