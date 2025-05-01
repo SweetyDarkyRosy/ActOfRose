@@ -418,6 +418,15 @@ int ActOfRose::Value::CIntegerValue::ExecuteOperation(ActOfRose::Value::SValueRe
 					break;
 				}
 
+				case ActOfRose::Value::EValueType::EVT_FloatingPoint:
+				{
+					ActOfRose::Value::CFloatValue* rightFloatValue = (ActOfRose::Value::CFloatValue*)rightValue;
+					
+					retValueRefHolder->value.value = new ActOfRose::Value::CBooleanValue((float)_mValue > rightFloatValue->GetRawValue());
+
+					break;
+				}
+
 				default:
 				{
 					return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
