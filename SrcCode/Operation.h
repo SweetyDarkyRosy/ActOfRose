@@ -37,6 +37,7 @@ namespace ActOfRose
 			EO_CampareEqualTo,			// Comparison operation (equal to)
 			EO_CampareNotEqualTo,		// Comparison operation (not equal to)
 			EO_CampareLessThan,			// Comparison operation (less than)
+			EO_CampareGreaterThan,		// Comparison operation (greater than)
 		};
 
 
