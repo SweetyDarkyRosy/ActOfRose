@@ -128,6 +128,14 @@ int ActOfRose::Context::CSequencer::DetermineAndCreateContext(ActOfRose::Token::
 
 			switch (keyword)
 			{
+				case ActOfRose::Keyword::EKeywords::EK_True:
+				case ActOfRose::Keyword::EKeywords::EK_False:
+				{
+					_mContexts.push(new ActOfRose::Context::CExpressionEvaluationContext());
+
+					break;
+				}
+
 				case ActOfRose::Keyword::EKeywords::EK_Var:
 				case ActOfRose::Keyword::EKeywords::EK_Override:
 				case ActOfRose::Keyword::EKeywords::EK_Strict:

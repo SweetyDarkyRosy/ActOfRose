@@ -20,6 +20,7 @@
 #include "Global.h"
 #include "Log.h"
 #include "Token.h"
+#include "Keywords.h"
 #include "Script.h"
 #include "Utility/StringMisc.h"
 
@@ -217,13 +218,43 @@ int ActOfRose::AORSystemCreateValueFromToken(ActOfRose::Value::CValue** valueHol
 
 		case ActOfRose::Token::ETokenType::ETTString:
 		{
-			if ((token->value.compare("true") == 0) || (token->value.compare("false") == 0))
+			newValue = new ActOfRose::Value::CStringValue(token->value.c_str());
+
+			break;
+		}
+
+		case ActOfRose::Token::ETokenType::ETTKeyword:
+		{
+			ActOfRose::Keyword::EKeywords keyword;
+			if (GetKeyword(&keyword, &(token->value)) == false)
 			{
-				newValue = new ActOfRose::Value::CBooleanValue(token->value.compare("true") == 0);
+				ActOfRose::WriteLog(PREF_STRING("Keyword not found. Internal error"),
+					(sizeof(PREF_STRING("Keyword not found. Internal error")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_INTERNAL_ERROR;
 			}
-			else
+
+			switch (keyword)
 			{
-				newValue = new ActOfRose::Value::CStringValue(token->value.c_str());
+				case ActOfRose::Keyword::EKeywords::EK_True:
+				{
+					newValue = new ActOfRose::Value::CBooleanValue(true);
+					break;
+				}
+
+				case ActOfRose::Keyword::EKeywords::EK_False:
+				{
+					newValue = new ActOfRose::Value::CBooleanValue(false);
+					break;
+				}
+
+				default:
+				{
+					std::string errorMsg = "Keyword '" + token->value + "' is not a value";
+					ActOfRose::WriteLog(errorMsg.c_str(), errorMsg.size(), ActOfRose::ELogLevel::ELL_Error);
+
+					return AOR_ERROR_EXEC_NON_VALUE_TOKEN;
+				}
 			}
 
 			break;

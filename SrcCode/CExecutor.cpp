@@ -63,6 +63,13 @@ int ActOfRose::CExecutor::Execute(ActOfRose::Value::SValueReference* returnValue
 
 				switch (keyword)
 				{
+					case ActOfRose::Keyword::EKeywords::EK_True:
+					case ActOfRose::Keyword::EKeywords::EK_False:
+					{
+						execResult = EvaluateExpression(nullptr);
+						break;
+					}
+
 					case ActOfRose::Keyword::EKeywords::EK_Override:
 					case ActOfRose::Keyword::EKeywords::EK_Var:
 					case ActOfRose::Keyword::EKeywords::EK_Strict:
@@ -174,6 +181,7 @@ int ActOfRose::CExecutor::RetrieveValue(ActOfRose::Value::SValueReference* value
 	{
 		case ActOfRose::Token::ETokenType::ETTNumber:
 		case ActOfRose::Token::ETokenType::ETTString:
+		case ActOfRose::Token::ETokenType::ETTKeyword:
 		{
 			ActOfRose::Value::CValue* newValue;
 			int createValueResult = AORSystemCreateValueFromToken(&newValue, &((*_pCurrTokenGroup)[_mCurrTokenIndex]));
@@ -244,6 +252,50 @@ int ActOfRose::CExecutor::RetrieveValue(ActOfRose::Value::SValueReference* value
 							}
 
 							newArray->AddValue(newValue);
+
+							break;
+						}
+
+						case ActOfRose::Token::ETokenType::ETTKeyword:
+						{
+							ActOfRose::Keyword::EKeywords keyword;
+							if (GetKeyword(&keyword, &((*_pCurrTokenGroup)[_mCurrTokenIndex].value)) == false)
+							{
+								ActOfRose::WriteLog(PREF_STRING("Keyword not found. Internal error"),
+									(sizeof(PREF_STRING("Keyword not found. Internal error")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+								return AOR_ERROR_INTERNAL_ERROR;
+							}
+
+							switch (keyword)
+							{
+								case ActOfRose::Keyword::EKeywords::EK_True:
+								case ActOfRose::Keyword::EKeywords::EK_False:
+								{
+									ActOfRose::Value::CValue* newValue;
+									{
+										int exprEvalResult = EvaluateExpression(&newValue);
+										if (exprEvalResult != AOR_SUCCESS)
+										{
+											delete newArray;
+
+											return exprEvalResult;
+										}
+									}
+
+									newArray->AddValue(newValue);
+
+									break;
+								}
+
+								default:
+								{
+									std::string errorMsg = "Keyword '" + (*_pCurrTokenGroup)[_mCurrTokenIndex].value + "' is not a value";
+									ActOfRose::WriteLog(errorMsg.c_str(), errorMsg.size(), ActOfRose::ELogLevel::ELL_Error);
+
+									return AOR_ERROR_EXEC_NON_VALUE_TOKEN;
+								}
+							}
 
 							break;
 						}
@@ -575,6 +627,7 @@ int ActOfRose::CExecutor::BuildExpressionAST(ActOfRose::AST::CExprASTNode** tree
 			}
 			else if (((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTNumber) ||
 				((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTString) ||
+				((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTKeyword) ||
 				((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTCurlyBracketLeft) ||
 				((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTIdentifier))
 			{
@@ -614,6 +667,7 @@ int ActOfRose::CExecutor::BuildExpressionAST(ActOfRose::AST::CExprASTNode** tree
 		}
 		else if (((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTNumber) ||
 			((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTString) ||
+			((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTKeyword) ||
 			((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTCurlyBracketLeft) ||
 			((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTIdentifier))
 		{

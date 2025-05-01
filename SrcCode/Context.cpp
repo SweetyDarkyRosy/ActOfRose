@@ -43,6 +43,38 @@ int ActOfRose::Context::CExpressionEvaluationContext::ProcessToken(ActOfRose::To
 			break;
 		}
 
+		case ActOfRose::Token::ETokenType::ETTKeyword:
+		{
+			ActOfRose::Keyword::EKeywords keyword;
+			if (GetKeyword(&keyword, &(token->value)) == false)
+			{
+				ActOfRose::WriteLog(PREF_STRING("Keyword not found. Internal error"),
+					(sizeof(PREF_STRING("Keyword not found. Internal error")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+				return AOR_ERROR_INTERNAL_ERROR;
+			}
+
+			switch (keyword)
+			{
+				case ActOfRose::Keyword::EKeywords::EK_True:
+				case ActOfRose::Keyword::EKeywords::EK_False:
+				{
+
+					break;
+				}
+
+				default:
+				{
+					std::string errorMsg = "Keyword '" + token->value + "' is not a value";
+					ActOfRose::WriteLog(errorMsg.c_str(), errorMsg.size(), ActOfRose::ELogLevel::ELL_Error);
+
+					return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
+				}
+			}
+
+			break;
+		}
+
 		case ActOfRose::Token::ETokenType::ETTSemicolon:
 		{
 			if (_mNestingDepth == 0)
@@ -138,6 +170,39 @@ int ActOfRose::Context::CIndividualExpressionContext::ProcessToken(ActOfRose::To
 					_mState = ActOfRose::Context::CIndividualExpressionContext::EIndividualExprCtxStates::EIECS_ExpressionEnd;
 
 					return AOR_CONTEXT_CREATE;
+				}
+
+				case ActOfRose::Token::ETokenType::ETTKeyword:
+				{
+					ActOfRose::Keyword::EKeywords keyword;
+					if (GetKeyword(&keyword, &(token->value)) == false)
+					{
+						ActOfRose::WriteLog(PREF_STRING("Keyword not found. Internal error"),
+							(sizeof(PREF_STRING("Keyword not found. Internal error")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+						return AOR_ERROR_INTERNAL_ERROR;
+					}
+
+					switch (keyword)
+					{
+						case ActOfRose::Keyword::EKeywords::EK_True:
+						case ActOfRose::Keyword::EKeywords::EK_False:
+						{
+							_mState = ActOfRose::Context::CIndividualExpressionContext::EIndividualExprCtxStates::EIECS_ExpressionEnd;
+
+							return AOR_CONTEXT_CREATE;
+						}
+
+						default:
+						{
+							ActOfRose::WriteLog(PREF_STRING("Expected expression"), (sizeof(PREF_STRING("Expected expression")) / sizeof(PChar)),
+								ActOfRose::ELogLevel::ELL_Error);
+
+							return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
+						}
+					}
+
+					break;
 				}
 
 				default:
@@ -322,6 +387,39 @@ int ActOfRose::Context::CVarDeclarationContext::ProcessToken(ActOfRose::Token::S
 					_mState = ActOfRose::Context::CVarDeclarationContext::EVarDeclarationCtxStates::EVDCS_ExpressionEnd;
 
 					return AOR_CONTEXT_CREATE;
+				}
+
+				case ActOfRose::Token::ETokenType::ETTKeyword:
+				{
+					ActOfRose::Keyword::EKeywords keyword;
+					if (GetKeyword(&keyword, &(token->value)) == false)
+					{
+						ActOfRose::WriteLog(PREF_STRING("Keyword not found. Internal error"),
+							(sizeof(PREF_STRING("Keyword not found. Internal error")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+						return AOR_ERROR_INTERNAL_ERROR;
+					}
+
+					switch (keyword)
+					{
+						case ActOfRose::Keyword::EKeywords::EK_True:
+						case ActOfRose::Keyword::EKeywords::EK_False:
+						{
+							_mState = ActOfRose::Context::CVarDeclarationContext::EVarDeclarationCtxStates::EVDCS_ExpressionEnd;
+
+							return AOR_CONTEXT_CREATE;
+						}
+
+						default:
+						{
+							ActOfRose::WriteLog(PREF_STRING("Expected expression"), (sizeof(PREF_STRING("Expected expression")) / sizeof(PChar)),
+								ActOfRose::ELogLevel::ELL_Error);
+
+							return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
+						}
+					}
+
+					break;
 				}
 
 				default:
@@ -611,6 +709,39 @@ int ActOfRose::Context::CConditionalContext::ProcessToken(ActOfRose::Token::STok
 					return AOR_CONTEXT_CREATE;
 				}
 
+				case ActOfRose::Token::ETokenType::ETTKeyword:
+				{
+					ActOfRose::Keyword::EKeywords keyword;
+					if (GetKeyword(&keyword, &(token->value)) == false)
+					{
+						ActOfRose::WriteLog(PREF_STRING("Keyword not found. Internal error"),
+							(sizeof(PREF_STRING("Keyword not found. Internal error")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+						return AOR_ERROR_INTERNAL_ERROR;
+					}
+
+					switch (keyword)
+					{
+						case ActOfRose::Keyword::EKeywords::EK_True:
+						case ActOfRose::Keyword::EKeywords::EK_False:
+						{
+							_mState = ActOfRose::Context::CConditionalContext::EConditionalCtxStates::ECCS_ConditionEnd;
+
+							return AOR_CONTEXT_CREATE;
+						}
+
+						default:
+						{
+							ActOfRose::WriteLog(PREF_STRING("Expected expression"), (sizeof(PREF_STRING("Expected expression")) / sizeof(PChar)),
+								ActOfRose::ELogLevel::ELL_Error);
+
+							return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
+						}
+					}
+
+					break;
+				}
+
 				default:
 				{
 					ActOfRose::WriteLog(PREF_STRING("Expected expression"), (sizeof(PREF_STRING("Expected expression")) / sizeof(PChar)),
@@ -845,6 +976,39 @@ int ActOfRose::Context::CWhileLoopContext::ProcessToken(ActOfRose::Token::SToken
 					return AOR_CONTEXT_CREATE;
 				}
 
+				case ActOfRose::Token::ETokenType::ETTKeyword:
+				{
+					ActOfRose::Keyword::EKeywords keyword;
+					if (GetKeyword(&keyword, &(token->value)) == false)
+					{
+						ActOfRose::WriteLog(PREF_STRING("Keyword not found. Internal error"),
+							(sizeof(PREF_STRING("Keyword not found. Internal error")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+						return AOR_ERROR_INTERNAL_ERROR;
+					}
+
+					switch (keyword)
+					{
+						case ActOfRose::Keyword::EKeywords::EK_True:
+						case ActOfRose::Keyword::EKeywords::EK_False:
+						{
+							_mState = ActOfRose::Context::CWhileLoopContext::EWhileLoopCtxStates::EWLCS_ConditionEnd;
+
+							return AOR_CONTEXT_CREATE;
+						}
+
+						default:
+						{
+							ActOfRose::WriteLog(PREF_STRING("Expected expression"), (sizeof(PREF_STRING("Expected expression")) / sizeof(PChar)),
+								ActOfRose::ELogLevel::ELL_Error);
+
+							return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
+						}
+					}
+
+					break;
+				}
+
 				default:
 				{
 					ActOfRose::WriteLog(PREF_STRING("Expected expression"), (sizeof(PREF_STRING("Expected expression")) / sizeof(PChar)),
@@ -1015,6 +1179,8 @@ int ActOfRose::Context::CForLoopContext::ProcessToken(ActOfRose::Token::SToken* 
 
 					switch (keyword)
 					{
+						case ActOfRose::Keyword::EKeywords::EK_True:
+						case ActOfRose::Keyword::EKeywords::EK_False:
 						case ActOfRose::Keyword::EKeywords::EK_Var:
 						case ActOfRose::Keyword::EKeywords::EK_Override:
 						case ActOfRose::Keyword::EKeywords::EK_Strict:
@@ -1084,6 +1250,39 @@ int ActOfRose::Context::CForLoopContext::ProcessToken(ActOfRose::Token::SToken* 
 					return AOR_CONTEXT_CREATE;
 				}
 
+				case ActOfRose::Token::ETokenType::ETTKeyword:
+				{
+					ActOfRose::Keyword::EKeywords keyword;
+					if (GetKeyword(&keyword, &(token->value)) == false)
+					{
+						ActOfRose::WriteLog(PREF_STRING("Keyword not found. Internal error"),
+							(sizeof(PREF_STRING("Keyword not found. Internal error")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+						return AOR_ERROR_INTERNAL_ERROR;
+					}
+
+					switch (keyword)
+					{
+						case ActOfRose::Keyword::EKeywords::EK_True:
+						case ActOfRose::Keyword::EKeywords::EK_False:
+						{
+							_mState = ActOfRose::Context::CForLoopContext::EForLoopCtxStates::EFLCS_ConditionalExprEnd;
+
+							return AOR_CONTEXT_CREATE;
+						}
+
+						default:
+						{
+							ActOfRose::WriteLog(PREF_STRING("Expected expression"), (sizeof(PREF_STRING("Expected expression")) / sizeof(PChar)),
+								ActOfRose::ELogLevel::ELL_Error);
+
+							return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
+						}
+					}
+
+					break;
+				}
+
 				case ActOfRose::Token::ETokenType::ETTSemicolon:
 				{
 					_mState = ActOfRose::Context::CForLoopContext::EForLoopCtxStates::EFLCS_AdvancementExprDisjunction;
@@ -1131,6 +1330,39 @@ int ActOfRose::Context::CForLoopContext::ProcessToken(ActOfRose::Token::SToken* 
 					_mState = ActOfRose::Context::CForLoopContext::EForLoopCtxStates::EFLCS_ControlBlockEnd;
 
 					return AOR_CONTEXT_CREATE;
+				}
+
+				case ActOfRose::Token::ETokenType::ETTKeyword:
+				{
+					ActOfRose::Keyword::EKeywords keyword;
+					if (GetKeyword(&keyword, &(token->value)) == false)
+					{
+						ActOfRose::WriteLog(PREF_STRING("Keyword not found. Internal error"),
+							(sizeof(PREF_STRING("Keyword not found. Internal error")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+						return AOR_ERROR_INTERNAL_ERROR;
+					}
+
+					switch (keyword)
+					{
+						case ActOfRose::Keyword::EKeywords::EK_True:
+						case ActOfRose::Keyword::EKeywords::EK_False:
+						{
+							_mState = ActOfRose::Context::CForLoopContext::EForLoopCtxStates::EFLCS_ControlBlockEnd;
+
+							return AOR_CONTEXT_CREATE;
+						}
+
+						default:
+						{
+							ActOfRose::WriteLog(PREF_STRING("Expected expression"), (sizeof(PREF_STRING("Expected expression")) / sizeof(PChar)),
+								ActOfRose::ELogLevel::ELL_Error);
+
+							return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
+						}
+					}
+
+					break;
 				}
 
 				case ActOfRose::Token::ETokenType::ETTRoundBracketRight:
@@ -1399,6 +1631,39 @@ int ActOfRose::Context::CDoWhileLoopContext::ProcessToken(ActOfRose::Token::STok
 					return AOR_CONTEXT_CREATE;
 				}
 
+				case ActOfRose::Token::ETokenType::ETTKeyword:
+				{
+					ActOfRose::Keyword::EKeywords keyword;
+					if (GetKeyword(&keyword, &(token->value)) == false)
+					{
+						ActOfRose::WriteLog(PREF_STRING("Keyword not found. Internal error"),
+							(sizeof(PREF_STRING("Keyword not found. Internal error")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+						return AOR_ERROR_INTERNAL_ERROR;
+					}
+
+					switch (keyword)
+					{
+						case ActOfRose::Keyword::EKeywords::EK_True:
+						case ActOfRose::Keyword::EKeywords::EK_False:
+						{
+							_mState = ActOfRose::Context::CDoWhileLoopContext::EDoWhileLoopCtxStates::EDWLCS_ConditionEnd;
+
+							return AOR_CONTEXT_CREATE;
+						}
+
+						default:
+						{
+							ActOfRose::WriteLog(PREF_STRING("Expected expression"), (sizeof(PREF_STRING("Expected expression")) / sizeof(PChar)),
+								ActOfRose::ELogLevel::ELL_Error);
+
+							return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
+						}
+					}
+
+					break;
+				}
+
 				default:
 				{
 					ActOfRose::WriteLog(PREF_STRING("Expected expression"), (sizeof(PREF_STRING("Expected expression")) / sizeof(PChar)),
@@ -1491,6 +1756,39 @@ int ActOfRose::Context::CReturnStatementContext::ProcessToken(ActOfRose::Token::
 					_mState = ActOfRose::Context::CReturnStatementContext::EReturnStatementCtxStates::ERSCS_ExpressionEnd;
 
 					return AOR_CONTEXT_CREATE;
+				}
+
+				case ActOfRose::Token::ETokenType::ETTKeyword:
+				{
+					ActOfRose::Keyword::EKeywords keyword;
+					if (GetKeyword(&keyword, &(token->value)) == false)
+					{
+						ActOfRose::WriteLog(PREF_STRING("Keyword not found. Internal error"),
+							(sizeof(PREF_STRING("Keyword not found. Internal error")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+						return AOR_ERROR_INTERNAL_ERROR;
+					}
+
+					switch (keyword)
+					{
+						case ActOfRose::Keyword::EKeywords::EK_True:
+						case ActOfRose::Keyword::EKeywords::EK_False:
+						{
+							_mState = ActOfRose::Context::CReturnStatementContext::EReturnStatementCtxStates::ERSCS_ExpressionEnd;
+
+							return AOR_CONTEXT_CREATE;
+						}
+
+						default:
+						{
+							ActOfRose::WriteLog(PREF_STRING("Expected expression"), (sizeof(PREF_STRING("Expected expression")) / sizeof(PChar)),
+								ActOfRose::ELogLevel::ELL_Error);
+
+							return AOR_ERROR_TOKEN_UNEXPECTED_TOKEN;
+						}
+					}
+
+					break;
 				}
 
 				default:
