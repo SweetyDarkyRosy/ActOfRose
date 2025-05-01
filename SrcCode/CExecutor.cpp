@@ -1094,7 +1094,7 @@ int ActOfRose::CExecutor::ProcessConditions(ActOfRose::Value::SValueReference* r
 					if (result != AOR_SUCCESS)
 					{
 						delete exprRoot;
-						break;
+						return result;
 					}
 				}
 
@@ -1103,7 +1103,7 @@ int ActOfRose::CExecutor::ProcessConditions(ActOfRose::Value::SValueReference* r
 				if (result != AOR_SUCCESS)
 				{
 					delete exprRoot;
-					break;
+					return result;
 				}
 
 				ActOfRose::Value::CValue* exprResultValue;
