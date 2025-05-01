@@ -461,6 +461,15 @@ int ActOfRose::Value::CBooleanValue::ExecuteOperation(ActOfRose::Value::SValueRe
 					break;
 				}
 
+				case ActOfRose::Value::EValueType::EVT_Integer:
+				{
+					ActOfRose::Value::CIntegerValue* rightIntValue = (ActOfRose::Value::CIntegerValue*)rightValue;
+					
+					retValueRefHolder->value.value = new ActOfRose::Value::CBooleanValue((int)_mValue <= rightIntValue->GetRawValue());
+
+					break;
+				}
+
 				default:
 				{
 					return AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
