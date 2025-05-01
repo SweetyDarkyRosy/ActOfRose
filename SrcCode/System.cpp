@@ -49,6 +49,9 @@ ActOfRose::CPredefinedFunction								gBuiltInFuncGetCurrentDirPath(ActOfRose::B
 ActOfRose::CPredefinedFunction								gBuiltInFuncSetCurrentDirPath(ActOfRose::BuiltIn::SetCurrentDirPath);
 // Wrapper of built-in 'ActOfRose::BuiltIn::CheckPath' function
 ActOfRose::CPredefinedFunction								gBuiltInFuncCheckPath(ActOfRose::BuiltIn::CheckPath);
+// Wrapper of built-in 'ActOfRose::BuiltIn::CreateDir' function
+ActOfRose::CPredefinedFunction								gBuiltInFuncCreateDir(ActOfRose::BuiltIn::CreateDir);
+
 
 ActOfRose::CPreProcessor									gPreprocessor;											// Global instance of preprocessor
 
@@ -66,4 +69,5 @@ std::map<const std::string, ActOfRose::SElement>			gGlobalIdentifierMap = {
 	{ "GetCurrentDirPath", { ActOfRose::EElementType::EET_Function, &gBuiltInFuncGetCurrentDirPath } },
 	{ "SetCurrentDirPath", { ActOfRose::EElementType::EET_Function, &gBuiltInFuncSetCurrentDirPath } },
 	{ "CheckPath", { ActOfRose::EElementType::EET_Function, &gBuiltInFuncCheckPath } },
+	{ "CreateDir", { ActOfRose::EElementType::EET_Function, &gBuiltInFuncCreateDir } },
 };

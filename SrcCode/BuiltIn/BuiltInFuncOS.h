@@ -49,6 +49,9 @@ namespace ActOfRose
 		// Checks if a file or directory at a specified path exists
 		int CheckPath(ActOfRose::Value::SValueReference* returnValueHolder, std::vector<ActOfRose::Value::CValue*>* params);
 
+		// Creates a directory at a specified path exists
+		int CreateDir(ActOfRose::Value::SValueReference* returnValueHolder, std::vector<ActOfRose::Value::CValue*>* params);
+
 	} // !namespace BuiltIn
 } // !namespace ActOfRose
 
