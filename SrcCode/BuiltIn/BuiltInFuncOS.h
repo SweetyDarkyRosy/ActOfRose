@@ -58,6 +58,9 @@ namespace ActOfRose
 		// Deletes an existing directory at a specified path
 		int RemoveDir(ActOfRose::Value::SValueReference* returnValueHolder, std::vector<ActOfRose::Value::CValue*>* params);
 
+		// Creates a file at a specified path if possible. If file exists, it can be overwritten (truncated)
+		int CreateFile(ActOfRose::Value::SValueReference* returnValueHolder, std::vector<ActOfRose::Value::CValue*>* params);
+
 		// Deletes an existing regular file at a specified path
 		int DeleteFile(ActOfRose::Value::SValueReference* returnValueHolder, std::vector<ActOfRose::Value::CValue*>* params);
 

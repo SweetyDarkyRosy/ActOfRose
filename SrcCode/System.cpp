@@ -55,6 +55,8 @@ ActOfRose::CPredefinedFunction								gBuiltInFuncCreateDir(ActOfRose::BuiltIn::
 ActOfRose::CPredefinedFunction								gBuiltInFuncIsDir(ActOfRose::BuiltIn::IsDir);
 // Wrapper of built-in 'ActOfRose::BuiltIn::RemoveDir' function
 ActOfRose::CPredefinedFunction								gBuiltInFuncRemoveDir(ActOfRose::BuiltIn::RemoveDir);
+// Wrapper of built-in 'ActOfRose::BuiltIn::CreateFile' function
+ActOfRose::CPredefinedFunction								gBuiltInFuncCreateFile(ActOfRose::BuiltIn::CreateFile);
 // Wrapper of built-in 'ActOfRose::BuiltIn::DeleteFile' function
 ActOfRose::CPredefinedFunction								gBuiltInFuncDeleteFile(ActOfRose::BuiltIn::DeleteFile);
 
@@ -78,5 +80,6 @@ std::map<const std::string, ActOfRose::SElement>			gGlobalIdentifierMap = {
 	{ "CreateDir", { ActOfRose::EElementType::EET_Function, &gBuiltInFuncCreateDir } },
 	{ "IsDir", { ActOfRose::EElementType::EET_Function, &gBuiltInFuncIsDir } },
 	{ "RemoveDir", { ActOfRose::EElementType::EET_Function, &gBuiltInFuncRemoveDir } },
+	{ "CreateFile", { ActOfRose::EElementType::EET_Function, &gBuiltInFuncCreateFile } },
 	{ "DeleteFile", { ActOfRose::EElementType::EET_Function, &gBuiltInFuncDeleteFile } },
 };
