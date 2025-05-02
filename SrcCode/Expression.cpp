@@ -113,15 +113,23 @@ unsigned int ActOfRose::AST::CExprASTOperatorNode::GetPrecedence() const
 			return 2;
 		}
 
-		case ActOfRose::Operation::EOperationTypes::EO_CampareEqualTo:
-		case ActOfRose::Operation::EOperationTypes::EO_CampareNotEqualTo:
+		case ActOfRose::Operation::EOperationTypes::EO_CampareLessThan:
+		case ActOfRose::Operation::EOperationTypes::EO_CampareGreaterThan:
+		case ActOfRose::Operation::EOperationTypes::EO_CampareLessThanOrEqualTo:
+		case ActOfRose::Operation::EOperationTypes::EO_CampareGreaterThanOrEqualTo:
 		{
 			return 3;
 		}
 
-		case ActOfRose::Operation::EOperationTypes::EO_Assignment:
+		case ActOfRose::Operation::EOperationTypes::EO_CampareEqualTo:
+		case ActOfRose::Operation::EOperationTypes::EO_CampareNotEqualTo:
 		{
 			return 4;
+		}
+
+		case ActOfRose::Operation::EOperationTypes::EO_Assignment:
+		{
+			return 5;
 		}
 
 		default:
