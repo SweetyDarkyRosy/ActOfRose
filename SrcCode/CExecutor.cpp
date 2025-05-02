@@ -1075,92 +1075,205 @@ int ActOfRose::CExecutor::DeclareAndDefineFunction()
 int ActOfRose::CExecutor::ProcessConditions(ActOfRose::Value::SValueReference* returnValueHolder)
 {
 	bool isExecuted = false;
+	int initialTokenIndex = _mCurrTokenIndex;
 
 	while (_mCurrTokenIndex < (unsigned int)(_pCurrTokenGroup->size()))
 	{
 		int result = AOR_SUCCESS;
 
-		if (((*_pCurrTokenGroup)[_mCurrTokenIndex].value == "if") || ((*_pCurrTokenGroup)[_mCurrTokenIndex].value == "elif"))
+		if ((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTKeyword)
 		{
-			_mCurrTokenIndex += 2;
-
-			if (isExecuted == false)
+			ActOfRose::Keyword::EKeywords keyword;
+			if (GetKeyword(&keyword, &((*_pCurrTokenGroup)[_mCurrTokenIndex].value)) == false)
 			{
-				// ----- Processing of condition -----
+				ActOfRose::WriteLog(PREF_STRING("Keyword not found. Internal error"),
+					(sizeof(PREF_STRING("Keyword not found. Internal error")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
 
-				ActOfRose::AST::CExprASTNode* exprRoot;
+				return AOR_ERROR_INTERNAL_ERROR;
+			}
+
+			if ((keyword == ActOfRose::Keyword::EKeywords::EK_If) || (keyword == ActOfRose::Keyword::EKeywords::EK_Elif))
+			{
+				if ((keyword == ActOfRose::Keyword::EKeywords::EK_If) && (initialTokenIndex != _mCurrTokenIndex))
 				{
-					result = BuildExpressionAST(&exprRoot);
+					_mCurrTokenIndex--;
+					break;
+				}
+
+				_mCurrTokenIndex += 2;
+
+				if (isExecuted == false)
+				{
+					// ----- Processing of condition -----
+
+					ActOfRose::AST::CExprASTNode* exprRoot;
+					{
+						result = BuildExpressionAST(&exprRoot);
+						if (result != AOR_SUCCESS)
+						{
+							delete exprRoot;
+							return result;
+						}
+					}
+
+					ActOfRose::Value::SValueReference condExprResult;
+					result = exprRoot->RetrieveValue(&condExprResult);
 					if (result != AOR_SUCCESS)
 					{
 						delete exprRoot;
 						return result;
 					}
-				}
 
-				ActOfRose::Value::SValueReference condExprResult;
-				result = exprRoot->RetrieveValue(&condExprResult);
-				if (result != AOR_SUCCESS)
-				{
-					delete exprRoot;
-					return result;
-				}
-
-				ActOfRose::Value::CValue* exprResultValue;
-				if (condExprResult.category == ActOfRose::Value::EValueCategories::EVC_None)
-				{
-					ActOfRose::WriteLog(PREF_STRING("Null value cannot be a condition"),
-						(sizeof(PREF_STRING("Null value cannot be a condition")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
-
-					result = AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
-				}
-				else
-				{
-					if (condExprResult.category == ActOfRose::Value::EValueCategories::EVC_LValue)
+					ActOfRose::Value::CValue* exprResultValue;
+					if (condExprResult.category == ActOfRose::Value::EValueCategories::EVC_None)
 					{
-						exprResultValue = *(condExprResult.value.valueHolder);
+						ActOfRose::WriteLog(PREF_STRING("Null value cannot be a condition"),
+							(sizeof(PREF_STRING("Null value cannot be a condition")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+						result = AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
 					}
 					else
 					{
-						exprResultValue = condExprResult.value.value;
+						if (condExprResult.category == ActOfRose::Value::EValueCategories::EVC_LValue)
+						{
+							exprResultValue = *(condExprResult.value.valueHolder);
+						}
+						else
+						{
+							exprResultValue = condExprResult.value.value;
+						}
+
+						if (exprResultValue->GetValueType() == ActOfRose::Value::EValueType::EVT_String)
+						{
+							ActOfRose::WriteLog(PREF_STRING("String cannot be a condition"),
+								(sizeof(PREF_STRING("String cannot be a condition")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+			
+							result = AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
+						}
+						else if (exprResultValue->GetValueType() == ActOfRose::Value::EValueType::EVT_Array)
+						{
+							ActOfRose::WriteLog(PREF_STRING("Array cannot be a condition"),
+								(sizeof(PREF_STRING("Array cannot be a condition")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+							result = AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
+						}
 					}
 
-					if (exprResultValue->GetValueType() == ActOfRose::Value::EValueType::EVT_String)
-					{
-						ActOfRose::WriteLog(PREF_STRING("String cannot be a condition"),
-							(sizeof(PREF_STRING("String cannot be a condition")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
-		
-						result = AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
-					}
-					else if (exprResultValue->GetValueType() == ActOfRose::Value::EValueType::EVT_Array)
-					{
-						ActOfRose::WriteLog(PREF_STRING("Array cannot be a condition"),
-							(sizeof(PREF_STRING("Array cannot be a condition")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+					_mCurrTokenIndex += 2;
 
-						result = AOR_ERROR_EXEC_UNSUPPORTED_OPERATION;
+					if (result == AOR_SUCCESS)
+					{
+						// Another index holder for finding the position of a curly bracket that indicates the end of a body
+						unsigned int bodyEndTokenIndex = _mCurrTokenIndex;
+
+
+						// ----- Finding the end of a body -----
+
+						{
+							unsigned int curlyBracketBlockCount = 0;
+
+							while (bodyEndTokenIndex < (unsigned int)(_pCurrTokenGroup->size()))
+							{
+								if ((*_pCurrTokenGroup)[bodyEndTokenIndex].type == ActOfRose::Token::ETokenType::ETTCurlyBracketLeft)
+								{
+									curlyBracketBlockCount++;
+								}
+								else if ((*_pCurrTokenGroup)[bodyEndTokenIndex].type == ActOfRose::Token::ETokenType::ETTCurlyBracketRight)
+								{
+									if (curlyBracketBlockCount == 0)
+									{
+										break;
+									}
+
+									curlyBracketBlockCount--;
+								}
+
+								bodyEndTokenIndex++;
+							}
+						}
+
+
+						// ----- Checking the result value -----
+
+						if (exprResultValue->IsZero() == false)
+						{
+							// ----- Extracting a body -----
+
+							std::vector<ActOfRose::Token::SToken> bodyTokens;
+							std::copy(_pCurrTokenGroup->begin() + _mCurrTokenIndex, _pCurrTokenGroup->begin() + bodyEndTokenIndex, std::back_inserter(bodyTokens));
+
+
+							// ----- Execution -----
+
+							if (bodyTokens.size() != 0)
+							{
+								// Creates a local scope
+								ActOfRose::AORSystemAddScope(ActOfRose::EScopeVisibilityTypes::ESIT_InheritingScope);
+
+								ActOfRose::CExecutor executor;				// Local instance of executor
+								result = executor.Execute(returnValueHolder, &bodyTokens);
+
+								// Removes a local scope
+								ActOfRose::AORSystemRemoveScope();
+
+								isExecuted = true;
+							}
+						}
+
+						_mCurrTokenIndex = bodyEndTokenIndex;
+					}
+
+					if (condExprResult.category == ActOfRose::Value::EValueCategories::EVC_PRValue)
+					{
+						delete condExprResult.value.value;
+					}
+
+					delete exprRoot;
+
+					if (result != AOR_SUCCESS)
+					{
+						return result;
 					}
 				}
-
-				_mCurrTokenIndex += 2;
-
-				if (result == AOR_SUCCESS)
+				else
 				{
-					// Another index holder for finding the position of a curly bracket that indicates the end of a body
-					unsigned int bodyEndTokenIndex = _mCurrTokenIndex;
+					// ----- Skipping -----
 
+					{
+						unsigned int roundBracketBlockCount = 0;
 
-					// ----- Finding the end of a body -----
+						while (_mCurrTokenIndex < (unsigned int)(_pCurrTokenGroup->size()))
+						{
+							if ((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTRoundBracketLeft)
+							{
+								roundBracketBlockCount++;
+							}
+							else if ((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTRoundBracketRight)
+							{
+								if (roundBracketBlockCount == 0)
+								{
+									break;
+								}
+
+								roundBracketBlockCount--;
+							}
+
+							_mCurrTokenIndex++;
+						}
+					}
+
+					_mCurrTokenIndex += 2;
 
 					{
 						unsigned int curlyBracketBlockCount = 0;
 
-						while (bodyEndTokenIndex < (unsigned int)(_pCurrTokenGroup->size()))
+						while (_mCurrTokenIndex < (unsigned int)(_pCurrTokenGroup->size()))
 						{
-							if ((*_pCurrTokenGroup)[bodyEndTokenIndex].type == ActOfRose::Token::ETokenType::ETTCurlyBracketLeft)
+							if ((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTCurlyBracketLeft)
 							{
 								curlyBracketBlockCount++;
 							}
-							else if ((*_pCurrTokenGroup)[bodyEndTokenIndex].type == ActOfRose::Token::ETokenType::ETTCurlyBracketRight)
+							else if ((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTCurlyBracketRight)
 							{
 								if (curlyBracketBlockCount == 0)
 								{
@@ -1170,92 +1283,31 @@ int ActOfRose::CExecutor::ProcessConditions(ActOfRose::Value::SValueReference* r
 								curlyBracketBlockCount--;
 							}
 
-							bodyEndTokenIndex++;
+							_mCurrTokenIndex++;
 						}
 					}
-
-
-					// ----- Checking the result value -----
-
-					if (exprResultValue->IsZero() == false)
-					{
-						// ----- Extracting a body -----
-
-						std::vector<ActOfRose::Token::SToken> bodyTokens;
-						std::copy(_pCurrTokenGroup->begin() + _mCurrTokenIndex, _pCurrTokenGroup->begin() + bodyEndTokenIndex, std::back_inserter(bodyTokens));
-
-
-						// ----- Execution -----
-
-						if (bodyTokens.size() != 0)
-						{
-							// Creates a local scope
-							ActOfRose::AORSystemAddScope(ActOfRose::EScopeVisibilityTypes::ESIT_InheritingScope);
-
-							ActOfRose::CExecutor executor;				// Local instance of executor
-							result = executor.Execute(returnValueHolder, &bodyTokens);
-
-							// Removes a local scope
-							ActOfRose::AORSystemRemoveScope();
-
-							isExecuted = true;
-						}
-					}
-
-					_mCurrTokenIndex = bodyEndTokenIndex;
-				}
-
-				if (condExprResult.category == ActOfRose::Value::EValueCategories::EVC_PRValue)
-				{
-					delete condExprResult.value.value;
-				}
-
-				delete exprRoot;
-
-				if (result != AOR_SUCCESS)
-				{
-					return result;
 				}
 			}
-			else
+			else if (keyword == ActOfRose::Keyword::EKeywords::EK_Else)
 			{
-				// ----- Skipping -----
-
-				{
-					unsigned int roundBracketBlockCount = 0;
-
-					while (_mCurrTokenIndex < (unsigned int)(_pCurrTokenGroup->size()))
-					{
-						if ((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTRoundBracketLeft)
-						{
-							roundBracketBlockCount++;
-						}
-						else if ((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTRoundBracketRight)
-						{
-							if (roundBracketBlockCount == 0)
-							{
-								break;
-							}
-
-							roundBracketBlockCount--;
-						}
-
-						_mCurrTokenIndex++;
-					}
-				}
-
 				_mCurrTokenIndex += 2;
+
+				// Another index holder for finding the position of a curly bracket that indicates the end of a body
+				unsigned int bodyEndTokenIndex = _mCurrTokenIndex;
+
+
+				// ----- Finding the end of a body -----
 
 				{
 					unsigned int curlyBracketBlockCount = 0;
 
-					while (_mCurrTokenIndex < (unsigned int)(_pCurrTokenGroup->size()))
+					while (bodyEndTokenIndex < (unsigned int)(_pCurrTokenGroup->size()))
 					{
-						if ((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTCurlyBracketLeft)
+						if ((*_pCurrTokenGroup)[bodyEndTokenIndex].type == ActOfRose::Token::ETokenType::ETTCurlyBracketLeft)
 						{
 							curlyBracketBlockCount++;
 						}
-						else if ((*_pCurrTokenGroup)[_mCurrTokenIndex].type == ActOfRose::Token::ETokenType::ETTCurlyBracketRight)
+						else if ((*_pCurrTokenGroup)[bodyEndTokenIndex].type == ActOfRose::Token::ETokenType::ETTCurlyBracketRight)
 						{
 							if (curlyBracketBlockCount == 0)
 							{
@@ -1265,74 +1317,46 @@ int ActOfRose::CExecutor::ProcessConditions(ActOfRose::Value::SValueReference* r
 							curlyBracketBlockCount--;
 						}
 
-						_mCurrTokenIndex++;
+						bodyEndTokenIndex++;
 					}
 				}
-			}
-		}
-		else if ((*_pCurrTokenGroup)[_mCurrTokenIndex].value == "else")
-		{
-			_mCurrTokenIndex += 2;
 
-			// Another index holder for finding the position of a curly bracket that indicates the end of a body
-			unsigned int bodyEndTokenIndex = _mCurrTokenIndex;
-
-
-			// ----- Finding the end of a body -----
-
-			{
-				unsigned int curlyBracketBlockCount = 0;
-
-				while (bodyEndTokenIndex < (unsigned int)(_pCurrTokenGroup->size()))
+				if (isExecuted == false)
 				{
-					if ((*_pCurrTokenGroup)[bodyEndTokenIndex].type == ActOfRose::Token::ETokenType::ETTCurlyBracketLeft)
-					{
-						curlyBracketBlockCount++;
-					}
-					else if ((*_pCurrTokenGroup)[bodyEndTokenIndex].type == ActOfRose::Token::ETokenType::ETTCurlyBracketRight)
-					{
-						if (curlyBracketBlockCount == 0)
-						{
-							break;
-						}
+					// ----- Extracting a body -----
 
-						curlyBracketBlockCount--;
-					}
+					std::vector<ActOfRose::Token::SToken> bodyTokens;
+					std::copy(_pCurrTokenGroup->begin() + _mCurrTokenIndex, _pCurrTokenGroup->begin() + bodyEndTokenIndex, std::back_inserter(bodyTokens));
 
-					bodyEndTokenIndex++;
+
+					// ----- Execution -----
+
+					if (bodyTokens.size() != 0)
+					{
+						// Creates a function's local scope
+						ActOfRose::AORSystemAddScope(ActOfRose::EScopeVisibilityTypes::ESIT_InheritingScope);
+
+						ActOfRose::CExecutor executor;				// Local instance of executor
+						result = executor.Execute(returnValueHolder, &bodyTokens);
+
+						// Removes a function's local scope
+						ActOfRose::AORSystemRemoveScope();
+
+						isExecuted = true;
+					}
 				}
-			}
 
-			if (isExecuted == false)
-			{
-				// ----- Extracting a body -----
+				_mCurrTokenIndex = bodyEndTokenIndex;
 
-				std::vector<ActOfRose::Token::SToken> bodyTokens;
-				std::copy(_pCurrTokenGroup->begin() + _mCurrTokenIndex, _pCurrTokenGroup->begin() + bodyEndTokenIndex, std::back_inserter(bodyTokens));
-
-
-				// ----- Execution -----
-
-				if (bodyTokens.size() != 0)
+				if (result != AOR_SUCCESS)
 				{
-					// Creates a function's local scope
-					ActOfRose::AORSystemAddScope(ActOfRose::EScopeVisibilityTypes::ESIT_InheritingScope);
-
-					ActOfRose::CExecutor executor;				// Local instance of executor
-					result = executor.Execute(returnValueHolder, &bodyTokens);
-
-					// Removes a function's local scope
-					ActOfRose::AORSystemRemoveScope();
-
-					isExecuted = true;
+					return result;
 				}
 			}
-
-			_mCurrTokenIndex = bodyEndTokenIndex;
-
-			if (result != AOR_SUCCESS)
+			else
 			{
-				return result;
+				_mCurrTokenIndex--;
+				break;
 			}
 		}
 		else
