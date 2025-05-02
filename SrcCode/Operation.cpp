@@ -19,6 +19,8 @@
 #include "Value/Value.h"
 #include "Utility/StringMisc.h"
 
+#include "Value/CBooleanValue.h"
+
 
 /*[
 	Global variables
@@ -84,6 +86,24 @@ static int ExecuteBinaryOperation(ActOfRose::Value::SValueReference* retValueRef
 
 			retValueRefHolder->category = ActOfRose::Value::EValueCategories::EVC_LValue;
 			retValueRefHolder->value.valueHolder = leftOperandRef->value.valueHolder;
+
+			break;
+		}
+
+		case ActOfRose::Operation::EOperationTypes::EO_LogicalAND:
+		{
+			if ((leftOperandRef->category == ActOfRose::Value::EValueCategories::EVC_None) ||
+				(rightOperandRef->category == ActOfRose::Value::EValueCategories::EVC_None))
+			{
+				retValueRefHolder->value.value = new ActOfRose::Value::CBooleanValue(false);
+			}
+			else
+			{
+				retValueRefHolder->value.value = new ActOfRose::Value::CBooleanValue(
+					(leftOperandRef->GetValue()->IsZero() == false) && (rightOperandRef->GetValue()->IsZero() == false));
+			}
+
+			retValueRefHolder->category = ActOfRose::Value::EValueCategories::EVC_PRValue;
 
 			break;
 		}
