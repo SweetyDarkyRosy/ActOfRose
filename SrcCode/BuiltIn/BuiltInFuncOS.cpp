@@ -14,6 +14,8 @@
 #if defined (WIN32) || defined (_WIN32)
 	#define WIN32_LEAN_AND_MEAN
 	#include <Windows.h>
+
+	#undef DeleteFile
 #elif defined (__linux__)
 	#include <sys/ptrace.h>
 	#include <sys/wait.h>
@@ -921,6 +923,93 @@ int ActOfRose::BuiltIn::RemoveDir(ActOfRose::Value::SValueReference* returnValue
 	{
 		delete (*params)[argIt];
 	}
+
+
+	return result;
+}
+
+// Deletes an existing regular file at a specified path
+int ActOfRose::BuiltIn::DeleteFile(ActOfRose::Value::SValueReference* returnValueHolder, std::vector<ActOfRose::Value::CValue*>* params)
+{
+	// ----- Checking parameters/arguments -----
+
+	if (params->size() != 1)
+	{
+		if (params->size() > 1)
+		{
+			ActOfRose::WriteLog(PREF_STRING("Too many arguments have been passed"),
+				(sizeof(PREF_STRING("Too many arguments have been passed")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+			return AOR_ERROR_EXEC_INVALID_ARGUMENT_NUMBER;
+		}
+		else
+		{
+			ActOfRose::WriteLog(PREF_STRING("Too few arguments have been passed"),
+				(sizeof(PREF_STRING("Too few arguments have been passed")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+			return AOR_ERROR_EXEC_INVALID_ARGUMENT_NUMBER;
+		}
+	}
+
+	if (((*params)[0] == nullptr) || ((*params)[0]->GetValueType() != ActOfRose::Value::EValueType::EVT_String))
+	{
+		ActOfRose::WriteLog(PREF_STRING("Invalid parameter. String with path should be passed as first argument"),
+			(sizeof(PREF_STRING("Invalid parameter. String with path should be passed as first argument")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+		return AOR_ERROR_EXEC_INVALID_ARGUMENT_NUMBER;
+	}
+
+
+	int result = AOR_SUCCESS;
+
+	ActOfRose::Value::CStringValue* pathStr = (ActOfRose::Value::CStringValue*)((*params)[0]);
+
+#if defined (WIN32) || defined (_WIN32)
+	std::wstring utf16BEPath;
+	if (ConvertStringUTF8ToUTF16BE(&utf16BEPath, pathStr->GetSTDString()) != AOR_SUCCESS)
+	{
+		ActOfRose::WriteLog(PREF_STRING("Internal error. Could not convert a UTF-8-encoded string to UTF-16BE-encoded string"),
+			(sizeof(PREF_STRING("Internal error. Could not convert a UTF-8-encoded string to UTF-16BE-encoded string")) / sizeof(PChar)),
+			ActOfRose::ELogLevel::ELL_Error);
+
+		return AOR_ERROR_INTERNAL_ERROR;
+	}
+
+	if (std::filesystem::is_regular_file(std::filesystem::path(utf16BEPath)) == false)
+	{
+		std::wstring warningMsg = utf16BEPath;
+		warningMsg += L" is not a regular file";
+
+		ActOfRose::WriteLog(warningMsg.c_str(), warningMsg.length(), ActOfRose::ELogLevel::ELL_Warning);
+
+		returnValueHolder->value.value = new ActOfRose::Value::CBooleanValue(false);
+	}
+	else
+	{
+		returnValueHolder->value.value = new ActOfRose::Value::CBooleanValue(std::filesystem::remove(std::filesystem::path(utf16BEPath)));
+	}
+#elif defined (__linux__)
+	if (std::filesystem::is_regular_file(std::filesystem::path(*(pathStr->GetSTDString()))) == false)
+	{
+		std::string warningMsg = *(pathStr->GetSTDString());
+		warningMsg += " is not a regular file";
+
+		ActOfRose::WriteLog(warningMsg.c_str(), warningMsg.length(), ActOfRose::ELogLevel::ELL_Warning);
+
+		returnValueHolder->value.value = new ActOfRose::Value::CBooleanValue(false);
+	}
+	else
+	{
+		returnValueHolder->value.value = new ActOfRose::Value::CBooleanValue(std::filesystem::remove(std::filesystem::path(*(pathStr->GetSTDString()))));
+	}
+#endif
+
+	returnValueHolder->category = ActOfRose::Value::EValueCategories::EVC_PRValue;
+
+
+	// ----- Cleanup -----
+
+	delete (*params)[0];
 
 
 	return result;
