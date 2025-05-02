@@ -129,7 +129,7 @@ int ActOfRose::BuiltIn::Execute(ActOfRose::Value::SValueReference* returnValueHo
 					(sizeof(PREF_STRING("Internal error. Could not convert a UTF-8-encoded string to UTF-16BE-encoded string")) / sizeof(PChar)),
 					ActOfRose::ELogLevel::ELL_Error);
 
-				return AOR_ERROR_EXEC_INVALID_PARAMETER;
+				return AOR_ERROR_INTERNAL_ERROR;
 			}
 
 			utf16BECmdRaw = (wchar_t*)malloc(sizeof(wchar_t) * (utf16BECmd.size() + 1));
@@ -552,7 +552,8 @@ int ActOfRose::BuiltIn::SetCurrentDirPath(ActOfRose::Value::SValueReference* ret
 					ActOfRose::WriteLog(PREF_STRING("Internal error. Could not convert a UTF-8-encoded string to UTF-16BE-encoded string"),
 						(sizeof(PREF_STRING("Internal error. Could not convert a UTF-8-encoded string to UTF-16BE-encoded string")) / sizeof(PChar)),
 						ActOfRose::ELogLevel::ELL_Error);
-					return AOR_ERROR_EXEC_INVALID_PARAMETER;
+
+					return AOR_ERROR_INTERNAL_ERROR;
 				}
 
 				current_path(std::filesystem::path(utf16BEPath));
@@ -639,7 +640,8 @@ int ActOfRose::BuiltIn::CheckPath(ActOfRose::Value::SValueReference* returnValue
 				ActOfRose::WriteLog(PREF_STRING("Internal error. Could not convert a UTF-8-encoded string to UTF-16BE-encoded string"),
 					(sizeof(PREF_STRING("Internal error. Could not convert a UTF-8-encoded string to UTF-16BE-encoded string")) / sizeof(PChar)),
 					ActOfRose::ELogLevel::ELL_Error);
-				return AOR_ERROR_EXEC_INVALID_PARAMETER;
+
+				return AOR_ERROR_INTERNAL_ERROR;
 			}
 
 			returnValueHolder->value.value = new ActOfRose::Value::CBooleanValue(std::filesystem::exists(std::filesystem::path(utf16BEPath)));
@@ -710,7 +712,8 @@ int ActOfRose::BuiltIn::CreateDir(ActOfRose::Value::SValueReference* returnValue
 				ActOfRose::WriteLog(PREF_STRING("Internal error. Could not convert a UTF-8-encoded string to UTF-16BE-encoded string"),
 					(sizeof(PREF_STRING("Internal error. Could not convert a UTF-8-encoded string to UTF-16BE-encoded string")) / sizeof(PChar)),
 					ActOfRose::ELogLevel::ELL_Error);
-				return AOR_ERROR_EXEC_INVALID_PARAMETER;
+
+				return AOR_ERROR_INTERNAL_ERROR;
 			}
 
 			returnValueHolder->value.value = new ActOfRose::Value::CBooleanValue(std::filesystem::create_directory(std::filesystem::path(utf16BEPath)));
@@ -781,7 +784,8 @@ int ActOfRose::BuiltIn::IsDir(ActOfRose::Value::SValueReference* returnValueHold
 				ActOfRose::WriteLog(PREF_STRING("Internal error. Could not convert a UTF-8-encoded string to UTF-16BE-encoded string"),
 					(sizeof(PREF_STRING("Internal error. Could not convert a UTF-8-encoded string to UTF-16BE-encoded string")) / sizeof(PChar)),
 					ActOfRose::ELogLevel::ELL_Error);
-				return AOR_ERROR_EXEC_INVALID_PARAMETER;
+
+				return AOR_ERROR_INTERNAL_ERROR;
 			}
 
 			returnValueHolder->value.value = new ActOfRose::Value::CBooleanValue(std::filesystem::is_directory(std::filesystem::path(utf16BEPath)));
@@ -804,6 +808,119 @@ int ActOfRose::BuiltIn::IsDir(ActOfRose::Value::SValueReference* returnValueHold
 	// ----- Cleanup -----
 
 	delete (*params)[0];
+
+
+	return result;
+}
+
+// Deletes an existing directory at a specified path
+int ActOfRose::BuiltIn::RemoveDir(ActOfRose::Value::SValueReference* returnValueHolder, std::vector<ActOfRose::Value::CValue*>* params)
+{
+	// ----- Checking parameters/arguments -----
+
+	if (params->size() != 2)
+	{
+		if (params->size() > 2)
+		{
+			ActOfRose::WriteLog(PREF_STRING("Too many arguments have been passed"),
+				(sizeof(PREF_STRING("Too many arguments have been passed")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+			return AOR_ERROR_EXEC_INVALID_ARGUMENT_NUMBER;
+		}
+		else
+		{
+			ActOfRose::WriteLog(PREF_STRING("Too few arguments have been passed"),
+				(sizeof(PREF_STRING("Too few arguments have been passed")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+			return AOR_ERROR_EXEC_INVALID_ARGUMENT_NUMBER;
+		}
+	}
+
+	if (((*params)[0] == nullptr) || ((*params)[0]->GetValueType() != ActOfRose::Value::EValueType::EVT_String))
+	{
+		ActOfRose::WriteLog(PREF_STRING("Invalid parameter. String with path should be passed as first argument"),
+			(sizeof(PREF_STRING("Invalid parameter. String with path should be passed as first argument")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+		return AOR_ERROR_EXEC_INVALID_ARGUMENT_NUMBER;
+	}
+
+	if (((*params)[1] == nullptr) || ((*params)[1]->GetValueType() != ActOfRose::Value::EValueType::EVT_Boolean))
+	{
+		ActOfRose::WriteLog(PREF_STRING("Invalid parameter. Boolean should be passed as second argument"),
+			(sizeof(PREF_STRING("Invalid parameter. Boolean should be passed as second argument")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+		return AOR_ERROR_EXEC_INVALID_ARGUMENT_NUMBER;
+	}
+
+
+	int result = AOR_SUCCESS;
+
+	ActOfRose::Value::CStringValue* pathStr = (ActOfRose::Value::CStringValue*)((*params)[0]);
+	ActOfRose::Value::CBooleanValue* isRecursive = (ActOfRose::Value::CBooleanValue*)((*params)[1]);
+
+#if defined (WIN32) || defined (_WIN32)
+	std::wstring utf16BEPath;
+	if (ConvertStringUTF8ToUTF16BE(&utf16BEPath, pathStr->GetSTDString()) != AOR_SUCCESS)
+	{
+		ActOfRose::WriteLog(PREF_STRING("Internal error. Could not convert a UTF-8-encoded string to UTF-16BE-encoded string"),
+			(sizeof(PREF_STRING("Internal error. Could not convert a UTF-8-encoded string to UTF-16BE-encoded string")) / sizeof(PChar)),
+			ActOfRose::ELogLevel::ELL_Error);
+
+		return AOR_ERROR_INTERNAL_ERROR;
+	}
+
+	if (std::filesystem::is_directory(std::filesystem::path(utf16BEPath)) == false)
+	{
+		std::wstring warningMsg = utf16BEPath;
+		warningMsg += L" is not a directory";
+
+		ActOfRose::WriteLog(warningMsg.c_str(), warningMsg.length(), ActOfRose::ELogLevel::ELL_Warning);
+
+		returnValueHolder->value.value = new ActOfRose::Value::CBooleanValue(false);
+	}
+	else
+	{
+		if (isRecursive->GetRawValue() == true)
+		{
+			returnValueHolder->value.value = new ActOfRose::Value::CBooleanValue(std::filesystem::remove_all(std::filesystem::path(utf16BEPath)));
+		}
+		else
+		{
+			returnValueHolder->value.value = new ActOfRose::Value::CBooleanValue(std::filesystem::remove(std::filesystem::path(utf16BEPath)));
+		}
+	}
+#elif defined (__linux__)
+	if (std::filesystem::is_directory(std::filesystem::path(*(pathStr->GetSTDString()))) == false)
+	{
+		std::string warningMsg = *(pathStr->GetSTDString());
+		warningMsg += " is not a directory";
+
+		ActOfRose::WriteLog(warningMsg.c_str(), warningMsg.length(), ActOfRose::ELogLevel::ELL_Warning);
+
+		returnValueHolder->value.value = new ActOfRose::Value::CBooleanValue(false);
+	}
+	else
+	{
+		if (isRecursive->GetRawValue() == true)
+		{
+			returnValueHolder->value.value = new ActOfRose::Value::CBooleanValue(std::filesystem::remove_all(std::filesystem::path(*(pathStr->GetSTDString()))));
+		}
+		else
+		{
+			returnValueHolder->value.value = new ActOfRose::Value::CBooleanValue(std::filesystem::remove(std::filesystem::path(*(pathStr->GetSTDString()))));
+		}
+	}
+#endif
+
+	returnValueHolder->category = ActOfRose::Value::EValueCategories::EVC_PRValue;
+
+
+	// ----- Cleanup -----
+
+	for (unsigned int argIt = 0; argIt < (unsigned int)(params->size()); argIt++)
+	{
+		delete (*params)[argIt];
+	}
 
 
 	return result;

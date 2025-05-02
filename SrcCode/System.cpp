@@ -53,6 +53,8 @@ ActOfRose::CPredefinedFunction								gBuiltInFuncCheckPath(ActOfRose::BuiltIn::
 ActOfRose::CPredefinedFunction								gBuiltInFuncCreateDir(ActOfRose::BuiltIn::CreateDir);
 // Wrapper of built-in 'ActOfRose::BuiltIn::IsDir' function
 ActOfRose::CPredefinedFunction								gBuiltInFuncIsDir(ActOfRose::BuiltIn::IsDir);
+// Wrapper of built-in 'ActOfRose::BuiltIn::RemoveDir' function
+ActOfRose::CPredefinedFunction								gBuiltInFuncRemoveDir(ActOfRose::BuiltIn::RemoveDir);
 
 ActOfRose::CPreProcessor									gPreprocessor;											// Global instance of preprocessor
 
@@ -72,4 +74,5 @@ std::map<const std::string, ActOfRose::SElement>			gGlobalIdentifierMap = {
 	{ "CheckPath", { ActOfRose::EElementType::EET_Function, &gBuiltInFuncCheckPath } },
 	{ "CreateDir", { ActOfRose::EElementType::EET_Function, &gBuiltInFuncCreateDir } },
 	{ "IsDir", { ActOfRose::EElementType::EET_Function, &gBuiltInFuncIsDir } },
+	{ "RemoveDir", { ActOfRose::EElementType::EET_Function, &gBuiltInFuncRemoveDir } },
 };

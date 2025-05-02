@@ -55,6 +55,9 @@ namespace ActOfRose
 		// Checks if a specified path corresponds to a directory
 		int IsDir(ActOfRose::Value::SValueReference* returnValueHolder, std::vector<ActOfRose::Value::CValue*>* params);
 
+		// Deletes an existing directory at a specified path
+		int RemoveDir(ActOfRose::Value::SValueReference* returnValueHolder, std::vector<ActOfRose::Value::CValue*>* params);
+
 	} // !namespace BuiltIn
 } // !namespace ActOfRose
 
