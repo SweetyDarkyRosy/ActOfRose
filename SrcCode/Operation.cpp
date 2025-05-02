@@ -108,6 +108,24 @@ static int ExecuteBinaryOperation(ActOfRose::Value::SValueReference* retValueRef
 			break;
 		}
 
+		case ActOfRose::Operation::EOperationTypes::EO_LogicalOR:
+		{
+			if ((leftOperandRef->category == ActOfRose::Value::EValueCategories::EVC_None) &&
+				(rightOperandRef->category == ActOfRose::Value::EValueCategories::EVC_None))
+			{
+				retValueRefHolder->value.value = new ActOfRose::Value::CBooleanValue(false);
+			}
+			else
+			{
+				retValueRefHolder->value.value = new ActOfRose::Value::CBooleanValue(
+					(leftOperandRef->GetValue()->IsZero() == false) || (rightOperandRef->GetValue()->IsZero() == false));
+			}
+
+			retValueRefHolder->category = ActOfRose::Value::EValueCategories::EVC_PRValue;
+
+			break;
+		}
+
 		default:
 		{
 			ActOfRose::Value::CValue* leftValue;
