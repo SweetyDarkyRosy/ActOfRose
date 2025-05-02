@@ -41,6 +41,7 @@ namespace ActOfRose
 			EO_CampareLessThanOrEqualTo,		// Comparison operation (less than or equal to)
 			EO_CampareGreaterThanOrEqualTo,		// Comparison operation (greater than or equal to)
 			EO_LogicalAND,						// Logical AND operation
+			EO_LogicalOR,						// Logical OR operation
 		};
 
 
