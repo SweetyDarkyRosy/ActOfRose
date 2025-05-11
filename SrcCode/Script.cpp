@@ -26,6 +26,8 @@
 #include "SystemAPI.h"
 #include "Utility/StringConverting.h"
 
+#include "Value/Value.h"
+
 
 // ----- ActOfRose::Script::CScript class -----
 
@@ -80,7 +82,7 @@ ActOfRose::Script::CScript::~CScript()
 
 
 // Processes and executes a script contained in the file
-int ActOfRose::Script::CScript::Execute()
+int ActOfRose::Script::CScript::Execute(ActOfRose::Value::SValueReference* returnValueHolder)
 {
 	{
 	#if defined (WIN32) || defined (_WIN32)
@@ -115,7 +117,7 @@ int ActOfRose::Script::CScript::Execute()
 			// Executes a retrieved sequence of tokens
 			ActOfRose::CExecutor localExecutor;					// Global instance of executor
 
-			result = localExecutor.Execute(nullptr, lexer.GetTokensRetrievedArr());
+			result = localExecutor.Execute(returnValueHolder, lexer.GetTokensRetrievedArr());
 			if (result != AOR_SUCCESS)
 			{
 				break;

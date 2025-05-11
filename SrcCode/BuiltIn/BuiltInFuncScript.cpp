@@ -80,7 +80,7 @@ int ActOfRose::BuiltIn::Act(ActOfRose::Value::SValueReference* returnValueHolder
 			{
 				// ----- Execution -----
 
-				result = rootScript.Execute();
+				result = rootScript.Execute(returnValueHolder);
 			}
 		}
 	}

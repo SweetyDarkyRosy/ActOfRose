@@ -14,6 +14,9 @@
 #include "Global.h"
 #include "Utility/StringMisc.h"
 
+#include "Value/CIntegerValue.h"
+#include "Value/CFloatValue.h"
+
 
 // High-level entry point
 int main(int argc, char* argv[])
@@ -95,5 +98,37 @@ int main(int argc, char* argv[])
 
 	// ----- Execution -----
 
-	return rootScript.Execute();
+	ActOfRose::Value::SValueReference returnValueHolder;
+
+	int execResultValue = rootScript.Execute(&returnValueHolder);
+	if (execResultValue == AOR_LEAVE_EXECUTION)
+	{
+		if (returnValueHolder.category == ActOfRose::Value::EValueCategories::EVC_None)
+		{
+			return 0;
+		}
+		
+		ActOfRose::Value::CValue* returnValue = returnValueHolder.GetValue();
+		if (returnValue->GetValueType() == ActOfRose::Value::EValueType::EVT_Integer)
+		{
+			ActOfRose::Value::CIntegerValue* intValue = (ActOfRose::Value::CIntegerValue*)returnValue;
+			execResultValue = intValue->GetRawValue();
+		}
+		else if (returnValue->GetValueType() == ActOfRose::Value::EValueType::EVT_FloatingPoint)
+		{
+			ActOfRose::Value::CFloatValue* floatValue = (ActOfRose::Value::CFloatValue*)returnValue;
+			execResultValue = (int)(floatValue->GetRawValue());
+		}
+		else
+		{
+			execResultValue = 0;
+		}
+
+		if (returnValueHolder.category == ActOfRose::Value::EValueCategories::EVC_PRValue)
+		{
+			delete returnValue;
+		}
+	}
+
+	return execResultValue;
 }

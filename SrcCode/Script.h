@@ -21,6 +21,11 @@
 
 namespace ActOfRose
 {
+	namespace Value
+	{
+		struct SValueReference;				// Structure of value reference
+	}
+
 	namespace Script
 	{
 		// Class of script contained in a file
@@ -38,7 +43,7 @@ namespace ActOfRose
 			~CScript();
 		public:
 			// Processes and executes a script contained in the file
-			int Execute();
+			int Execute(ActOfRose::Value::SValueReference* returnValueHolder);
 
 			// Returns the state of readiness of the file containing a script
 			inline bool IsLoaded() const { return _mScriptFile.is_open(); }
