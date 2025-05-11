@@ -13,11 +13,13 @@
 
 #include <ReturnCodes.h>
 #include <Global.h>
+#include <SystemAPI.h>
 #include <Log.h>
 #include <Script.h>
 #include <Utility/StringMisc.h>
 #include <Utility/StringConverting.h>
 
+#include <Value/CBooleanValue.h>
 #include <Value/CStringValue.h>
 
 
@@ -90,6 +92,64 @@ int ActOfRose::BuiltIn::Act(ActOfRose::Value::SValueReference* returnValueHolder
 			(sizeof(PREF_STRING("Invalid parameter. String with path should be passed")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
 
 		result = AOR_ERROR_EXEC_INVALID_PARAMETER;
+	}
+
+
+	// ----- Cleanup -----
+
+	delete (*params)[0];
+
+
+	return result;
+}
+
+// Checks if an element with a specified name has been defined
+int ActOfRose::BuiltIn::IsDefined(ActOfRose::Value::SValueReference* returnValueHolder, std::vector<ActOfRose::Value::CValue*>* params)
+{
+	if (params->size() != 1)
+	{
+		if (params->size() > 1)
+		{
+			ActOfRose::WriteLog(PREF_STRING("Too many arguments have been passed"),
+				(sizeof(PREF_STRING("Too many arguments have been passed")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+			return AOR_ERROR_EXEC_INVALID_ARGUMENT_NUMBER;
+		}
+		else
+		{
+			ActOfRose::WriteLog(PREF_STRING("Too few arguments have been passed"),
+				(sizeof(PREF_STRING("Too few arguments have been passed")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+			return AOR_ERROR_EXEC_INVALID_ARGUMENT_NUMBER;
+		}
+	}
+
+	returnValueHolder->category = ActOfRose::Value::EValueCategories::EVC_None;
+
+	int result = AOR_SUCCESS;
+
+	if (((*params)[0] == nullptr) || ((*params)[0]->GetValueType() != ActOfRose::Value::EValueType::EVT_String))
+	{
+		ActOfRose::WriteLog(PREF_STRING("Invalid parameter. String with path should be passed"),
+			(sizeof(PREF_STRING("Invalid parameter. String with path should be passed")) / sizeof(PChar)), ActOfRose::ELogLevel::ELL_Error);
+
+		result = AOR_ERROR_EXEC_INVALID_PARAMETER;
+	}
+	else
+	{
+		ActOfRose::Value::CStringValue* elName = (ActOfRose::Value::CStringValue*)((*params)[0]);
+
+		if ((AORSystemIsIdentifierUsedGlobally(elName->GetRawString()) == true) ||
+			(AORSystemIsIdentifierUsedLocally(elName->GetRawString()) == true))
+		{
+			returnValueHolder->value.value = new ActOfRose::Value::CBooleanValue(true);
+		}
+		else
+		{
+			returnValueHolder->value.value = new ActOfRose::Value::CBooleanValue(false);
+		}
+
+		returnValueHolder->category = ActOfRose::Value::EValueCategories::EVC_PRValue;
 	}
 
 

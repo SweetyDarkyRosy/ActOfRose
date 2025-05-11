@@ -28,6 +28,9 @@ namespace ActOfRose
 		// Executes a script of ActOfRose-specific format located at a specified path
 		int Act(ActOfRose::Value::SValueReference* returnValueHolder, std::vector<ActOfRose::Value::CValue*>* params);
 
+		// Checks if an element with a specified name has been defined
+		int IsDefined(ActOfRose::Value::SValueReference* returnValueHolder, std::vector<ActOfRose::Value::CValue*>* params);
+
 		// Returns the path of current script
 		int GetCurrentScriptPath(ActOfRose::Value::SValueReference* returnValueHolder, std::vector<ActOfRose::Value::CValue*>* params);
 
