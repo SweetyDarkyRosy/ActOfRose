@@ -111,11 +111,7 @@ int ActOfRose::CExecutor::Execute(ActOfRose::Value::SValueReference* returnValue
 
 					case ActOfRose::Keyword::EKeywords::EK_Return:
 					{
-						if (returnValueHolder == nullptr)
-						{
-							returnValueHolder->category = ActOfRose::Value::EValueCategories::EVC_None;
-						}
-						else
+						if (returnValueHolder != nullptr)
 						{
 							_mCurrTokenIndex++;
 
